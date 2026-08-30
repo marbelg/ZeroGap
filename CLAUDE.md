@@ -17,9 +17,7 @@ simple que cumpla el requisito sobre la solución compleja.
   `descripcion del sistema.docx` se mantiene sincronizado con ese `.md` — se
   regenera con `npm run docs:docx` (`scripts/md-to-docx.js`), nunca se edita a
   mano.
-- Después de cualquier cambio de código que afecte funcionalidad, datos o
-  comportamiento (nuevo módulo, endpoint, tabla, política RLS, flujo de UI, fase
-  completada), invocar el subagente `system-doc-sync` para mantener
-  `docs/descripcion-del-sistema.md`, el `.docx` regenerado, y la documentación
-  Markdown de cada módulo sincronizados con el código real. No es necesario para
-  cambios cosméticos.
+- **No actualizar la documentación automáticamente.** El subagente
+  `system-doc-sync` solo se invoca cuando el usuario lo pide explícitamente
+  ("actualiza la documentación", "sincroniza la descripción del sistema") —
+  decisión suya, para no gastar tokens documentando después de cada cambio.

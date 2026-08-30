@@ -1,13 +1,10 @@
 ---
 name: system-doc-sync
 description: >
-  Usar este agente PROACTIVAMENTE justo después de cualquier cambio de código en
-  ZeroGap que afecte funcionalidad, datos o comportamiento del sistema: nuevos
-  módulos, endpoints, tablas/columnas de Supabase, políticas RLS, flujos de UI,
-  reglas de negocio, fases completadas, o cambios de stack. También úsalo cuando el
-  usuario pida explícitamente "actualiza la documentación" o "sincroniza la
-  descripción del sistema". No es necesario para cambios puramente cosméticos
-  (formateo, renombrado de variables) que no alteran comportamiento observable.
+  NO usar proactivamente. Usar este agente SOLO cuando el usuario pida
+  explícitamente "actualiza la documentación", "sincroniza la descripción
+  del sistema" o algo equivalente — el usuario decide cuándo, para no gastar
+  tokens actualizando docs después de cada cambio de código.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: inherit
 ---

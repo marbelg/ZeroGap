@@ -445,7 +445,9 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 - Creación masiva ("Crear varios"): el admin solo elige cuántas cuentas de
   empleado crear (sin nombres todavía) y el sistema las crea de una vez con
   nombre de marcador ("Empleado 1", "Empleado 2"...), un **ID único**
-  autogenerado (código corto secuencial, ej. `007`), correo autogenerado
+  autogenerado (letra de rol + 3 dígitos secuenciales — `A001`, `A002`... para
+  administradores, `E001`, `E002`... para empleados, cada rol con su propio
+  contador), correo autogenerado
   (`nombre.apellido@zerogap.app` o similar) y contraseña temporal — un PIN
   numérico de 6 dígitos en vez de una contraseña alfanumérica, para que sea
   fácil de leer y escribir por empleados con poca familiaridad con

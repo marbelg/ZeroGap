@@ -58,16 +58,23 @@ async function generateUniqueEmail(
   }
 }
 
-async function generateUniqueEmployeeCode(admin: ReturnType<typeof createAdminClient>) {
-  // Código corto y secuencial (001, 002, ...) — pensado para escribirlo en
-  // un carnet/papel físico y repartirlo, no para ser secreto.
+async function generateUniqueEmployeeCode(
+  admin: ReturnType<typeof createAdminClient>,
+  role: UserRole,
+) {
+  // Código corto y secuencial: A### para administradores, E### para
+  // empleados — pensado para escribirlo en un carnet/papel físico y
+  // repartirlo, no para ser secreto. Cada rol lleva su propio contador.
+  const prefix = role === "ADMIN" ? "A" : "E";
+
   const { count } = await admin
     .from("profiles")
-    .select("id", { count: "exact", head: true });
+    .select("id", { count: "exact", head: true })
+    .eq("role", role);
 
   let n = (count ?? 0) + 1;
   while (true) {
-    const code = String(n).padStart(3, "0");
+    const code = `${prefix}${String(n).padStart(3, "0")}`;
     const { data } = await admin
       .from("profiles")
       .select("id")
@@ -106,7 +113,7 @@ export async function createEmployee(
 
   const admin = createAdminClient();
   const tempPassword = generateTempPassword();
-  const employee_code = employeeCodeInput ?? (await generateUniqueEmployeeCode(admin));
+  const employee_code = employeeCodeInput ?? (await generateUniqueEmployeeCode(admin, role));
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
@@ -174,7 +181,7 @@ export async function createEmployeesBulk(
       continue;
     }
 
-    const employeeCode = await generateUniqueEmployeeCode(admin);
+    const employeeCode = await generateUniqueEmployeeCode(admin, "EMPLOYEE");
     const email = await generateUniqueEmail(admin, first_name, last_name);
     const tempPassword = generateTempPassword();
 

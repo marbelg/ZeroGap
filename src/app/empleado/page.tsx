@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { currentWeekDays } from "@/lib/week";
 import { WeekTracker } from "@/components/employee/week-tracker";
 import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
+import { formatCurrency } from "@/lib/utils";
 
 // Íconos pensados para reconocerse a simple vista, sin leer el texto
 // (taza de café, tenedor+cuchillo, luna, carro) — pensado para empleados
@@ -99,12 +100,16 @@ export default async function EmployeeHomePage() {
   const lastWeekReference = new Date();
   lastWeekReference.setDate(lastWeekReference.getDate() - 7);
   const lastWeekDays = currentWeekDays(lastWeekReference);
-  const { count: lastWeekCount } = await supabase
+  const { data: lastWeekExpenses } = await supabase
     .from("expenses")
-    .select("id", { count: "exact", head: true })
+    .select("amount, status")
     .eq("user_id", user!.id)
     .gte("date", lastWeekDays[0].date)
     .lte("date", lastWeekDays[6].date);
+  const lastWeekCount = lastWeekExpenses?.length ?? 0;
+  const lastWeekApproved = (lastWeekExpenses ?? []).filter((e) => e.status === "APROBADO");
+  const lastWeekApprovedTotal = lastWeekApproved.reduce((sum, e) => sum + Number(e.amount), 0);
+  const lastWeekPending = lastWeekCount - lastWeekApproved.length;
   const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
 
   return (
@@ -118,13 +123,26 @@ export default async function EmployeeHomePage() {
         </p>
       </div>
 
-      {(lastWeekCount ?? 0) > 0 && (
+      {lastWeekCount > 0 && (
         <div className="rounded-[var(--radius-md)] bg-brand-soft px-4 py-3 text-sm text-brand">
-          Tus gastos de la semana pasada se pagan el{" "}
-          <span className="font-semibold">
-            {dayOfWeekLabel(settings.payment_day_of_week)} {paymentDate.getDate()}
-          </span>
-          .
+          <p>
+            Se te pagan{" "}
+            <span className="font-semibold">
+              {formatCurrency(lastWeekApprovedTotal, "CRC")}
+            </span>{" "}
+            de la semana pasada el{" "}
+            <span className="font-semibold">
+              {dayOfWeekLabel(settings.payment_day_of_week)} {paymentDate.getDate()}
+            </span>
+            .
+          </p>
+          {lastWeekPending > 0 && (
+            <p className="mt-1 text-xs text-brand/80">
+              {lastWeekPending} reporte{lastWeekPending === 1 ? "" : "s"} de esa semana
+              todavía no {lastWeekPending === 1 ? "está aprobado" : "están aprobados"} — el
+              monto puede cambiar.
+            </p>
+          )}
         </div>
       )}
 

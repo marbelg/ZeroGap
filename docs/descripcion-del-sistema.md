@@ -499,9 +499,18 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   (abre la cámara, `capture="environment"`) y "Elegir de galería" — en vez de
   un solo input, porque en varios navegadores móviles un input con `capture`
   abre la cámara directo y oculta la opción de galería.
+- Las fotos se comprimen en el navegador antes de subirse (`compressImage`:
+  redimensiona a máx. 1600px de lado mayor y reexporta como JPEG calidad
+  ~0.82 vía Canvas) — una foto de cámara de celular puede pesar varios MB;
+  comprimida ocupa una fracción del espacio en Storage y sube más rápido. Si
+  la compresión falla, se sube el archivo original sin bloquear el envío.
 - Las fotos se suben a Supabase Storage (bucket privado `receipts`, ruta
   `{user_id}/{expense_id}/{archivo}`) usando la sesión del propio empleado
   (RLS, no el cliente admin) — coherente con "cada quien sube lo suyo".
+- `next.config.ts` sube el límite de tamaño de envío de Server Actions a
+  25 MB (`experimental.serverActions.bodySizeLimit`) — el límite por defecto
+  de Next (1 MB) es insuficiente para una foto de cámara sin comprimir, y
+  kilometraje manda 2 fotos en el mismo envío.
 - `/empleado/mis-gastos`: historial de gastos propios con estado
   (Reportado/Aprobado/Rechazado), motivo de rechazo cuando aplica, y enlace
   al comprobante (URL firmada de Storage, válida 1 hora).

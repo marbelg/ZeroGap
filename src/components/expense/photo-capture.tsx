@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { compressImage } from "@/lib/compress-image";
 
 interface PhotoCaptureProps {
   name: string;
@@ -17,21 +18,26 @@ interface PhotoCaptureProps {
 export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [fileValid, setFileValid] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  function handleFile(file: File | undefined) {
+  async function handleFile(file: File | undefined) {
     if (!file) return;
+    setCompressing(true);
+    const compressed = await compressImage(file);
+    setCompressing(false);
+
     if (hiddenInputRef.current) {
       const dt = new DataTransfer();
-      dt.items.add(file);
+      dt.items.add(compressed);
       hiddenInputRef.current.files = dt.files;
     }
     setFileValid(true);
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(compressed);
   }
 
   function clearPhoto() {
@@ -49,7 +55,11 @@ export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
         {required && <span className="text-danger"> *</span>}
       </p>
 
-      {preview ? (
+      {compressing ? (
+        <div className="flex h-48 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface-muted text-xs font-medium text-foreground-muted">
+          Optimizando foto…
+        </div>
+      ) : preview ? (
         <div className="relative overflow-hidden rounded-[var(--radius-md)] border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt={label} className="h-48 w-full object-cover" />

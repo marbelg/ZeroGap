@@ -25,7 +25,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-dvh flex-col bg-background md:flex-row">
-      <aside className="border-b border-border bg-surface px-4 py-4 md:w-60 md:shrink-0 md:border-b-0 md:border-r md:px-3 md:py-6">
+      <aside className="border-b border-border bg-surface px-3 py-2.5 md:w-56 md:shrink-0 md:border-b-0 md:border-r md:px-3 md:py-6">
         <div className="mb-6 hidden items-center gap-2.5 px-2 md:flex">
           <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#6d5cf6] to-[#4a3cd6] text-sm font-bold text-white">
             ZG
@@ -36,7 +36,7 @@ export default async function AdminLayout({
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-surface px-6 py-4">
+        <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 sm:px-6 sm:py-4">
           <div>
             <p className="text-xs text-foreground-muted">Administración</p>
             <p className="text-sm font-semibold text-foreground">
@@ -53,7 +53,7 @@ export default async function AdminLayout({
           </form>
         </header>
 
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-3 sm:p-6">{children}</main>
       </div>
     </div>
   );

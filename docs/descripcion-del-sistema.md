@@ -444,13 +444,21 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   automáticamente y mostrada una sola vez al admin (sección 8 completa).
 - Creación masiva ("Crear varios"): el admin solo elige cuántas cuentas de
   empleado crear (sin nombres todavía) y el sistema las crea de una vez con
-  nombre de marcador ("Empleado 1", "Empleado 2"...), correo autogenerado
-  (`empleado1@zerogap.app`) y contraseña temporal — un PIN numérico de 6
-  dígitos en vez de una contraseña alfanumérica, para que sea fácil de leer y
-  escribir por empleados con poca familiaridad con contraseñas. Muestra una
-  tabla con usuario+contraseña de cada una para repartirlas. Más adelante,
-  cuando el admin sabe a qué persona le va a asignar cada cuenta, le pone el
-  nombre real desde "Editar" en la tabla — no hay que volver a crearla.
+  nombre de marcador ("Empleado 1", "Empleado 2"...), un **ID único**
+  autogenerado (código corto secuencial, ej. `007`), correo autogenerado
+  (`nombre.apellido@zerogap.app` o similar) y contraseña temporal — un PIN
+  numérico de 6 dígitos en vez de una contraseña alfanumérica, para que sea
+  fácil de leer y escribir por empleados con poca familiaridad con
+  contraseñas. Muestra una tabla con ID+usuario+contraseña de cada una para
+  repartirlas. Más adelante, cuando el admin sabe a qué persona le va a asignar
+  cada cuenta, la identifica por su ID y le pone el nombre real desde "Editar"
+  — no hay que volver a crearla. El ID también se puede escribir a mano al
+  crear un empleado individual (columna "ID" en la tabla, campo `employee_code`
+  en la base de datos).
+- La lista de Empleados usa un diseño compacto de filas (no tabla ancha con
+  scroll horizontal): "Editar" expande el formulario de edición directamente
+  debajo de la fila en vez de abrir un popup — pensado para uso cómodo en
+  celular.
 - Esquema de base de datos y políticas RLS iniciales (`supabase/migrations/0001_init.sql`),
   cubriendo `profiles`, `expenses`, `mileage`, `expense_photos` y el bucket de
   Storage `receipts` — ver `docs/database-schema.md`.

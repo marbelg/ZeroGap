@@ -58,9 +58,31 @@ async function generateUniqueEmail(
   }
 }
 
+async function generateUniqueEmployeeCode(admin: ReturnType<typeof createAdminClient>) {
+  // Código corto y secuencial (001, 002, ...) — pensado para escribirlo en
+  // un carnet/papel físico y repartirlo, no para ser secreto.
+  const { count } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true });
+
+  let n = (count ?? 0) + 1;
+  while (true) {
+    const code = String(n).padStart(3, "0");
+    const { data } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("employee_code", code)
+      .maybeSingle();
+    if (!data) return code;
+    n++;
+  }
+}
+
 export interface EmployeeFormState {
   error?: string;
   tempPassword?: string;
+  employeeCode?: string;
+  ok?: boolean;
 }
 
 export async function createEmployee(
@@ -74,7 +96,7 @@ export async function createEmployee(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const department = String(formData.get("department") ?? "").trim() || null;
   const position = String(formData.get("position") ?? "").trim() || null;
-  const employee_code = String(formData.get("employee_code") ?? "").trim() || null;
+  const employeeCodeInput = String(formData.get("employee_code") ?? "").trim() || null;
   const role = (formData.get("role") === "ADMIN" ? "ADMIN" : "EMPLOYEE") as UserRole;
 
   if (!first_name || !last_name || !email) {
@@ -83,6 +105,7 @@ export async function createEmployee(
 
   const admin = createAdminClient();
   const tempPassword = generateTempPassword();
+  const employee_code = employeeCodeInput ?? (await generateUniqueEmployeeCode(admin));
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
@@ -112,7 +135,7 @@ export async function createEmployee(
   }
 
   revalidatePath("/admin/empleados");
-  return { tempPassword };
+  return { tempPassword, employeeCode: employee_code };
 }
 
 export interface BulkEmployeeInput {
@@ -123,6 +146,7 @@ export interface BulkEmployeeInput {
 export interface BulkEmployeeResult {
   first_name: string;
   last_name: string;
+  employeeCode?: string;
   email?: string;
   tempPassword?: string;
   error?: string;
@@ -136,9 +160,9 @@ export async function createEmployeesBulk(
   const admin = createAdminClient();
   const results: BulkEmployeeResult[] = [];
 
-  // Secuencial (no en paralelo): generateUniqueEmail depende de lo que ya
-  // se insertó en la vuelta anterior para no repetir el mismo correo entre
-  // dos personas con nombre igual dentro del mismo lote.
+  // Secuencial (no en paralelo): generateUniqueEmail/generateUniqueEmployeeCode
+  // dependen de lo que ya se insertó en la vuelta anterior, para no repetir
+  // correo ni código entre dos cuentas del mismo lote.
   for (const person of people) {
     const first_name = person.first_name.trim();
     const last_name = person.last_name.trim();
@@ -148,6 +172,7 @@ export async function createEmployeesBulk(
       continue;
     }
 
+    const employeeCode = await generateUniqueEmployeeCode(admin);
     const email = await generateUniqueEmail(admin, first_name, last_name);
     const tempPassword = generateTempPassword();
 
@@ -173,6 +198,7 @@ export async function createEmployeesBulk(
       email,
       role: "EMPLOYEE",
       status: "ACTIVE",
+      employee_code: employeeCode,
     });
 
     if (profileError) {
@@ -181,7 +207,7 @@ export async function createEmployeesBulk(
       continue;
     }
 
-    results.push({ first_name, last_name, email, tempPassword });
+    results.push({ first_name, last_name, employeeCode, email, tempPassword });
   }
 
   revalidatePath("/admin/empleados");
@@ -214,7 +240,7 @@ export async function updateEmployee(
   if (error) return { error: error.message };
 
   revalidatePath("/admin/empleados");
-  return {};
+  return { ok: true };
 }
 
 export async function toggleEmployeeStatus(id: string, active: boolean) {

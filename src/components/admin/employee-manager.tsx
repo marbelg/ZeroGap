@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import type { Profile } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -22,10 +22,10 @@ const emptyState: EmployeeFormState = {};
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
-  const [editing, setEditing] = useState<Profile | null>(null);
   const [revealPassword, setRevealPassword] = useState<{
     name: string;
     password: string;
+    employeeCode?: string;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -59,121 +59,237 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
       setRevealPassword({
         name: `${employee.first_name} ${employee.last_name}`,
         password: result.tempPassword,
+        employeeCode: employee.employee_code ?? undefined,
       });
     }
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-end gap-2">
-        <Button size="md" variant="secondary" onClick={() => setBulkOpen(true)}>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setBulkOpen(true)}
+          className="w-full sm:w-auto"
+        >
           Crear varios
         </Button>
-        <Button size="md" onClick={() => setCreateOpen(true)}>
+        <Button size="sm" onClick={() => setCreateOpen(true)} className="w-full sm:w-auto">
           + Nuevo empleado
         </Button>
       </div>
 
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="border-b border-border bg-surface-muted text-xs uppercase tracking-wide text-foreground-muted">
-              <tr>
-                <th className="px-5 py-3 font-medium">Nombre</th>
-                <th className="px-5 py-3 font-medium">Correo</th>
-                <th className="px-5 py-3 font-medium">Rol</th>
-                <th className="px-5 py-3 font-medium">Departamento</th>
-                <th className="px-5 py-3 font-medium">Estado</th>
-                <th className="px-5 py-3 font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-5 py-10 text-center text-foreground-muted"
-                  >
-                    Aún no hay empleados registrados.
-                  </td>
-                </tr>
-              )}
-              {employees.map((employee) => (
-                <tr key={employee.id} className="border-b border-border last:border-0">
-                  <td className="px-5 py-3.5 font-medium text-foreground">
-                    {employee.first_name} {employee.last_name}
-                  </td>
-                  <td className="px-5 py-3.5 text-foreground-muted">{employee.email}</td>
-                  <td className="px-5 py-3.5 text-foreground-muted">
-                    {employee.role === "ADMIN" ? "Admin" : "Empleado"}
-                  </td>
-                  <td className="px-5 py-3.5 text-foreground-muted">
-                    {employee.department ?? "—"}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <UserStatusBadge status={employee.status} />
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        onClick={() => setEditing(employee)}
-                        className="rounded-full px-2.5 py-1 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        disabled={isPending}
-                        onClick={() => handleToggle(employee)}
-                        className="rounded-full px-2.5 py-1 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
-                      >
-                        {employee.status === "ACTIVE" ? "Desactivar" : "Activar"}
-                      </button>
-                      <button
-                        onClick={() => handleResetPassword(employee)}
-                        className="rounded-full px-2.5 py-1 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
-                      >
-                        Restablecer clave
-                      </button>
-                      <button
-                        disabled={isPending}
-                        onClick={() => handleDelete(employee)}
-                        className="rounded-full px-2.5 py-1 text-xs font-medium text-danger transition-colors hover:bg-danger-soft"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {employees.length === 0 ? (
+          <p className="px-4 py-10 text-center text-sm text-foreground-muted">
+            Aún no hay empleados registrados.
+          </p>
+        ) : (
+          <div className="divide-y divide-border">
+            {employees.map((employee) => (
+              <EmployeeRow
+                key={employee.id}
+                employee={employee}
+                isPending={isPending}
+                onToggle={() => handleToggle(employee)}
+                onResetPassword={() => handleResetPassword(employee)}
+                onDelete={() => handleDelete(employee)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {createOpen && (
         <CreateEmployeeDialog
           onClose={() => setCreateOpen(false)}
-          onCreated={(name, password) => {
+          onCreated={(name, password, employeeCode) => {
             setCreateOpen(false);
-            setRevealPassword({ name, password });
+            setRevealPassword({ name, password, employeeCode });
           }}
         />
       )}
 
       {bulkOpen && <BulkCreateDialog onClose={() => setBulkOpen(false)} />}
 
-      {editing && (
-        <EditEmployeeDialog employee={editing} onClose={() => setEditing(null)} />
-      )}
-
       {revealPassword && (
         <PasswordRevealDialog
           name={revealPassword.name}
           password={revealPassword.password}
+          employeeCode={revealPassword.employeeCode}
           onClose={() => setRevealPassword(null)}
         />
       )}
     </div>
+  );
+}
+
+function ActionChip({
+  onClick,
+  disabled,
+  danger,
+  children,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "rounded-full px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50",
+        danger
+          ? "text-danger hover:bg-danger-soft"
+          : "text-foreground-muted hover:bg-surface-muted hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function EmployeeRow({
+  employee,
+  isPending,
+  onToggle,
+  onResetPassword,
+  onDelete,
+}: {
+  employee: Profile;
+  isPending: boolean;
+  onToggle: () => void;
+  onResetPassword: () => void;
+  onDelete: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+
+  return (
+    <div className="px-4 py-3">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <span className="shrink-0 rounded-md bg-surface-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
+          {employee.employee_code ?? "—"}
+        </span>
+        <span className="font-medium text-foreground">
+          {employee.first_name} {employee.last_name}
+        </span>
+        <UserStatusBadge status={employee.status} />
+        <span className="ml-auto text-xs text-foreground-muted">
+          {employee.role === "ADMIN" ? "Admin" : "Empleado"}
+        </span>
+      </div>
+
+      <p className="mt-0.5 truncate text-xs text-foreground-muted">
+        {employee.email}
+        {employee.department ? ` · ${employee.department}` : ""}
+      </p>
+
+      <div className="mt-2 flex flex-wrap gap-1">
+        <ActionChip onClick={() => setEditing((v) => !v)}>
+          {editing ? "Cerrar" : "Editar"}
+        </ActionChip>
+        <ActionChip disabled={isPending} onClick={onToggle}>
+          {employee.status === "ACTIVE" ? "Desactivar" : "Activar"}
+        </ActionChip>
+        <ActionChip onClick={onResetPassword}>Restablecer clave</ActionChip>
+        <ActionChip danger disabled={isPending} onClick={onDelete}>
+          Eliminar
+        </ActionChip>
+      </div>
+
+      {editing && (
+        <InlineEditForm employee={employee} onClose={() => setEditing(false)} />
+      )}
+    </div>
+  );
+}
+
+function InlineEditForm({
+  employee,
+  onClose,
+}: {
+  employee: Profile;
+  onClose: () => void;
+}) {
+  const [state, formAction, isPending] = useActionState(updateEmployee, emptyState);
+
+  useEffect(() => {
+    if (state.ok) onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.ok]);
+
+  return (
+    <form
+      action={formAction}
+      className="mt-3 flex flex-col gap-2.5 rounded-[var(--radius-md)] bg-surface-muted p-3"
+    >
+      <input type="hidden" name="id" value={employee.id} />
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label htmlFor={`fn-${employee.id}`}>Nombre</Label>
+          <Input
+            id={`fn-${employee.id}`}
+            name="first_name"
+            defaultValue={employee.first_name}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor={`ln-${employee.id}`}>Apellido</Label>
+          <Input
+            id={`ln-${employee.id}`}
+            name="last_name"
+            defaultValue={employee.last_name}
+            required
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label htmlFor={`dept-${employee.id}`}>Departamento</Label>
+          <Input
+            id={`dept-${employee.id}`}
+            name="department"
+            defaultValue={employee.department ?? ""}
+          />
+        </div>
+        <div>
+          <Label htmlFor={`pos-${employee.id}`}>Puesto</Label>
+          <Input
+            id={`pos-${employee.id}`}
+            name="position"
+            defaultValue={employee.position ?? ""}
+          />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor={`code-${employee.id}`}>ID</Label>
+        <Input
+          id={`code-${employee.id}`}
+          name="employee_code"
+          defaultValue={employee.employee_code ?? ""}
+        />
+      </div>
+
+      {state.error && (
+        <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
+          {state.error}
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <Button type="button" variant="secondary" size="sm" onClick={onClose} className="flex-1">
+          Cancelar
+        </Button>
+        <Button type="submit" size="sm" disabled={isPending} className="flex-1">
+          {isPending ? "Guardando…" : "Guardar"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -192,7 +308,7 @@ function Dialog({
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">
       <div
         className={cn(
-          "w-full rounded-t-[var(--radius-lg)] border border-border bg-surface p-6 shadow-xl sm:rounded-[var(--radius-lg)]",
+          "max-h-[90vh] w-full overflow-y-auto rounded-t-[var(--radius-lg)] border border-border bg-surface p-5 shadow-xl sm:rounded-[var(--radius-lg)] sm:p-6",
           wide ? "max-w-2xl" : "max-w-md",
         )}
       >
@@ -217,7 +333,7 @@ function CreateEmployeeDialog({
   onCreated,
 }: {
   onClose: () => void;
-  onCreated: (name: string, password: string) => void;
+  onCreated: (name: string, password: string, employeeCode?: string) => void;
 }) {
   const [state, formAction, isPending] = useActionState(createEmployee, emptyState);
   const [fullName, setFullName] = useState("");
@@ -265,8 +381,8 @@ function CreateEmployeeDialog({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="employee_code">Código (opcional)</Label>
-            <Input id="employee_code" name="employee_code" />
+            <Label htmlFor="employee_code">ID (opcional)</Label>
+            <Input id="employee_code" name="employee_code" placeholder="Se genera solo" />
           </div>
           <div>
             <Label htmlFor="role">Rol</Label>
@@ -286,7 +402,10 @@ function CreateEmployeeDialog({
         {state.tempPassword && (
           <CreatedNotice
             password={state.tempPassword}
-            onDone={() => onCreated(fullName || "El nuevo empleado", state.tempPassword!)}
+            employeeCode={state.employeeCode}
+            onDone={() =>
+              onCreated(fullName || "El nuevo empleado", state.tempPassword!, state.employeeCode)
+            }
           />
         )}
 
@@ -302,14 +421,22 @@ function CreateEmployeeDialog({
 
 function CreatedNotice({
   password,
+  employeeCode,
   onDone,
 }: {
   password: string;
+  employeeCode?: string;
   onDone: () => void;
 }) {
   return (
     <div className="rounded-[var(--radius-sm)] bg-success-soft px-3 py-2 text-sm text-success">
-      Usuario creado. Contraseña temporal:{" "}
+      Usuario creado.{" "}
+      {employeeCode && (
+        <>
+          ID: <span className="font-mono font-semibold">{employeeCode}</span> —{" "}
+        </>
+      )}
+      Contraseña temporal:{" "}
       <button type="button" onClick={onDone} className="font-mono font-semibold underline">
         {password}
       </button>
@@ -317,88 +444,15 @@ function CreatedNotice({
   );
 }
 
-function EditEmployeeDialog({
-  employee,
-  onClose,
-}: {
-  employee: Profile;
-  onClose: () => void;
-}) {
-  const [state, formAction, isPending] = useActionState(updateEmployee, emptyState);
-
-  return (
-    <Dialog title="Editar empleado" onClose={onClose}>
-      <form action={formAction} className="flex flex-col gap-3">
-        <input type="hidden" name="id" value={employee.id} />
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="edit_first_name">Nombre</Label>
-            <Input
-              id="edit_first_name"
-              name="first_name"
-              defaultValue={employee.first_name}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="edit_last_name">Apellido</Label>
-            <Input
-              id="edit_last_name"
-              name="last_name"
-              defaultValue={employee.last_name}
-              required
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="edit_department">Departamento</Label>
-            <Input
-              id="edit_department"
-              name="department"
-              defaultValue={employee.department ?? ""}
-            />
-          </div>
-          <div>
-            <Label htmlFor="edit_position">Puesto</Label>
-            <Input id="edit_position" name="position" defaultValue={employee.position ?? ""} />
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="edit_employee_code">Código (opcional)</Label>
-          <Input
-            id="edit_employee_code"
-            name="employee_code"
-            defaultValue={employee.employee_code ?? ""}
-          />
-        </div>
-
-        {state.error && (
-          <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
-            {state.error}
-          </p>
-        )}
-
-        <div className="mt-2 flex gap-2">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isPending} className="flex-1">
-            {isPending ? "Guardando…" : "Guardar"}
-          </Button>
-        </div>
-      </form>
-    </Dialog>
-  );
-}
-
 function PasswordRevealDialog({
   name,
   password,
+  employeeCode,
   onClose,
 }: {
   name: string;
   password: string;
+  employeeCode?: string;
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -406,8 +460,14 @@ function PasswordRevealDialog({
   return (
     <Dialog title="Contraseña temporal" onClose={onClose}>
       <p className="mb-3 text-sm text-foreground-muted">
-        Comparte esta contraseña con <strong>{name}</strong> por un canal seguro. No
-        se volverá a mostrar.
+        Comparte esta contraseña con <strong>{name}</strong>
+        {employeeCode ? (
+          <>
+            {" "}
+            (ID <span className="font-mono font-semibold text-foreground">{employeeCode}</span>)
+          </>
+        ) : null}{" "}
+        por un canal seguro. No se volverá a mostrar.
       </p>
       <div
         className={cn(
@@ -444,8 +504,8 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
   function handleCreateAll() {
     // Se crean con nombre de marcador ("Empleado 1", "Empleado 2"...) — el
     // admin no necesita saber quién va en cada cuenta todavía. Más tarde,
-    // desde "Editar" en la tabla, le pone el nombre real a cada una cuando
-    // le asigne la cuenta a una persona.
+    // desde "Editar" en la fila, le pone el nombre real a cada una cuando
+    // le asigne la cuenta a una persona (identificándola por su ID).
     const placeholders = Array.from({ length: count }, (_, i) => ({
       first_name: "Empleado",
       last_name: String(i + 1),
@@ -461,16 +521,16 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
   if (step === "results") {
     const summaryText = results
       .filter((r) => r.email && r.tempPassword)
-      .map((r) => `${r.first_name} ${r.last_name}: ${r.email} / ${r.tempPassword}`)
+      .map((r) => `ID ${r.employeeCode}: ${r.email} / ${r.tempPassword}`)
       .join("\n");
 
     return (
       <Dialog title="Empleados creados" onClose={onClose} wide>
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border text-xs uppercase tracking-wide text-foreground-muted">
               <tr>
-                <th className="py-2 pr-3 font-medium">Nombre</th>
+                <th className="py-2 pr-3 font-medium">ID</th>
                 <th className="py-2 pr-3 font-medium">Usuario (correo)</th>
                 <th className="py-2 pr-3 font-medium">Contraseña</th>
               </tr>
@@ -478,15 +538,15 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
             <tbody>
               {results.map((r, i) => (
                 <tr key={i} className="border-b border-border last:border-0">
-                  <td className="py-2 pr-3 text-foreground">
-                    {r.first_name} {r.last_name}
-                  </td>
                   {r.error ? (
-                    <td colSpan={2} className="py-2 pr-3 text-danger">
+                    <td colSpan={3} className="py-2 pr-3 text-danger">
                       Error: {r.error}
                     </td>
                   ) : (
                     <>
+                      <td className="py-2 pr-3 font-mono font-semibold text-foreground">
+                        {r.employeeCode}
+                      </td>
                       <td className="py-2 pr-3 font-mono text-foreground-muted">{r.email}</td>
                       <td className="py-2 pr-3 font-mono font-semibold text-foreground">
                         {r.tempPassword}
@@ -500,9 +560,9 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <p className="mt-3 text-xs text-foreground-muted">
-          Anota o comparte cada usuario y contraseña con la persona correspondiente. Cuando
-          sepas quién va en cada una, entra a &quot;Editar&quot; en la tabla y ponle su nombre real —
-          no hace falta crear la cuenta de nuevo.
+          Reparte cada ID + contraseña a la persona correspondiente. Cuando sepas quién
+          es cada quien, entra a &quot;Editar&quot; en esa fila (busca por su ID) y ponle
+          el nombre real — no hace falta crear la cuenta de nuevo.
         </p>
 
         <div className="mt-4 flex gap-2">
@@ -524,9 +584,9 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
   return (
     <Dialog title="Crear varios empleados" onClose={onClose}>
       <p className="mb-3 text-sm text-foreground-muted">
-        ¿Cuántos empleados quieres crear? Se crean de una vez con un usuario y
+        ¿Cuántos empleados quieres crear? Se crean de una vez con un ID, usuario y
         contraseña listos para usar — luego, cuando sepas para quién es cada uno, le
-        pones el nombre real desde &quot;Editar&quot; en la tabla.
+        pones el nombre real desde &quot;Editar&quot;.
       </p>
       <Label htmlFor="bulk_count">Cantidad</Label>
       <Input

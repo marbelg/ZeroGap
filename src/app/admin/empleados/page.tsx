@@ -10,13 +10,11 @@ export default async function EmpleadosPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">Empleados</h1>
-          <p className="text-sm text-foreground-muted">
-            Crea, edita y administra el acceso de tu equipo.
-          </p>
-        </div>
+      <div className="mb-4">
+        <h1 className="text-lg font-semibold text-foreground">Empleados</h1>
+        <p className="text-sm text-foreground-muted">
+          Crea, edita y administra el acceso de tu equipo.
+        </p>
       </div>
 
       <EmployeeManager employees={employees ?? []} />

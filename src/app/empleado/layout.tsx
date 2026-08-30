@@ -23,7 +23,7 @@ export default async function EmployeeLayout({
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
-      <header className="flex items-center justify-between border-b border-border bg-surface px-5 py-4">
+      <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 sm:px-5 sm:py-4">
         <div>
           <p className="text-xs text-foreground-muted">Hola,</p>
           <p className="text-sm font-semibold text-foreground">
@@ -40,7 +40,7 @@ export default async function EmployeeLayout({
         </form>
       </header>
 
-      <main className="flex-1 px-5 py-6 pb-28">{children}</main>
+      <main className="flex-1 px-4 py-5 pb-28 sm:px-5 sm:py-6">{children}</main>
 
       <EmployeeBottomNav />
     </div>

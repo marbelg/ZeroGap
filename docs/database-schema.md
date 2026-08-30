@@ -1,10 +1,10 @@
 # Esquema de base de datos
 
 Refleja el estado actual del esquema en Supabase Postgres. Fuente: las migraciones
-en `supabase/migrations/` (`0001_init.sql`, `0002_add_employee_phone.sql`). Este
-documento describe el estado real —no un historial de cambios—; cuando el esquema
-cambie, se actualiza aquí y se agrega una nueva migración numerada, nunca se edita
-una migración ya aplicada.
+en `supabase/migrations/` (`0001_init.sql`, `0002_add_employee_phone.sql`,
+`0003_employee_code_unique.sql`). Este documento describe el estado real —no un
+historial de cambios—; cuando el esquema cambie, se actualiza aquí y se agrega una
+nueva migración numerada, nunca se edita una migración ya aplicada.
 
 ## Tipos (enums)
 
@@ -33,7 +33,8 @@ sistema no tiene signup público).
 | `role` | `user_role` | default `EMPLOYEE` |
 | `status` | `user_status` | default `ACTIVE`; `INACTIVE` bloquea el login |
 | `phone` | text | opcional (migración `0002`) |
-| `department`, `position`, `employee_code` | text | opcionales |
+| `department`, `position` | text | opcionales |
+| `employee_code` | text | opcional, **único** (migración `0003`). Formato `A###`/`E###` (admin/empleado) generado por la app; ver `generateUniqueEmployeeCode` en `src/app/admin/empleados/actions.ts` — al agotar los 999 números de 3 dígitos de un rol, sigue con `EA001`, `EB001`, etc. |
 | `created_at` | timestamptz | default `now()` |
 
 ### `expenses`

@@ -58,13 +58,40 @@ async function generateUniqueEmail(
   }
 }
 
+// Convierte un número de bloque (0, 1, 2, ...) en el sufijo de letras que se
+// agrega después de los 999 primeros códigos: bloque 0 -> "" (E001..E999),
+// bloque 1 -> "A" (EA001..EA999), bloque 2 -> "B" (EB001..EB999), ... bloque
+// 26 -> "Z", bloque 27 -> "AA", igual que la numeración de columnas de una
+// hoja de cálculo — así nunca se acaban los códigos disponibles.
+function letterSuffixForBlock(block: number): string {
+  if (block === 0) return "";
+  let n = block;
+  let result = "";
+  while (n > 0) {
+    n--;
+    result = String.fromCharCode(65 + (n % 26)) + result;
+    n = Math.floor(n / 26);
+  }
+  return result;
+}
+
+function codeForSequence(prefix: string, seq: number): string {
+  const block = Math.floor((seq - 1) / 999);
+  const local = ((seq - 1) % 999) + 1;
+  return `${prefix}${letterSuffixForBlock(block)}${String(local).padStart(3, "0")}`;
+}
+
 async function generateUniqueEmployeeCode(
   admin: ReturnType<typeof createAdminClient>,
   role: UserRole,
 ) {
-  // Código corto y secuencial: A### para administradores, E### para
-  // empleados — pensado para escribirlo en un carnet/papel físico y
-  // repartirlo, no para ser secreto. Cada rol lleva su propio contador.
+  // Código corto: A### para administradores, E### para empleados — pensado
+  // para escribirlo en un carnet/papel físico y repartirlo, no para ser
+  // secreto. Cada rol lleva su propio contador; al llenar los 999 números
+  // de tres dígitos, sigue con EA001, luego EB001, etc. (ver
+  // letterSuffixForBlock). Además de esta verificación en la app, la
+  // columna `employee_code` tiene un UNIQUE en la base de datos (migración
+  // 0003) como respaldo ante condiciones de carrera.
   const prefix = role === "ADMIN" ? "A" : "E";
 
   const { count } = await admin
@@ -72,16 +99,16 @@ async function generateUniqueEmployeeCode(
     .select("id", { count: "exact", head: true })
     .eq("role", role);
 
-  let n = (count ?? 0) + 1;
+  let seq = (count ?? 0) + 1;
   while (true) {
-    const code = `${prefix}${String(n).padStart(3, "0")}`;
+    const code = codeForSequence(prefix, seq);
     const { data } = await admin
       .from("profiles")
       .select("id")
       .eq("employee_code", code)
       .maybeSingle();
     if (!data) return code;
-    n++;
+    seq++;
   }
 }
 

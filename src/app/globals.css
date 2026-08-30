@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f7fb;
+  --surface: #ffffff;
+  --surface-muted: #f1f1f7;
+  --foreground: #17172b;
+  --foreground-muted: #63637d;
+  --border: #e6e6f0;
+
+  --brand: #5b4cf0;
+  --brand-hover: #4a3cd6;
+  --brand-foreground: #ffffff;
+  --brand-soft: #eeecfe;
+
+  --success: #17a673;
+  --success-soft: #e3f7ee;
+  --warning: #c8791a;
+  --warning-soft: #fbf0dd;
+  --danger: #d9394a;
+  --danger-soft: #fbe6e9;
+
+  --radius-lg: 1.25rem;
+  --radius-md: 0.875rem;
+  --radius-sm: 0.5rem;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border: var(--border);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0d0d14;
+    --surface: #171724;
+    --surface-muted: #1e1e2c;
+    --foreground: #f2f2f8;
+    --foreground-muted: #9797ad;
+    --border: #2a2a3b;
+
+    --brand: #8a7dfb;
+    --brand-hover: #a397ff;
+    --brand-foreground: #0d0d14;
+    --brand-soft: #262251;
+
+    --success: #35d399;
+    --success-soft: #113328;
+    --warning: #f0a944;
+    --warning-soft: #3a2a10;
+    --danger: #f16274;
+    --danger-soft: #3a1620;
   }
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@supports (font: -apple-system-body) {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
 }

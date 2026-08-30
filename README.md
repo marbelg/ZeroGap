@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZeroGap
 
-## Getting Started
+WebApp de control de gastos de empleados. Especificación funcional completa en
+[`docs/descripcion-del-sistema.md`](docs/descripcion-del-sistema.md).
 
-First, run the development server:
+## Stack
+
+Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Supabase (Postgres, Auth,
+Storage, RLS) · Vercel.
+
+## Desarrollo local
 
 ```bash
+npm install
+cp .env.example .env.local   # completar con las credenciales de tu proyecto Supabase
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Antes de levantar la app por primera vez necesitas un proyecto Supabase con el
+esquema aplicado y un usuario ADMIN — guía completa paso a paso en
+[`docs/supabase-setup.md`](docs/supabase-setup.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentación
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [`docs/descripcion-del-sistema.md`](docs/descripcion-del-sistema.md) — fuente de
+  verdad funcional (se mantiene sincronizada con el código, ver `CLAUDE.md`).
+- [`docs/supabase-setup.md`](docs/supabase-setup.md) — cómo crear el proyecto
+  Supabase, correr las migraciones y crear el primer admin.
+- [`docs/database-schema.md`](docs/database-schema.md) — esquema de base de datos y
+  RLS (estado actual, no guía de instalación).
+- [`docs/pwa.md`](docs/pwa.md) — instalación como app en Android.
+- `src/lib/supabase/README.md` — qué cliente de Supabase usar en cada contexto.
 
-## Learn More
+## PWA
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+La app es instalable en Android/Chrome (manifest + service worker + banner de
+instalación). Ver [`docs/pwa.md`](docs/pwa.md).

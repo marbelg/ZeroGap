@@ -45,6 +45,8 @@ export async function GET(request: NextRequest) {
     return [
       e.date,
       employee ? `${employee.first_name} ${employee.last_name}` : "",
+      employee?.cedula ?? "",
+      employee?.bank_account ?? "",
       EXPENSE_TYPE_LABEL[e.type],
       e.type === "KILOMETRAJE" ? "" : e.amount,
       e.type === "KILOMETRAJE" ? "" : e.currency,
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest) {
   });
 
   const csv = toCsv(
-    ["Fecha", "Empleado", "Categoría", "Monto", "Moneda", "Estado", "Kilometraje"],
+    ["Fecha", "Empleado", "Cédula", "Número de cuenta", "Categoría", "Monto", "Moneda", "Estado", "Kilometraje"],
     rows,
   );
 

@@ -11,9 +11,9 @@ export default async function EmpleadosPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-4">
-        <h1 className="text-lg font-semibold text-foreground">Empleados</h1>
+        <h1 className="text-lg font-semibold text-foreground">Usuarios</h1>
         <p className="text-sm text-foreground-muted">
-          Crea, edita y administra el acceso de tu equipo.
+          Crea, edita y administra el acceso de empleados, caja chica, hoteles y admins.
         </p>
       </div>
 

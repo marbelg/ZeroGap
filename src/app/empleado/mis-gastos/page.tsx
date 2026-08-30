@@ -1,27 +1,42 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { enrichExpenses } from "@/lib/expenses";
 import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { weekDaysForOffset } from "@/lib/week";
+import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { PaymentKpi } from "@/components/employee/payment-kpi";
+
+// Rango de navegación acotado a 5 semanas hacia atrás y 5 hacia adelante —
+// suficiente para revisar historial reciente sin dejar al empleado
+// navegando sin límite.
+const MIN_OFFSET = -5;
+const MAX_OFFSET = 5;
 
 export default async function MisGastosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ creado?: string }>;
+  searchParams: Promise<{ creado?: string; offset?: string }>;
 }) {
-  const { creado } = await searchParams;
+  const { creado, offset: offsetParam } = await searchParams;
+  const offset = Math.min(
+    MAX_OFFSET,
+    Math.max(MIN_OFFSET, Math.trunc(Number(offsetParam ?? 0)) || 0),
+  );
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const weekDays = weekDaysForOffset(offset);
   const { data: expenses } = await supabase
     .from("expenses")
     .select("*")
     .eq("user_id", user!.id)
+    .gte("date", weekDays[0].date)
+    .lte("date", weekDays[6].date)
     .order("date", { ascending: false })
     .order("time", { ascending: false });
 
@@ -46,6 +61,41 @@ export default async function MisGastosPage({
 
       <PaymentKpi expenses={lastWeekApproved ?? []} />
 
+      <div className="flex items-center justify-between gap-2 rounded-[var(--radius-lg)] border border-border bg-surface p-3">
+        {offset > MIN_OFFSET ? (
+          <Link
+            href={`?offset=${offset - 1}`}
+            className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+          >
+            ← Anterior
+          </Link>
+        ) : (
+          <span className="px-3 py-1.5 text-xs font-medium text-foreground-muted/40">
+            ← Anterior
+          </span>
+        )}
+        <div className="text-center">
+          <p className="text-sm font-semibold text-foreground">{weekRangeLabel(weekDays)}</p>
+          {offset !== 0 && (
+            <Link href="?offset=0" className="text-xs font-medium text-brand">
+              Volver a esta semana
+            </Link>
+          )}
+        </div>
+        {offset < MAX_OFFSET ? (
+          <Link
+            href={`?offset=${offset + 1}`}
+            className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+          >
+            Siguiente →
+          </Link>
+        ) : (
+          <span className="px-3 py-1.5 text-xs font-medium text-foreground-muted/40">
+            Siguiente →
+          </span>
+        )}
+      </div>
+
       {creado === "1" && (
         <p className="rounded-[var(--radius-md)] bg-success-soft px-4 py-3 text-sm text-success">
           Gasto enviado — queda en estado Reportado hasta que Administración lo revise.
@@ -54,7 +104,7 @@ export default async function MisGastosPage({
 
       {enriched.length === 0 ? (
         <Card className="px-6 py-14 text-center text-sm text-foreground-muted">
-          Aún no has reportado ningún gasto.
+          No hay gastos reportados esta semana.
         </Card>
       ) : (
         <div className="flex flex-col gap-3">

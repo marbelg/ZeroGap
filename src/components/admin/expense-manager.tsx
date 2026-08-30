@@ -181,12 +181,29 @@ function ExpenseRow({
             ) : (
               <span className="text-sm font-medium text-warning">Sin km asignados</span>
             )
+          ) : expense.type === "HOSPEDAJE" && expense.nights ? (
+            <>
+              {expense.nights} noche{expense.nights === 1 ? "" : "s"}
+              <span className="block text-xs font-normal text-foreground-muted">
+                {formatCurrency(expense.amount, expense.currency)}
+              </span>
+            </>
           ) : (
             formatCurrency(expense.amount, expense.currency)
           )}
         </span>
         <ExpenseStatusBadge status={expense.status} />
       </div>
+
+      {expense.type === "HOSPEDAJE" &&
+        expense.reported_rate != null &&
+        employee?.nightly_rate != null &&
+        Number(expense.reported_rate) !== Number(employee.nightly_rate) && (
+          <p className="mt-1 rounded-[var(--radius-sm)] bg-warning-soft px-3 py-2 text-xs font-medium text-warning">
+            ⚠️ El hotel aplicó {formatCurrency(expense.reported_rate, "CRC")}/noche, pero la
+            tarifa registrada es {formatCurrency(employee.nightly_rate, "CRC")}/noche.
+          </p>
+        )}
 
       {expense.description && (
         <p className="mt-0.5 truncate text-xs text-foreground-muted">{expense.description}</p>

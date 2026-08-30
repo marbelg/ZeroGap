@@ -44,6 +44,7 @@ export type Expense = {
   currency: Currency;
   description: string | null;
   nights: number | null;
+  reported_rate: number | null;
   status: ExpenseStatus;
   rejection_reason: string | null;
   created_at: string;

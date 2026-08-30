@@ -11,9 +11,10 @@ import { minReportableDate, todayISODate } from "@/lib/week";
 const initialState: ExpenseFormState = {};
 
 /**
- * El hotel solo reporta fecha, noches y la factura — el monto se calcula
- * solo (noches x tarifa por noche de ese hotel, configurada por el admin),
- * no lo escribe el hotel.
+ * El hotel reporta fecha, noches y la tarifa que aplicó — el monto que se
+ * paga se calcula con la tarifa que tiene configurada el admin en el
+ * perfil del hotel (no la que escribe aquí); si las dos tarifas no
+ * coinciden, el admin ve una alerta al revisar el gasto.
  */
 export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
   const [state, formAction, isPending] = useActionState(createLodgingExpense, initialState);
@@ -47,6 +48,20 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
             required
           />
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="reported_rate">Tarifa por noche que aplicaste (CRC)</Label>
+        <Input
+          id="reported_rate"
+          name="reported_rate"
+          type="number"
+          inputMode="decimal"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          required
+        />
       </div>
 
       <PhotoCapture name="photo" label="Foto de la factura" required />

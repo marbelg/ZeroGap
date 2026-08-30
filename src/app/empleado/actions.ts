@@ -183,6 +183,7 @@ export async function createLodgingExpense(
 
   const date = String(formData.get("date") ?? "");
   const nights = Number(formData.get("nights"));
+  const reportedRate = Number(formData.get("reported_rate"));
   const photo = formData.get("photo") as File | null;
 
   if (!date) return { error: "La fecha es obligatoria." };
@@ -191,14 +192,19 @@ export async function createLodgingExpense(
   if (!Number.isInteger(nights) || nights <= 0) {
     return { error: "Ingresa un número de noches válido." };
   }
+  if (!Number.isFinite(reportedRate) || reportedRate <= 0) {
+    return { error: "Ingresa la tarifa por noche que aplicaste." };
+  }
   if (!photo || photo.size === 0) {
     return { error: "Debes adjuntar la foto de la factura." };
   }
   const photoValidationError = validatePhotoFile(photo);
   if (photoValidationError) return { error: photoValidationError };
 
-  // El monto se calcula solo (noches x tarifa del hotel) — el hotel no lo
-  // escribe, así el admin controla la tarifa desde el perfil del hotel.
+  // El monto que se paga se calcula con la tarifa que el admin configuró en
+  // el perfil del hotel (no con la que el hotel escribe aquí) — así el
+  // admin controla el pago; la tarifa del hotel solo queda guardada para
+  // compararla y avisar si no coincide con la registrada.
   const { data: profile } = await supabase
     .from("profiles")
     .select("nightly_rate")
@@ -226,6 +232,7 @@ export async function createLodgingExpense(
       amount,
       currency: "CRC",
       nights,
+      reported_rate: reportedRate,
       status: "REPORTADO",
     })
     .select("id")

@@ -65,6 +65,12 @@ export default async function DayDetailPage({
     expensesByType.set(e.type, list);
   }
 
+  // Total del día: dinero facturado, y noches si el rol reporta noches
+  // (Hotel) — se suma sobre todo lo reportado, sin importar el estado.
+  const dayExpenses = expenses ?? [];
+  const totalAmount = dayExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  const totalNights = dayExpenses.reduce((sum, e) => sum + (e.nights ?? 0), 0);
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
       <div>
@@ -81,6 +87,18 @@ export default async function DayDetailPage({
         <p className="rounded-[var(--radius-md)] bg-success-soft px-4 py-3 text-sm text-success">
           Gasto enviado.
         </p>
+      )}
+
+      {dayExpenses.length > 0 && (
+        <div className="rounded-[var(--radius-lg)] bg-brand-soft px-4 py-3 text-brand">
+          <p className="text-xs font-medium">Total del día</p>
+          <p className="text-2xl font-semibold">{formatCurrency(totalAmount, "CRC")}</p>
+          {totalNights > 0 && (
+            <p className="mt-0.5 text-xs">
+              {totalNights} noche{totalNights === 1 ? "" : "s"} en total
+            </p>
+          )}
+        </div>
       )}
 
       <div className="flex flex-col gap-3">

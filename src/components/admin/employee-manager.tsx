@@ -45,6 +45,7 @@ function generateClientPin() {
 
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
   const [tab, setTab] = useState<Profile["role"]>("EMPLOYEE");
+  const [query, setQuery] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [passwordFor, setPasswordFor] = useState<Profile | null>(null);
@@ -74,7 +75,14 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
   }
 
 
-  const visible = employees.filter((e) => e.role === tab);
+  const visible = employees.filter((e) => {
+    if (e.role !== tab) return false;
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    const fullName = `${e.first_name} ${e.last_name}`.toLowerCase();
+    const code = (e.employee_code ?? "").toLowerCase();
+    return fullName.includes(q) || code.includes(q);
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -116,9 +124,23 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
       </div>
 
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface">
+        <div className="flex flex-col gap-2 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-semibold text-foreground">
+            {ROLE_LABEL[tab]} <span className="text-foreground-muted">({visible.length})</span>
+          </p>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por nombre o ID…"
+            className="h-9 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-foreground-muted outline-none transition-shadow focus:border-brand focus:ring-4 focus:ring-brand-soft sm:w-64"
+          />
+        </div>
         {visible.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-foreground-muted">
-            No hay usuarios en &ldquo;{ROLE_LABEL[tab]}&rdquo;.
+            {query
+              ? "No hay usuarios que coincidan con la búsqueda."
+              : `No hay usuarios en "${ROLE_LABEL[tab]}".`}
           </p>
         ) : (
           <div className="divide-y divide-border">

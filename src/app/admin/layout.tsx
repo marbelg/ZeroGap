@@ -17,7 +17,7 @@ export default async function AdminLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("first_name, last_name, role")
+    .select("first_name, last_name, role, employee_code")
     .eq("id", user.id)
     .single();
 
@@ -41,6 +41,11 @@ export default async function AdminLayout({
             <p className="text-xs text-foreground-muted">Administración</p>
             <p className="text-sm font-semibold text-foreground">
               {profile?.first_name} {profile?.last_name}
+              {profile?.employee_code && (
+                <span className="ml-1.5 font-mono text-xs font-medium text-foreground-muted">
+                  ({profile.employee_code})
+                </span>
+              )}
             </p>
           </div>
           <form action={signOut}>

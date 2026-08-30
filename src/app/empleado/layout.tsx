@@ -17,7 +17,7 @@ export default async function EmployeeLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("first_name, last_name")
+    .select("first_name, last_name, employee_code")
     .eq("id", user.id)
     .single();
 
@@ -27,7 +27,12 @@ export default async function EmployeeLayout({
         <div>
           <p className="text-xs text-foreground-muted">Hola,</p>
           <p className="text-sm font-semibold text-foreground">
-            {profile?.first_name ?? "Empleado"}
+            {profile ? `${profile.first_name} ${profile.last_name}` : "Empleado"}
+            {profile?.employee_code && (
+              <span className="ml-1.5 font-mono text-xs font-medium text-foreground-muted">
+                ({profile.employee_code})
+              </span>
+            )}
           </p>
         </div>
         <form action={signOut}>

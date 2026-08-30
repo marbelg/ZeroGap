@@ -113,15 +113,8 @@ export default async function EmployeeHomePage() {
   const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold text-foreground">
-          ¿Qué quieres reportar?
-        </h1>
-        <p className="text-sm text-foreground-muted">
-          Elige una categoría para registrar tu gasto.
-        </p>
-      </div>
+    <div className="mx-auto flex max-w-md flex-col gap-4">
+      <WeekTracker weekDays={weekDays} countsByDate={countsByDate} />
 
       {lastWeekCount > 0 && (
         <div className="rounded-[var(--radius-md)] bg-brand-soft px-4 py-3 text-sm text-brand">
@@ -146,17 +139,15 @@ export default async function EmployeeHomePage() {
         </div>
       )}
 
-      <WeekTracker weekDays={weekDays} countsByDate={countsByDate} />
-
-      <div className="grid grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-2 gap-3">
         {options.map((option) => (
           <Link
             key={option.href}
             href={option.href}
-            className="group flex flex-col items-start gap-3 rounded-[var(--radius-lg)] border border-border bg-surface p-6 shadow-sm transition-transform active:scale-[0.97]"
+            className="group flex flex-col items-center gap-2.5 rounded-[var(--radius-lg)] border border-border bg-surface p-4 shadow-sm transition-transform active:scale-[0.97]"
           >
             <div
-              className={`flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white ${option.color}`}
+              className={`flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white ${option.color}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -166,12 +157,12 @@ export default async function EmployeeHomePage() {
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="size-7"
+                className="size-6"
               >
                 {option.icon}
               </svg>
             </div>
-            <span className="text-base font-semibold text-foreground">
+            <span className="text-sm font-semibold text-foreground">
               {option.label}
             </span>
           </Link>

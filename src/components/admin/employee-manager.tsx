@@ -24,7 +24,7 @@ const emptyState: EmployeeFormState = {};
 // guardar, así que no necesita ser criptográficamente robusta aquí (el
 // servidor no depende de esta función para nada).
 function generateClientPin() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(Math.floor(1000 + Math.random() * 9000));
 }
 
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
@@ -429,7 +429,7 @@ function CreateEmployeeDialog({
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
+              minLength={4}
               required
               className="font-mono"
             />
@@ -582,7 +582,7 @@ function ChangePasswordDialog({
           id="change_password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          minLength={6}
+          minLength={4}
           className="font-mono"
         />
         <button

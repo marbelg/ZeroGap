@@ -20,7 +20,13 @@ function todayDateValue() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
-export function MealExpenseForm({ type }: { type: ExpenseType }) {
+export function MealExpenseForm({
+  type,
+  initialDate,
+}: {
+  type: ExpenseType;
+  initialDate?: string;
+}) {
   const action = createMealExpense.bind(null, type);
   const [state, formAction, isPending] = useActionState(action, initialState);
   const router = useRouter();
@@ -30,7 +36,13 @@ export function MealExpenseForm({ type }: { type: ExpenseType }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="date">Fecha</Label>
-          <Input id="date" name="date" type="date" defaultValue={todayDateValue()} required />
+          <Input
+            id="date"
+            name="date"
+            type="date"
+            defaultValue={initialDate || todayDateValue()}
+            required
+          />
         </div>
         <div>
           <Label htmlFor="time">Hora</Label>

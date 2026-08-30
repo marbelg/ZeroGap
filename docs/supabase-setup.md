@@ -36,6 +36,19 @@ Si vas a desplegar en Vercel, estas mismas 3 variables se agregan también en
 **Vercel → tu proyecto → Settings → Environment Variables** (con
 `SUPABASE_SERVICE_ROLE_KEY` marcada como solo para el servidor).
 
+### Longitud mínima de contraseña
+
+ZeroGap usa contraseñas temporales de solo 4 dígitos (PIN, pensado para
+empleados con poca familiaridad con contraseñas) — pero Supabase por defecto
+exige **mínimo 6 caracteres**. Hay que bajar ese límite:
+
+**Authentication → Sign In / Providers → Password** (o **Auth → Policies**,
+el nombre exacto varía según la versión del dashboard) → busca **"Minimum
+password length"** → cámbialo a **4** → guarda.
+
+Si no haces este cambio, crear empleados o restablecer contraseñas va a
+fallar con un error de "contraseña muy corta".
+
 ## 3. Correr las migraciones (crea las tablas, RLS, y el bucket de Storage)
 
 Tienes dos formas de aplicar los archivos de `supabase/migrations/`. Usa la

@@ -23,14 +23,16 @@ async function assertIsAdmin() {
 }
 
 function generateTempPassword() {
-  // PIN numérico de 6 dígitos: fácil de leer y escribir en el teclado del
+  // PIN numérico de 4 dígitos: fácil de leer y escribir en el teclado del
   // celular, pensado para empleados con poca familiaridad con contraseñas.
-  const bytes = randomBytes(6);
+  // Requiere que en Supabase (Authentication → Sign In / Providers →
+  // Password) la longitud mínima esté en 4 — por defecto Supabase exige 6.
+  const bytes = randomBytes(4);
   return Array.from(bytes, (b) => (b % 10).toString()).join("");
 }
 
 function validatePassword(password: string): string | null {
-  if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres.";
+  if (password.length < 4) return "La contraseña debe tener al menos 4 caracteres.";
   return null;
 }
 

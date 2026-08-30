@@ -452,8 +452,8 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   restablecer contraseña y eliminar usuarios, con contraseña temporal generada
   automáticamente y mostrada una sola vez al admin (sección 8 completa). La
   contraseña (al crear y al restablecer) es **editable**: el campo trae un PIN
-  de 6 dígitos generado como sugerencia, con botón "Generar" para otro nuevo,
-  pero el admin puede escribir la que quiera (mínimo 6 caracteres).
+  de 4 dígitos generado como sugerencia, con botón "Generar" para otro nuevo,
+  pero el admin puede escribir la que quiera (mínimo 4 caracteres — requiere que en Supabase la longitud mínima de contraseña esté en 4, ver docs/supabase-setup.md).
 - Creación masiva ("Crear varios"): el admin solo elige cuántas cuentas de
   empleado crear (sin nombres todavía) y el sistema las crea de una vez con
   nombre de marcador ("Empleado 1", "Empleado 2"...), un **ID único**
@@ -461,7 +461,7 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   administradores, `E001`, `E002`... para empleados, cada rol con su propio
   contador), correo autogenerado
   (`nombre.apellido@zerogap.app` o similar) y contraseña temporal — un PIN
-  numérico de 6 dígitos en vez de una contraseña alfanumérica, para que sea
+  numérico de 4 dígitos en vez de una contraseña alfanumérica, para que sea
   fácil de leer y escribir por empleados con poca familiaridad con
   contraseñas. Muestra una tabla con ID+usuario+contraseña de cada una para
   repartirlas. Más adelante, cuando el admin sabe a qué persona le va a asignar
@@ -511,6 +511,18 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   25 MB (`experimental.serverActions.bodySizeLimit`) — el límite por defecto
   de Next (1 MB) es insuficiente para una foto de cámara sin comprimir, y
   kilometraje manda 2 fotos en el mismo envío.
+- Inicio del empleado (`/empleado`): tarjeta "Mi semana" (`WeekTracker`) con
+  los 7 días de la semana actual (lunes a domingo) y una bolita por día con
+  el número de reportes diarios (Desayuno/Almuerzo/Cena, 0 a 3) que ya envió
+  — gris si 0, ámbar si 1-2, verde si 3. Kilometraje no cuenta para esta
+  bolita porque puede haber varios trayectos el mismo día, no es "uno por
+  día" como las comidas.
+- Cada día es un enlace a `/empleado/dia/[fecha]`, que muestra los 3 tipos de
+  comida del día: si ya se reportó, su estado (Reportado/Aprobado/Rechazado
+  con motivo); si falta, un botón "Reportar" que lleva al formulario de esa
+  categoría con la fecha ya puesta (parámetro `?date=`). Al enviar un gasto
+  de comida, el sistema redirige de vuelta a esta vista del día (en vez de a
+  "Mis Gastos") para poder seguir completando lo que falte de una vez.
 - `/empleado/mis-gastos`: historial de gastos propios con estado
   (Reportado/Aprobado/Rechazado), motivo de rechazo cuando aplica, y enlace
   al comprobante (URL firmada de Storage, válida 1 hora).

@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { currentWeekDays } from "@/lib/week";
+import { WeekTracker } from "@/components/employee/week-tracker";
 
 const options = [
   {
@@ -48,7 +51,29 @@ const options = [
   },
 ];
 
-export default function EmployeeHomePage() {
+export default async function EmployeeHomePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const weekDays = currentWeekDays();
+  const { data: weekExpenses } = await supabase
+    .from("expenses")
+    .select("date, type")
+    .eq("user_id", user!.id)
+    .in("type", ["DESAYUNO", "ALMUERZO", "CENA"])
+    .gte("date", weekDays[0].date)
+    .lte("date", weekDays[6].date);
+
+  const countsByDate: Record<string, number> = {};
+  for (const day of weekDays) {
+    const typesThatDay = new Set(
+      (weekExpenses ?? []).filter((e) => e.date === day.date).map((e) => e.type),
+    );
+    countsByDate[day.date] = typesThatDay.size;
+  }
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6">
       <div>
@@ -59,6 +84,8 @@ export default function EmployeeHomePage() {
           Elige una categoría para registrar tu gasto.
         </p>
       </div>
+
+      <WeekTracker weekDays={weekDays} countsByDate={countsByDate} />
 
       <div className="grid grid-cols-2 gap-4">
         {options.map((option) => (

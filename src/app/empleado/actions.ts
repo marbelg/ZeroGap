@@ -78,7 +78,8 @@ export async function createMealExpense(
   }
 
   revalidatePath("/empleado/mis-gastos");
-  redirect("/empleado/mis-gastos?creado=1");
+  revalidatePath("/empleado");
+  redirect(`/empleado/dia/${date}?creado=1`);
 }
 
 export async function createMileageExpense(

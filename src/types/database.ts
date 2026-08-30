@@ -1,4 +1,4 @@
-export type UserRole = "ADMIN" | "EMPLOYEE" | "EMPLEADO_INDIRECTO" | "CAJA_CHICA";
+export type UserRole = "ADMIN" | "EMPLOYEE" | "EMPLEADO_INDIRECTO" | "CAJA_CHICA" | "HOTEL";
 export type UserStatus = "ACTIVE" | "INACTIVE";
 export type ExpenseType =
   | "DESAYUNO"
@@ -6,7 +6,8 @@ export type ExpenseType =
   | "CENA"
   | "KILOMETRAJE"
   | "REPARACION_LLANTAS"
-  | "CAJA_CHICA";
+  | "CAJA_CHICA"
+  | "HOSPEDAJE";
 export type ExpenseStatus = "REPORTADO" | "APROBADO" | "RECHAZADO";
 export type Currency = "USD" | "CRC";
 export type PhotoType = "COMPROBANTE" | "ODOMETRO_INICIAL" | "ODOMETRO_FINAL";
@@ -29,6 +30,7 @@ export type Profile = {
   department: string | null;
   position: string | null;
   employee_code: string | null;
+  nightly_rate: number | null;
   created_at: string;
 }
 
@@ -41,6 +43,7 @@ export type Expense = {
   amount: number;
   currency: Currency;
   description: string | null;
+  nights: number | null;
   status: ExpenseStatus;
   rejection_reason: string | null;
   created_at: string;

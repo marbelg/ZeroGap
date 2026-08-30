@@ -153,7 +153,15 @@ export default async function AdminDashboardPage() {
         <CategoryBarChart
           title="Distribución por categoría"
           data={(
-            ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS", "CAJA_CHICA"] as const
+            [
+              "DESAYUNO",
+              "ALMUERZO",
+              "CENA",
+              "KILOMETRAJE",
+              "REPARACION_LLANTAS",
+              "CAJA_CHICA",
+              "HOSPEDAJE",
+            ] as const
           ).map((type) => ({
             label: EXPENSE_TYPE_LABEL[type],
             value: sumByType(type),

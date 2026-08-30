@@ -178,6 +178,12 @@ export default async function MisGastosPage({
                 )}
               </div>
 
+              {expense.type === "HOSPEDAJE" && expense.nights && (
+                <p className="mt-1 text-xs text-foreground-muted">
+                  {expense.nights} noche{expense.nights === 1 ? "" : "s"}
+                </p>
+              )}
+
               {expense.description && (
                 <p className="mt-1 text-xs text-foreground-muted">{expense.description}</p>
               )}

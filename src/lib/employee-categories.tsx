@@ -57,6 +57,14 @@ const CAJA_CHICA_ICON = (
   </>
 );
 
+const HOSPEDAJE_ICON = (
+  <>
+    <path d="M3 21V6M3 12h16a2 2 0 0 1 2 2v7" />
+    <path d="M3 9h6a2 2 0 0 1 2 2v1" />
+    <circle cx="7" cy="8" r="1.5" />
+  </>
+);
+
 const EMPLOYEE_OPTIONS: ExpenseCategoryOption[] = [
   {
     href: "/empleado/desayuno",
@@ -105,17 +113,29 @@ const CAJA_CHICA_OPTIONS: ExpenseCategoryOption[] = [
   },
 ];
 
+const HOTEL_OPTIONS: ExpenseCategoryOption[] = [
+  {
+    href: "/empleado/hospedaje",
+    type: "HOSPEDAJE",
+    label: "Hospedaje",
+    color: "from-[#a78bfa] to-[#6d28d9]",
+    icon: HOSPEDAJE_ICON,
+  },
+];
+
 export function optionsForRole(role: UserRole): ExpenseCategoryOption[] {
-  return role === "CAJA_CHICA" ? CAJA_CHICA_OPTIONS : EMPLOYEE_OPTIONS;
+  if (role === "CAJA_CHICA") return CAJA_CHICA_OPTIONS;
+  if (role === "HOTEL") return HOTEL_OPTIONS;
+  return EMPLOYEE_OPTIONS;
 }
 
 // Los tipos que cuentan como "reporte del día" en el tracker semanal y en
 // la vista de un día. Para empleados, reparación de llantas queda afuera a
-// propósito (no es una rutina diaria como comida/kilometraje). Caja chica
-// solo tiene una categoría — su meta diaria es 1, no 4 — así el aro nunca
-// queda en amarillo sin poder llegar a verde.
+// propósito (no es una rutina diaria como comida/kilometraje). Caja chica y
+// Hotel solo tienen una categoría cada uno — su meta diaria es 1, no 4 — así
+// el aro nunca queda en amarillo sin poder llegar a verde.
 export function dailyTypesForRole(role: UserRole): ExpenseType[] {
-  return role === "CAJA_CHICA"
-    ? ["CAJA_CHICA"]
-    : ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE"];
+  if (role === "CAJA_CHICA") return ["CAJA_CHICA"];
+  if (role === "HOTEL") return ["HOSPEDAJE"];
+  return ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE"];
 }

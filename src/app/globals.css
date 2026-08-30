@@ -32,6 +32,7 @@
   --chart-series-4: #eda100; /* amarillo — Kilometraje */
   --chart-series-5: #e87ba4; /* magenta — Reparación de llantas */
   --chart-series-6: #008300; /* verde — Caja chica */
+  --chart-series-7: #4a3aa7; /* violeta — Hospedaje */
   --chart-gridline: #e1e0d9;
   --chart-axis: #c3c2b7;
 }
@@ -87,6 +88,7 @@
     --chart-series-4: #c98500;
     --chart-series-5: #d55181;
     --chart-series-6: #008300;
+    --chart-series-7: #9085e9;
     --chart-gridline: #2c2c2a;
     --chart-axis: #383835;
   }

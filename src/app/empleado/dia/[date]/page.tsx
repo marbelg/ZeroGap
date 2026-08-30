@@ -84,7 +84,9 @@ export default async function DayDetailPage({
                 <p className="mt-1 text-sm text-foreground-muted">
                   {type === "KILOMETRAJE" && Number(expense.amount) === 0
                     ? "Viaje reportado"
-                    : formatCurrency(expense.amount, expense.currency)}
+                    : type === "HOSPEDAJE" && expense.nights
+                      ? `${expense.nights} noche${expense.nights === 1 ? "" : "s"} · ${formatCurrency(expense.amount, expense.currency)}`
+                      : formatCurrency(expense.amount, expense.currency)}
                 </p>
               )}
               {expense?.status === "RECHAZADO" && expense.rejection_reason && (

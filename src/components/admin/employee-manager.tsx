@@ -25,12 +25,14 @@ const ROLE_LABEL: Record<Profile["role"], string> = {
   EMPLOYEE: "Empleado",
   EMPLEADO_INDIRECTO: "Empleado no directo",
   CAJA_CHICA: "Caja chica",
+  HOTEL: "Hotel",
 };
 
 const ROLE_TABS: { value: Profile["role"]; label: string }[] = [
   { value: "EMPLOYEE", label: "Empleados" },
   { value: "EMPLEADO_INDIRECTO", label: "No directos" },
   { value: "CAJA_CHICA", label: "Caja chica" },
+  { value: "HOTEL", label: "Hoteles" },
   { value: "ADMIN", label: "Admins" },
 ];
 
@@ -226,7 +228,7 @@ function EmployeeRow({
           {employee.employee_code ?? "—"}
         </span>
         <span className="min-w-0 flex-1 truncate font-medium text-foreground">
-          {employee.first_name} {employee.last_name}
+          {`${employee.first_name} ${employee.last_name}`.trim()}
         </span>
         {employee.role === "ADMIN" && (
           <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">
@@ -282,26 +284,47 @@ function InlineEditForm({
       className="mt-3 flex flex-col gap-2.5 rounded-[var(--radius-md)] bg-surface-muted p-3"
     >
       <input type="hidden" name="id" value={employee.id} />
-      <div className="grid grid-cols-2 gap-2.5">
+      {employee.role === "HOTEL" ? (
         <div>
-          <Label htmlFor={`fn-${employee.id}`}>Nombre</Label>
+          <Label htmlFor={`fn-${employee.id}`}>Nombre del hotel</Label>
+          <Input id={`fn-${employee.id}`} name="first_name" defaultValue={employee.first_name} required />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2.5">
+          <div>
+            <Label htmlFor={`fn-${employee.id}`}>Nombre</Label>
+            <Input
+              id={`fn-${employee.id}`}
+              name="first_name"
+              defaultValue={employee.first_name}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor={`ln-${employee.id}`}>Apellido</Label>
+            <Input
+              id={`ln-${employee.id}`}
+              name="last_name"
+              defaultValue={employee.last_name}
+              required
+            />
+          </div>
+        </div>
+      )}
+      {employee.role === "HOTEL" && (
+        <div>
+          <Label htmlFor={`rate-${employee.id}`}>Tarifa por noche (CRC)</Label>
           <Input
-            id={`fn-${employee.id}`}
-            name="first_name"
-            defaultValue={employee.first_name}
+            id={`rate-${employee.id}`}
+            name="nightly_rate"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={employee.nightly_rate ?? ""}
             required
           />
         </div>
-        <div>
-          <Label htmlFor={`ln-${employee.id}`}>Apellido</Label>
-          <Input
-            id={`ln-${employee.id}`}
-            name="last_name"
-            defaultValue={employee.last_name}
-            required
-          />
-        </div>
-      </div>
+      )}
       <div className="grid grid-cols-2 gap-2.5">
         <div>
           <Label htmlFor={`phone-${employee.id}`}>Teléfono</Label>
@@ -394,30 +417,42 @@ function CreateEmployeeDialog({
     <Dialog title={`Nuevo ${ROLE_LABEL[role]}`} onClose={onClose}>
       <form action={formAction} className="flex flex-col gap-3">
         <input type="hidden" name="role" value={role} />
-        <div className="grid grid-cols-2 gap-3">
+        {role === "HOTEL" ? (
           <div>
-            <Label htmlFor="first_name">Nombre</Label>
+            <Label htmlFor="first_name">Nombre del hotel</Label>
             <Input
               id="first_name"
               name="first_name"
               required
-              onChange={(e) =>
-                setFullName((prev) => `${e.target.value} ${prev.split(" ")[1] ?? ""}`.trim())
-              }
+              onChange={(e) => setFullName(e.target.value)}
             />
           </div>
-          <div>
-            <Label htmlFor="last_name">Apellido</Label>
-            <Input
-              id="last_name"
-              name="last_name"
-              required
-              onChange={(e) =>
-                setFullName((prev) => `${prev.split(" ")[0] ?? ""} ${e.target.value}`.trim())
-              }
-            />
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="first_name">Nombre</Label>
+              <Input
+                id="first_name"
+                name="first_name"
+                required
+                onChange={(e) =>
+                  setFullName((prev) => `${e.target.value} ${prev.split(" ")[1] ?? ""}`.trim())
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="last_name">Apellido</Label>
+              <Input
+                id="last_name"
+                name="last_name"
+                required
+                onChange={(e) =>
+                  setFullName((prev) => `${prev.split(" ")[0] ?? ""} ${e.target.value}`.trim())
+                }
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="email">Correo</Label>
@@ -428,6 +463,20 @@ function CreateEmployeeDialog({
             <Input id="phone" name="phone" type="tel" placeholder="8888-8888" />
           </div>
         </div>
+        {role === "HOTEL" && (
+          <div>
+            <Label htmlFor="nightly_rate">Tarifa por noche (CRC)</Label>
+            <Input
+              id="nightly_rate"
+              name="nightly_rate"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              required
+            />
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="cedula">Cédula</Label>

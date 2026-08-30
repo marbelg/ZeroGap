@@ -93,7 +93,7 @@ async function generateUniqueEmployeeCode(
   role: UserRole,
 ) {
   // Código corto: A### admin, E### empleado, N### no directo, C### caja
-  // chica — pensado para escribirlo en un carnet/papel físico y
+  // chica, H### hotel — pensado para escribirlo en un carnet/papel físico y
   // repartirlo, no para ser secreto. Cada rol lleva su propio contador; al
   // llenar los 999 números de tres dígitos, sigue con EA001, luego EB001,
   // etc. (ver letterSuffixForBlock). Además de esta verificación en la app,
@@ -104,6 +104,7 @@ async function generateUniqueEmployeeCode(
     EMPLOYEE: "E",
     EMPLEADO_INDIRECTO: "N",
     CAJA_CHICA: "C",
+    HOTEL: "H",
   };
   const prefix = ROLE_PREFIX[role];
 
@@ -147,17 +148,23 @@ export async function createEmployee(
   const department = String(formData.get("department") ?? "").trim() || null;
   const position = String(formData.get("position") ?? "").trim() || null;
   const employeeCodeInput = String(formData.get("employee_code") ?? "").trim() || null;
-  const VALID_ROLES: UserRole[] = ["ADMIN", "EMPLOYEE", "EMPLEADO_INDIRECTO", "CAJA_CHICA"];
+  const VALID_ROLES: UserRole[] = ["ADMIN", "EMPLOYEE", "EMPLEADO_INDIRECTO", "CAJA_CHICA", "HOTEL"];
   const roleInput = String(formData.get("role") ?? "");
   const passwordInput = String(formData.get("password") ?? "").trim();
+  const nightlyRateInput = formData.get("nightly_rate");
+  const nightly_rate =
+    nightlyRateInput !== null && String(nightlyRateInput).trim() !== ""
+      ? Number(nightlyRateInput)
+      : null;
 
   if (!VALID_ROLES.includes(roleInput as UserRole)) {
     return { error: "Rol inválido." };
   }
   const role = roleInput as UserRole;
 
-  if (!first_name || !last_name || !email) {
-    return { error: "Nombre, apellido y correo son obligatorios." };
+  // Un hotel se identifica solo con un nombre (sin apellido).
+  if (!first_name || !email || (role !== "HOTEL" && !last_name)) {
+    return { error: "Nombre y correo son obligatorios." };
   }
   if (passwordInput) {
     const passwordError = validatePassword(passwordInput);
@@ -191,6 +198,7 @@ export async function createEmployee(
     department,
     position,
     employee_code,
+    nightly_rate,
   });
 
   if (profileError) {
@@ -294,15 +302,30 @@ export async function updateEmployee(
   const department = String(formData.get("department") ?? "").trim() || null;
   const position = String(formData.get("position") ?? "").trim() || null;
   const employee_code = String(formData.get("employee_code") ?? "").trim() || null;
+  const nightlyRateInput = formData.get("nightly_rate");
+  const nightly_rate =
+    nightlyRateInput !== null && String(nightlyRateInput).trim() !== ""
+      ? Number(nightlyRateInput)
+      : null;
 
-  if (!id || !first_name || !last_name) {
-    return { error: "Nombre y apellido son obligatorios." };
+  if (!id || !first_name) {
+    return { error: "El nombre es obligatorio." };
   }
 
   const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
-    .update({ first_name, last_name, phone, cedula, bank_account, department, position, employee_code })
+    .update({
+      first_name,
+      last_name,
+      phone,
+      cedula,
+      bank_account,
+      department,
+      position,
+      employee_code,
+      nightly_rate,
+    })
     .eq("id", id);
 
   if (error) return { error: error.message };

@@ -174,3 +174,83 @@ export async function createMileageExpense(
   revalidatePath("/empleado/mis-gastos");
   redirect("/empleado/mis-gastos?creado=1");
 }
+
+export async function createLodgingExpense(
+  _prevState: ExpenseFormState,
+  formData: FormData,
+): Promise<ExpenseFormState> {
+  const { supabase, user } = await requireUser();
+
+  const date = String(formData.get("date") ?? "");
+  const nights = Number(formData.get("nights"));
+  const photo = formData.get("photo") as File | null;
+
+  if (!date) return { error: "La fecha es obligatoria." };
+  const dateError = validateReportDate(date);
+  if (dateError) return { error: dateError };
+  if (!Number.isInteger(nights) || nights <= 0) {
+    return { error: "Ingresa un número de noches válido." };
+  }
+  if (!photo || photo.size === 0) {
+    return { error: "Debes adjuntar la foto de la factura." };
+  }
+  const photoValidationError = validatePhotoFile(photo);
+  if (photoValidationError) return { error: photoValidationError };
+
+  // El monto se calcula solo (noches x tarifa del hotel) — el hotel no lo
+  // escribe, así el admin controla la tarifa desde el perfil del hotel.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("nightly_rate")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.nightly_rate || profile.nightly_rate <= 0) {
+    return {
+      error:
+        "Este hotel no tiene una tarifa por noche configurada. Pídele al administrador que la agregue en Empleados.",
+    };
+  }
+
+  const amount = Number((nights * profile.nightly_rate).toFixed(2));
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  const { data: expense, error: expenseError } = await supabase
+    .from("expenses")
+    .insert({
+      user_id: user.id,
+      type: "HOSPEDAJE",
+      date,
+      time,
+      amount,
+      currency: "CRC",
+      nights,
+      status: "REPORTADO",
+    })
+    .select("id")
+    .single();
+
+  if (expenseError || !expense) {
+    return { error: expenseError?.message ?? "No se pudo registrar el hospedaje." };
+  }
+
+  try {
+    const path = await uploadReceiptPhoto(supabase, user.id, expense.id, "factura", photo);
+    const { error: photoError } = await supabase.from("expense_photos").insert({
+      expense_id: expense.id,
+      photo_type: "COMPROBANTE",
+      file_url: path,
+    });
+    if (photoError) throw photoError;
+  } catch (err) {
+    await supabase.from("expenses").delete().eq("id", expense.id);
+    return {
+      error: err instanceof Error ? err.message : "No se pudo subir la fotografía.",
+    };
+  }
+
+  revalidatePath("/empleado/mis-gastos");
+  revalidatePath("/empleado");
+  redirect(`/empleado/dia/${date}?creado=1`);
+}

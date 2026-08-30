@@ -35,3 +35,42 @@ export function currentWeekDays(reference: Date = new Date()): WeekDay[] {
     };
   });
 }
+
+/**
+ * Días de la semana desplazada `offsetWeeks` semanas respecto a hoy (0 =
+ * semana actual, -1 = semana anterior, 1 = semana siguiente). Usado para la
+ * navegación de histórico hacia atrás/adelante en la vista de admin.
+ */
+export function weekDaysForOffset(offsetWeeks: number): WeekDay[] {
+  const reference = new Date();
+  reference.setDate(reference.getDate() + offsetWeeks * 7);
+  return currentWeekDays(reference);
+}
+
+const MONTH_NAMES = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sep",
+  "oct",
+  "nov",
+  "dic",
+];
+
+/** Ej. "18 - 24 ago 2026" para el encabezado de un rango semanal. */
+export function weekRangeLabel(weekDays: WeekDay[]): string {
+  const first = weekDays[0];
+  const last = weekDays[6];
+  const [firstYear, firstMonth] = first.date.split("-");
+  const [lastYear, lastMonth] = last.date.split("-");
+  const lastLabel = `${last.dayNumber} ${MONTH_NAMES[Number(lastMonth) - 1]} ${lastYear}`;
+  if (firstMonth === lastMonth && firstYear === lastYear) {
+    return `${first.dayNumber} - ${lastLabel}`;
+  }
+  return `${first.dayNumber} ${MONTH_NAMES[Number(firstMonth) - 1]} - ${lastLabel}`;
+}

@@ -308,10 +308,17 @@ function ManualExpenseDialog({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="m_employee">Empleado</Label>
-            <Select id="m_employee" name="user_id" required defaultValue="">
-              <option value="" disabled>
-                Selecciona…
-              </option>
+            <Select
+              id="m_employee"
+              name="user_id"
+              required
+              defaultValue={employees.length === 1 ? employees[0].id : ""}
+            >
+              {employees.length !== 1 && (
+                <option value="" disabled>
+                  Selecciona…
+                </option>
+              )}
               {employees.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.first_name} {e.last_name}

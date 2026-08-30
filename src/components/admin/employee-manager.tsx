@@ -170,23 +170,26 @@ function EmployeeRow({
 
   return (
     <div className="px-4 py-3">
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+      <div className="flex items-center gap-2">
         <span className="shrink-0 rounded-md bg-surface-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
           {employee.employee_code ?? "—"}
         </span>
-        <span className="font-medium text-foreground">
-          {employee.first_name} {employee.last_name}
-        </span>
+        <div className="flex min-w-0 flex-1 items-baseline gap-1.5">
+          <span className="shrink-0 font-medium text-foreground">
+            {employee.first_name} {employee.last_name}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-xs text-foreground-muted">
+            {employee.email}
+            {employee.department ? ` · ${employee.department}` : ""}
+          </span>
+        </div>
+        {employee.role === "ADMIN" && (
+          <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">
+            Admin
+          </span>
+        )}
         <UserStatusBadge status={employee.status} />
-        <span className="ml-auto text-xs text-foreground-muted">
-          {employee.role === "ADMIN" ? "Admin" : "Empleado"}
-        </span>
       </div>
-
-      <p className="mt-0.5 truncate text-xs text-foreground-muted">
-        {employee.email}
-        {employee.department ? ` · ${employee.department}` : ""}
-      </p>
 
       <div className="mt-2 flex flex-wrap gap-1">
         <ActionChip onClick={() => setEditing((v) => !v)}>

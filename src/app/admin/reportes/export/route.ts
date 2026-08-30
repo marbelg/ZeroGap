@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
       employee?.cedula ?? "",
       employee?.bank_account ?? "",
       EXPENSE_TYPE_LABEL[e.type],
-      e.type === "KILOMETRAJE" ? "" : e.amount,
-      e.type === "KILOMETRAJE" ? "" : e.currency,
+      e.type === "KILOMETRAJE" && Number(e.amount) === 0 ? "" : e.amount,
+      e.currency,
       e.status,
       e.mileage ? Number(e.mileage.kilometers).toFixed(1) : "",
     ];

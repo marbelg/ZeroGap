@@ -4,6 +4,8 @@ import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { weekDaysForOffset } from "@/lib/week";
+import { PaymentKpi } from "@/components/employee/payment-kpi";
 
 export default async function MisGastosPage({
   searchParams,
@@ -25,12 +27,24 @@ export default async function MisGastosPage({
 
   const enriched = await enrichExpenses(supabase, expenses ?? []);
 
+  const lastWeekDays = weekDaysForOffset(-1);
+  const { data: lastWeekApproved } = await supabase
+    .from("expenses")
+    .select("*")
+    .eq("user_id", user!.id)
+    .eq("status", "APROBADO")
+    .gte("date", lastWeekDays[0].date)
+    .lte("date", lastWeekDays[6].date)
+    .order("date", { ascending: true });
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
       <div>
         <h1 className="text-lg font-semibold text-foreground">Mis Gastos</h1>
         <p className="text-sm text-foreground-muted">Tu historial de reportes.</p>
       </div>
+
+      <PaymentKpi expenses={lastWeekApproved ?? []} />
 
       {creado === "1" && (
         <p className="rounded-[var(--radius-md)] bg-success-soft px-4 py-3 text-sm text-success">

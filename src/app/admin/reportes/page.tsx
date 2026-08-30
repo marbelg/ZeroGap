@@ -29,9 +29,7 @@ export default async function ReportesPage({
   if (sp.type) query.set("type", sp.type);
   if (sp.status) query.set("status", sp.status);
 
-  const total = enriched
-    .filter((e) => e.type !== "KILOMETRAJE")
-    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const total = enriched.reduce((sum, e) => sum + Number(e.amount), 0);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -54,7 +52,7 @@ export default async function ReportesPage({
 
       <Card className="mb-4 p-4">
         <p className="text-sm text-foreground-muted">
-          {enriched.length} gasto{enriched.length === 1 ? "" : "s"} · Total (sin kilometraje):{" "}
+          {enriched.length} gasto{enriched.length === 1 ? "" : "s"} · Total:{" "}
           <span className="font-semibold text-foreground">{formatCurrency(total, "CRC")}</span>
         </p>
       </Card>
@@ -92,7 +90,9 @@ export default async function ReportesPage({
                       {EXPENSE_TYPE_LABEL[e.type]}
                     </td>
                     <td className="px-4 py-2.5 text-foreground">
-                      {e.type === "KILOMETRAJE" ? "—" : formatCurrency(e.amount, e.currency)}
+                      {e.type === "KILOMETRAJE" && Number(e.amount) === 0
+                        ? "Sin asignar"
+                        : formatCurrency(e.amount, e.currency)}
                     </td>
                     <td className="px-4 py-2.5 text-foreground-muted">
                       {e.mileage ? Number(e.mileage.kilometers).toFixed(1) : "—"}

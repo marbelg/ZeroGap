@@ -135,11 +135,13 @@ Datos principales:
 - Nombre
 - Apellido
 - Email / usuario
-- Contraseña temporal
+- Teléfono (opcional)
+- Contraseña temporal (editable/generable, ver detalle de Fase 1)
+- Rol: Empleado / Administrador
 - Estado: Activo / Inactivo
 - Departamento (opcional)
 - Puesto (opcional)
-- Código de empleado (opcional)
+- Código de empleado (opcional; se autogenera si se deja en blanco)
 
 Acciones disponibles:
 
@@ -148,6 +150,10 @@ Acciones disponibles:
 - Activar / desactivar usuario
 - Restablecer contraseña
 - Eliminar usuario
+
+La lista separa Empleados y Administradores en dos pestañas (con el conteo de
+cada una en el título de la pestaña), ya que el administrador puede crear
+cuentas de cualquiera de los dos roles desde el mismo formulario.
 
 ## 9. Administración de gastos
 
@@ -466,7 +472,8 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 - La lista de Empleados usa un diseño compacto de filas (no tabla ancha con
   scroll horizontal): "Editar" expande el formulario de edición directamente
   debajo de la fila en vez de abrir un popup — pensado para uso cómodo en
-  celular.
+  celular. Dos pestañas ("Empleados" / "Admins", cada una con su contador)
+  separan la lista por rol.
 - Esquema de base de datos y políticas RLS iniciales (`supabase/migrations/0001_init.sql`),
   cubriendo `profiles`, `expenses`, `mileage`, `expense_photos` y el bucket de
   Storage `receipts` — ver `docs/database-schema.md`.

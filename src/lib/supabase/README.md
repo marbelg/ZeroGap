@@ -15,3 +15,9 @@ Tres clientes distintos, cada uno para un contexto de ejecución:
 - **`proxy.ts`** — `updateSession()`, la lógica compartida que usa `proxy.ts` (raíz
   del proyecto) para refrescar la sesión y redirigir según autenticación/rol en
   cada request.
+
+Además, **`storage.ts`** agrupa las funciones de subida/lectura de fotos en el
+bucket `receipts` (validación de tipo/tamaño, URLs firmadas, y el saneo de la
+extensión del archivo antes de usarla en la ruta — el nombre lo controla el
+usuario, no es un cliente de Supabase en sí, por eso no está en la lista de
+arriba).

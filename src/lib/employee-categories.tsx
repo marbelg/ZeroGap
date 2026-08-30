@@ -7,6 +7,10 @@ export interface ExpenseCategoryOption {
   label: string;
   color: string;
   icon: ReactNode;
+  // Un hotel puede hospedar a varios colaboradores el mismo día — a
+  // diferencia del resto de categorías (una vez al día), esta permite
+  // reportar más de una vez el mismo día sin que se "reemplacen" entre sí.
+  allowMultiple?: boolean;
 }
 
 // Íconos pensados para reconocerse a simple vista, sin leer el texto —
@@ -120,6 +124,7 @@ const HOTEL_OPTIONS: ExpenseCategoryOption[] = [
     label: "Hospedaje",
     color: "from-[#a78bfa] to-[#6d28d9]",
     icon: HOSPEDAJE_ICON,
+    allowMultiple: true,
   },
 ];
 

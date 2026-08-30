@@ -30,12 +30,24 @@ export default async function EmployeeHomePage() {
     .gte("date", weekDays[0].date)
     .lte("date", weekDays[6].date);
 
+  // Cuenta 1 por categoría reportada ese día (checklist), salvo las
+  // categorías que permiten varias veces al día (ej. Hospedaje, un hotel
+  // puede alojar a varios colaboradores) — ahí cuenta cada reporte.
+  const optionByType = new Map(options.map((o) => [o.type, o]));
   const countsByDate: Record<string, number> = {};
   for (const day of weekDays) {
-    const typesThatDay = new Set(
-      (weekExpenses ?? []).filter((e) => e.date === day.date).map((e) => e.type),
-    );
-    countsByDate[day.date] = typesThatDay.size;
+    const seenTypes = new Set<string>();
+    let count = 0;
+    for (const e of weekExpenses ?? []) {
+      if (e.date !== day.date) continue;
+      if (optionByType.get(e.type)?.allowMultiple) {
+        count++;
+      } else if (!seenTypes.has(e.type)) {
+        seenTypes.add(e.type);
+        count++;
+      }
+    }
+    countsByDate[day.date] = count;
   }
 
   // Mini-dashboard: cuándo se pagan los gastos de la semana pasada. "Hoy - 7

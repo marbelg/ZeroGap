@@ -185,6 +185,7 @@ export async function createLodgingExpense(
   const nights = Number(formData.get("nights"));
   const reportedRate = Number(formData.get("reported_rate"));
   const photo = formData.get("photo") as File | null;
+  const description = String(formData.get("description") ?? "").trim() || null;
 
   if (!date) return { error: "La fecha es obligatoria." };
   const dateError = validateReportDate(date);
@@ -233,6 +234,7 @@ export async function createLodgingExpense(
       currency: "CRC",
       nights,
       reported_rate: reportedRate,
+      description,
       status: "REPORTADO",
     })
     .select("id")

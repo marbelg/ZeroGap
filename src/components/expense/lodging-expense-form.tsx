@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { createLodgingExpense, type ExpenseFormState } from "@/app/empleado/actions";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import { minReportableDate, todayISODate } from "@/lib/week";
 
@@ -61,6 +61,16 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
           min="0"
           placeholder="0.00"
           required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="description">Descripción (opcional)</Label>
+        <Textarea
+          id="description"
+          name="description"
+          rows={2}
+          placeholder="Ej. 2 choferes, cuarto doble"
         />
       </div>
 

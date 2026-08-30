@@ -93,8 +93,6 @@ export async function GET() {
   sheet.addRow([`Semana del ${periodLabel}`]).font = { italic: true, color: { argb: "FF666666" } };
   sheet.columns = COL_WIDTHS.map((w) => ({ width: w }));
 
-  let grandTotal = 0;
-
   for (const role of ROLE_BLOCKS) {
     const people = profileList
       .filter((p) => p.role === role)
@@ -141,7 +139,6 @@ export async function GET() {
       row.getCell(TOTAL_COL).numFmt = MONEY_FORMAT;
       blockTotal += total;
     }
-    grandTotal += blockTotal;
 
     const subtotalValues: (string | number)[] = new Array(HEADER_COLS.length).fill("");
     subtotalValues[1] = "Subtotal";
@@ -150,14 +147,6 @@ export async function GET() {
     subtotalRow.font = { bold: true };
     subtotalRow.getCell(TOTAL_COL).numFmt = MONEY_FORMAT;
   }
-
-  sheet.addRow([]);
-  const grandTotalValues: (string | number)[] = new Array(HEADER_COLS.length).fill("");
-  grandTotalValues[1] = "TOTAL GENERAL";
-  grandTotalValues[TOTAL_COL - 1] = grandTotal;
-  const grandTotalRow = sheet.addRow(grandTotalValues);
-  grandTotalRow.font = { bold: true, size: 12 };
-  grandTotalRow.getCell(TOTAL_COL).numFmt = MONEY_FORMAT;
 
   const buffer = await workbook.xlsx.writeBuffer();
 

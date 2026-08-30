@@ -87,43 +87,33 @@ export async function createMileageExpense(
   const { supabase, user } = await requireUser();
 
   const date = String(formData.get("date") ?? "");
-  const start_location = String(formData.get("start_location") ?? "").trim();
-  const end_location = String(formData.get("end_location") ?? "").trim();
-  const start_time = String(formData.get("start_time") ?? "");
-  const end_time = String(formData.get("end_time") ?? "");
-  const initial_odometer = Number(formData.get("initial_odometer"));
-  const final_odometer = Number(formData.get("final_odometer"));
-  const description = String(formData.get("description") ?? "").trim() || null;
   const startPhoto = formData.get("start_photo") as File | null;
   const endPhoto = formData.get("end_photo") as File | null;
 
-  if (!date || !start_time || !end_time || !start_location || !end_location) {
-    return { error: "Completa fecha, horas y lugares." };
-  }
-  if (!Number.isFinite(initial_odometer) || !Number.isFinite(final_odometer)) {
-    return { error: "El kilometraje inicial y final son obligatorios." };
-  }
-  if (final_odometer <= initial_odometer) {
-    return { error: "El kilometraje final debe ser mayor al inicial." };
-  }
+  if (!date) return { error: "La fecha es obligatoria." };
   if (!startPhoto || startPhoto.size === 0 || !endPhoto || endPhoto.size === 0) {
-    return { error: "Debes adjuntar las fotos de odómetro inicial y final." };
+    return { error: "Debes adjuntar las fotos de inicio y fin del viaje." };
   }
   const startPhotoError = validatePhotoFile(startPhoto);
   if (startPhotoError) return { error: startPhotoError };
   const endPhotoError = validatePhotoFile(endPhoto);
   if (endPhotoError) return { error: endPhotoError };
 
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  // Simplificado a propósito: solo fecha + 2 fotos, sin lugares, horas ni
+  // números de odómetro — por eso no se crea fila en `mileage` (no hay datos
+  // que guardar ahí); las fotos quedan como evidencia del viaje.
   const { data: expense, error: expenseError } = await supabase
     .from("expenses")
     .insert({
       user_id: user.id,
       type: "KILOMETRAJE",
       date,
-      time: start_time,
+      time,
       amount: 0,
       currency: "CRC",
-      description,
       status: "REPORTADO",
     })
     .select("id")
@@ -134,29 +124,18 @@ export async function createMileageExpense(
   }
 
   try {
-    const { error: mileageError } = await supabase.from("mileage").insert({
-      expense_id: expense.id,
-      start_location,
-      end_location,
-      start_time,
-      end_time,
-      initial_odometer,
-      final_odometer,
-    });
-    if (mileageError) throw mileageError;
-
     const startPath = await uploadReceiptPhoto(
       supabase,
       user.id,
       expense.id,
-      "odometro-inicial",
+      "inicio-viaje",
       startPhoto,
     );
     const endPath = await uploadReceiptPhoto(
       supabase,
       user.id,
       expense.id,
-      "odometro-final",
+      "fin-viaje",
       endPhoto,
     );
 

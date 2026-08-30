@@ -58,8 +58,10 @@ export default async function MisGastosPage({
 
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-lg font-semibold text-foreground">
-                  {expense.type === "KILOMETRAJE" && expense.mileage
-                    ? `${Number(expense.mileage.kilometers).toFixed(1)} km`
+                  {expense.type === "KILOMETRAJE"
+                    ? expense.mileage
+                      ? `${Number(expense.mileage.kilometers).toFixed(1)} km`
+                      : "Viaje reportado"
                     : formatCurrency(expense.amount, expense.currency)}
                 </p>
                 {expense.photos[0]?.signedUrl && (

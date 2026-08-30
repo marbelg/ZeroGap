@@ -63,7 +63,7 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
   const visible = employees.filter((e) => e.role === tab);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1 rounded-full bg-surface-muted p-1">
           <button
@@ -211,7 +211,7 @@ function EmployeeRow({
   const [editing, setEditing] = useState(false);
 
   return (
-    <div className="px-4 py-3">
+    <div className="px-5 py-4">
       <div className="flex items-center gap-2">
         <span className="shrink-0 rounded-md bg-surface-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
           {employee.employee_code ?? "—"}

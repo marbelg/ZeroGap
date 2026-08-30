@@ -66,7 +66,7 @@ export function ExpenseManager({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-foreground-muted">
           {totals.count} gasto{totals.count === 1 ? "" : "s"} · {totals.pending} pendiente
@@ -152,7 +152,7 @@ function ExpenseRow({
   const photo = expense.photos[0];
 
   return (
-    <div className="px-4 py-3">
+    <div className="px-5 py-4">
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
         <span
           className="shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold text-white"
@@ -165,8 +165,10 @@ function ExpenseRow({
         </span>
         <span className="text-xs text-foreground-muted">{formatDate(expense.date)}</span>
         <span className="ml-auto font-semibold text-foreground">
-          {expense.type === "KILOMETRAJE" && expense.mileage
-            ? `${Number(expense.mileage.kilometers).toFixed(1)} km`
+          {expense.type === "KILOMETRAJE"
+            ? expense.mileage
+              ? `${Number(expense.mileage.kilometers).toFixed(1)} km`
+              : "Viaje"
             : formatCurrency(expense.amount, expense.currency)}
         </span>
         <ExpenseStatusBadge status={expense.status} />

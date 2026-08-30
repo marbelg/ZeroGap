@@ -268,10 +268,6 @@ function InlineExpenseEditForm({
           </Select>
         </div>
       </div>
-      <div>
-        <Label htmlFor={`desc-${expense.id}`}>Descripción</Label>
-        <Input id={`desc-${expense.id}`} name="description" defaultValue={expense.description ?? ""} />
-      </div>
 
       {state.error && (
         <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
@@ -396,6 +392,10 @@ function ManualExpenseDialog({
                 />
               </div>
             </div>
+            <div>
+              <Label htmlFor="m_description">Descripción (opcional)</Label>
+              <Input id="m_description" name="description" />
+            </div>
           </>
         ) : (
           <>
@@ -415,11 +415,6 @@ function ManualExpenseDialog({
             <PhotoCapture name="photo" label="Foto del comprobante (opcional)" />
           </>
         )}
-
-        <div>
-          <Label htmlFor="m_description">Descripción (opcional)</Label>
-          <Input id="m_description" name="description" />
-        </div>
 
         {state.error && (
           <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">

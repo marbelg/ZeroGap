@@ -69,7 +69,6 @@ export async function updateExpenseAdmin(
   const time = String(formData.get("time") ?? "");
   const amount = Number(formData.get("amount"));
   const currency = String(formData.get("currency") ?? "CRC") as Currency;
-  const description = String(formData.get("description") ?? "").trim() || null;
 
   if (!id || !date || !time) return { error: "Fecha y hora son obligatorias." };
   if (!Number.isFinite(amount) || amount < 0) {
@@ -79,7 +78,7 @@ export async function updateExpenseAdmin(
   const admin = createAdminClient();
   const { error } = await admin
     .from("expenses")
-    .update({ date, time, amount, currency, description })
+    .update({ date, time, amount, currency })
     .eq("id", id);
 
   if (error) return { error: error.message };
@@ -184,7 +183,6 @@ export async function createExpenseManual(
       time,
       amount,
       currency,
-      description,
       status: "APROBADO",
     })
     .select("id")

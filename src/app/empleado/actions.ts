@@ -30,7 +30,6 @@ export async function createMealExpense(
   const time = String(formData.get("time") ?? "");
   const amount = Number(formData.get("amount"));
   const currency = String(formData.get("currency") ?? "CRC") as Currency;
-  const description = String(formData.get("description") ?? "").trim() || null;
   const photo = formData.get("photo") as File | null;
 
   if (!date || !time) return { error: "Fecha y hora son obligatorias." };
@@ -52,7 +51,6 @@ export async function createMealExpense(
       time,
       amount,
       currency,
-      description,
       status: "REPORTADO",
     })
     .select("id")

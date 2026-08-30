@@ -73,11 +73,6 @@ export function MealExpenseForm({
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="description">Descripción (opcional)</Label>
-        <Input id="description" name="description" placeholder="Ej. Reunión con cliente" />
-      </div>
-
       <PhotoCapture name="photo" label="Foto del comprobante" required />
 
       {state.error && (

@@ -24,6 +24,8 @@ esquema aplicado y un usuario ADMIN — guía completa paso a paso en
 
 - [`docs/descripcion-del-sistema.md`](docs/descripcion-del-sistema.md) — fuente de
   verdad funcional (se mantiene sincronizada con el código, ver `CLAUDE.md`).
+  `descripcion del sistema.docx` es la misma información en Word — se regenera
+  con `npm run docs:docx`, no se edita a mano.
 - [`docs/supabase-setup.md`](docs/supabase-setup.md) — cómo crear el proyecto
   Supabase, correr las migraciones y crear el primer admin.
 - [`docs/database-schema.md`](docs/database-schema.md) — esquema de base de datos y

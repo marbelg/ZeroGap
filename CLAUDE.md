@@ -13,10 +13,13 @@ simple que cumpla el requisito sobre la solución compleja.
 
 ## Documentación
 
-- `docs/descripcion-del-sistema.md` es la fuente de verdad funcional del sistema —
-  el original `descripcion del sistema.docx` es solo histórico, de referencia.
+- `docs/descripcion-del-sistema.md` es la fuente de verdad funcional del sistema.
+  `descripcion del sistema.docx` se mantiene sincronizado con ese `.md` — se
+  regenera con `npm run docs:docx` (`scripts/md-to-docx.js`), nunca se edita a
+  mano.
 - Después de cualquier cambio de código que afecte funcionalidad, datos o
   comportamiento (nuevo módulo, endpoint, tabla, política RLS, flujo de UI, fase
   completada), invocar el subagente `system-doc-sync` para mantener
-  `docs/descripcion-del-sistema.md` y la documentación Markdown de cada módulo
-  sincronizadas con el código real. No es necesario para cambios cosméticos.
+  `docs/descripcion-del-sistema.md`, el `.docx` regenerado, y la documentación
+  Markdown de cada módulo sincronizados con el código real. No es necesario para
+  cambios cosméticos.

@@ -63,8 +63,13 @@ NUNCA solo en comentarios inline extensos dentro del código. Reglas:
 
 - No implementes funcionalidad nueva. Tu trabajo es documentar lo que ya se
   implementó, no construir.
-- No modifiques `descripcion del sistema.docx` (el original) — es de solo lectura,
-  histórico. El documento vivo es `docs/descripcion-del-sistema.md`.
+- No edites `descripcion del sistema.docx` a mano — regénéralo corriendo
+  `npm run docs:docx` (usa `scripts/md-to-docx.js`) después de que
+  `docs/descripcion-del-sistema.md` quede editado. El usuario pidió
+  explícitamente que el `.docx` se mantenga sincronizado, no solo el `.md`.
+  Antes de correrlo, revisa si hay un archivo de bloqueo
+  (`.~lock.descripcion del sistema.docx#`) — si existe, el archivo puede estar
+  abierto en Word/LibreOffice; avísale al usuario en vez de sobrescribirlo.
 - No generes commits ni hagas `git push` — eso lo decide el usuario o el agente
   principal.
 - No agregues secciones vacías "para el futuro" — solo documenta lo que existe.
@@ -77,4 +82,7 @@ NUNCA solo en comentarios inline extensos dentro del código. Reglas:
 4. Editar `docs/descripcion-del-sistema.md` con cambios mínimos y precisos.
 5. Si el cambio introdujo o modificó un módulo, crear/actualizar su `README.md` y,
    si tocó el esquema de datos, `docs/database-schema.md`.
-6. Reportar en 2-3 líneas qué archivos de documentación se actualizaron y por qué.
+6. Si `docs/descripcion-del-sistema.md` cambió, correr `npm run docs:docx` para
+   regenerar `descripcion del sistema.docx` a partir de él (revisa antes si hay
+   archivo de bloqueo, ver arriba).
+7. Reportar en 2-3 líneas qué archivos de documentación se actualizaron y por qué.

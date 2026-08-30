@@ -4,10 +4,21 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { uploadReceiptPhoto, validatePhotoFile } from "@/lib/supabase/storage";
+import { minReportableDate, todayISODate } from "@/lib/week";
 import type { Currency, ExpenseType } from "@/types/database";
 
 export interface ExpenseFormState {
   error?: string;
+}
+
+function validateReportDate(date: string): string | null {
+  if (date < minReportableDate()) {
+    return "Solo puedes reportar gastos de hasta 5 semanas atrás.";
+  }
+  if (date > todayISODate()) {
+    return "No puedes reportar gastos con fecha futura.";
+  }
+  return null;
 }
 
 async function requireUser() {
@@ -33,6 +44,8 @@ export async function createMealExpense(
   const photo = formData.get("photo") as File | null;
 
   if (!date || !time) return { error: "Fecha y hora son obligatorias." };
+  const dateError = validateReportDate(date);
+  if (dateError) return { error: dateError };
   if (!Number.isFinite(amount) || amount <= 0) {
     return { error: "El monto debe ser mayor a cero." };
   }
@@ -91,6 +104,8 @@ export async function createMileageExpense(
   const endPhoto = formData.get("end_photo") as File | null;
 
   if (!date) return { error: "La fecha es obligatoria." };
+  const dateError = validateReportDate(date);
+  if (dateError) return { error: dateError };
   if (!startPhoto || startPhoto.size === 0 || !endPhoto || endPhoto.size === 0) {
     return { error: "Debes adjuntar las fotos de inicio y fin del viaje." };
   }

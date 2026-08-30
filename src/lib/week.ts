@@ -6,6 +6,17 @@ export function toISODate(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+export function todayISODate(): string {
+  return toISODate(new Date());
+}
+
+/** Fecha más antigua que un empleado puede reportar: hasta 5 semanas atrás. */
+export function minReportableDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 35);
+  return toISODate(d);
+}
+
 export interface WeekDay {
   date: string; // YYYY-MM-DD
   dayName: string; // "Lun", "Mar"...

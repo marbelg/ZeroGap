@@ -212,21 +212,15 @@ function EmployeeRow({
 
   return (
     <div className="px-5 py-4">
+      {/* Info del empleado acotada a 2 líneas fijas: fila 1 = identidad
+          (código, nombre, badges), fila 2 = contacto truncado con "…". */}
       <div className="flex items-center gap-2">
         <span className="shrink-0 rounded-md bg-surface-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
           {employee.employee_code ?? "—"}
         </span>
-        <div className="flex min-w-0 flex-1 items-baseline gap-1.5">
-          <span className="shrink-0 font-medium text-foreground">
-            {employee.first_name} {employee.last_name}
-          </span>
-          <span className="min-w-0 flex-1 truncate text-xs text-foreground-muted">
-            {employee.email}
-            {employee.phone ? ` · ${employee.phone}` : ""}
-            {employee.cedula ? ` · Céd. ${employee.cedula}` : ""}
-            {employee.department ? ` · ${employee.department}` : ""}
-          </span>
-        </div>
+        <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+          {employee.first_name} {employee.last_name}
+        </span>
         {employee.role === "ADMIN" && (
           <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">
             Admin
@@ -234,6 +228,12 @@ function EmployeeRow({
         )}
         <UserStatusBadge status={employee.status} />
       </div>
+      <p className="mt-0.5 truncate text-xs text-foreground-muted">
+        {employee.email}
+        {employee.phone ? ` · ${employee.phone}` : ""}
+        {employee.cedula ? ` · Céd. ${employee.cedula}` : ""}
+        {employee.department ? ` · ${employee.department}` : ""}
+      </p>
 
       <div className="mt-2 flex flex-wrap gap-1">
         <ActionChip onClick={() => setEditing((v) => !v)}>

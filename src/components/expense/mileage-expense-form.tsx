@@ -6,13 +6,9 @@ import { createMileageExpense, type ExpenseFormState } from "@/app/empleado/acti
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
+import { minReportableDate, todayISODate } from "@/lib/week";
 
 const initialState: ExpenseFormState = {};
-
-function todayDateValue() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-}
 
 /**
  * Kilometraje simplificado a propósito: solo fecha + 2 fotos (inicio y fin
@@ -31,7 +27,9 @@ export function MileageExpenseForm({ initialDate }: { initialDate?: string }) {
           id="date"
           name="date"
           type="date"
-          defaultValue={initialDate || todayDateValue()}
+          defaultValue={initialDate || todayISODate()}
+          min={minReportableDate()}
+          max={todayISODate()}
           required
         />
       </div>

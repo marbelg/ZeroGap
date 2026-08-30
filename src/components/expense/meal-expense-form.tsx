@@ -7,17 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import type { ExpenseType } from "@/types/database";
+import { minReportableDate, todayISODate } from "@/lib/week";
 
 const initialState: ExpenseFormState = {};
 
 function nowTimeValue() {
   const now = new Date();
   return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-}
-
-function todayDateValue() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 export function MealExpenseForm({
@@ -40,7 +36,9 @@ export function MealExpenseForm({
             id="date"
             name="date"
             type="date"
-            defaultValue={initialDate || todayDateValue()}
+            defaultValue={initialDate || todayISODate()}
+            min={minReportableDate()}
+            max={todayISODate()}
             required
           />
         </div>

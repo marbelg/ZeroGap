@@ -3,7 +3,10 @@ import { StatTile } from "@/components/dashboard/stat-tile";
 import { CategoryBarChart } from "@/components/dashboard/category-bar-chart";
 import { RankingBarChart } from "@/components/dashboard/ranking-bar-chart";
 import { TrendChart } from "@/components/dashboard/trend-chart";
+import { BudgetLine } from "@/components/admin/budget-summary";
+import { Card } from "@/components/ui/card";
 import { EXPENSE_TYPE_COLOR, EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { getAppSettings } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import type { Expense, Mileage, Profile } from "@/types/database";
 
@@ -39,6 +42,8 @@ export default async function AdminDashboardPage() {
       supabase.from("profiles").select("*").neq("role", "ADMIN"),
     ]);
 
+  const settings = await getAppSettings(supabase);
+
   const current = (currentExpenses ?? []) as Expense[];
   const previous = (prevExpenses ?? []) as Expense[];
   const employeeList = (employees ?? []) as Profile[];
@@ -66,6 +71,18 @@ export default async function AdminDashboardPage() {
   const employeesWithExpenses = new Set(current.map((e) => e.user_id));
   const promedio =
     employeesWithExpenses.size > 0 ? totalActual / employeesWithExpenses.size : 0;
+
+  // Presupuesto mensual por rol: caja chica (por tipo de gasto) y
+  // empleados no directos (por rol del usuario, todas sus categorías).
+  const cajaChicaSpent = sumByType("CAJA_CHICA");
+  const indirectIds = new Set(
+    employeeList.filter((e) => e.role === "EMPLEADO_INDIRECTO").map((e) => e.id),
+  );
+  const noDirectoSpent = current
+    .filter((e) => indirectIds.has(e.user_id))
+    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const hasRoleBudget =
+    settings.monthly_budget_caja_chica > 0 || settings.monthly_budget_no_directo > 0;
 
   // Tendencia: total por día del mes actual
   const byDay = new Map<string, number>();
@@ -114,6 +131,22 @@ export default async function AdminDashboardPage() {
         <StatTile label="Kilómetros" value={`${totalKm.toFixed(1)} km`} />
         <StatTile label="Promedio / empleado" value={formatCurrency(promedio, "CRC")} />
       </div>
+
+      {hasRoleBudget && (
+        <Card className="flex flex-col gap-3 p-4">
+          <p className="text-sm font-semibold text-foreground">Presupuesto mensual por rol</p>
+          <BudgetLine
+            label="Caja chica"
+            spent={cajaChicaSpent}
+            budget={settings.monthly_budget_caja_chica}
+          />
+          <BudgetLine
+            label="Empleados no directos"
+            spent={noDirectoSpent}
+            budget={settings.monthly_budget_no_directo}
+          />
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <TrendChart title="Tendencia de gastos (este mes)" points={trendPoints} />

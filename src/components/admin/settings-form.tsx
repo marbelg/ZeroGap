@@ -127,6 +127,47 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
         </div>
       </Card>
 
+      <Card className="p-4">
+        <SectionHeader
+          iconClassName="bg-[var(--chart-series-6)]/15 text-[var(--chart-series-6)]"
+          icon={
+            <>
+              <rect x="3" y="5" width="18" height="15" rx="2" />
+              <path d="M3 9h18" />
+              <path d="M8 3v4M16 3v4" />
+            </>
+          }
+          title="Presupuesto mensual por rol"
+          hint="Solo informativo — compara el gasto total del mes contra este monto. 0 = sin aviso."
+        />
+        <div className="mt-4 grid grid-cols-2 gap-2.5">
+          <div>
+            <Label htmlFor="monthly_budget_caja_chica">Caja chica</Label>
+            <Input
+              id="monthly_budget_caja_chica"
+              name="monthly_budget_caja_chica"
+              type="number"
+              step="0.01"
+              min="0"
+              className="h-11"
+              defaultValue={settings.monthly_budget_caja_chica}
+            />
+          </div>
+          <div>
+            <Label htmlFor="monthly_budget_no_directo">Empleados no directos</Label>
+            <Input
+              id="monthly_budget_no_directo"
+              name="monthly_budget_no_directo"
+              type="number"
+              step="0.01"
+              min="0"
+              className="h-11"
+              defaultValue={settings.monthly_budget_no_directo}
+            />
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="p-4">
           <SectionHeader

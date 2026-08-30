@@ -1,7 +1,7 @@
 import { cn, formatCurrency } from "@/lib/utils";
 import type { AppSettings, Expense } from "@/types/database";
 
-function BudgetLine({
+export function BudgetLine({
   label,
   spent,
   budget,

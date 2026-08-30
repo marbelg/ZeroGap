@@ -9,6 +9,8 @@ const FALLBACK_SETTINGS: AppSettings = {
   weekly_budget_cena: 0,
   km_rate: 0,
   payment_day_of_week: 5,
+  monthly_budget_caja_chica: 0,
+  monthly_budget_no_directo: 0,
   updated_at: "",
 };
 

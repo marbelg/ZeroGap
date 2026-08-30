@@ -42,6 +42,8 @@ export async function updateSettings(
   const weekly_budget_cena = parseMoney(formData, "weekly_budget_cena");
   const km_rate = parseMoney(formData, "km_rate");
   const payment_day_of_week = Math.min(6, Math.max(0, Number(formData.get("payment_day_of_week")) || 0));
+  const monthly_budget_caja_chica = parseMoney(formData, "monthly_budget_caja_chica");
+  const monthly_budget_no_directo = parseMoney(formData, "monthly_budget_no_directo");
 
   const admin = createAdminClient();
   const { error } = await admin
@@ -53,6 +55,8 @@ export async function updateSettings(
       weekly_budget_cena,
       km_rate,
       payment_day_of_week,
+      monthly_budget_caja_chica,
+      monthly_budget_no_directo,
     })
     .eq("id", true);
 
@@ -60,6 +64,7 @@ export async function updateSettings(
 
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin/gastos");
+  revalidatePath("/admin");
   revalidatePath("/empleado");
   return { ok: true };
 }

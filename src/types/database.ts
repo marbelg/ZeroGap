@@ -75,6 +75,8 @@ export type AppSettings = {
   weekly_budget_cena: number;
   km_rate: number;
   payment_day_of_week: number;
+  monthly_budget_caja_chica: number;
+  monthly_budget_no_directo: number;
   updated_at: string;
 }
 

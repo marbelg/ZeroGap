@@ -23,7 +23,7 @@ export function CategoryBarChart({
   return (
     <Card className="p-4">
       <p className="mb-4 text-sm font-semibold text-foreground">{title}</p>
-      <div className="flex h-40 items-end gap-3 border-b border-[var(--chart-axis)] pb-0">
+      <div className="flex h-40 items-stretch gap-3 border-b border-[var(--chart-axis)] pb-0">
         {data.map((d, i) => {
           const heightPct = Math.max(2, (d.value / max) * 100);
           return (

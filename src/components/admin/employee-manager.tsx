@@ -436,34 +436,27 @@ function PasswordRevealDialog({
 }
 
 function BulkCreateDialog({ onClose }: { onClose: () => void }) {
-  const [step, setStep] = useState<"count" | "names" | "results">("count");
+  const [step, setStep] = useState<"count" | "results">("count");
   const [count, setCount] = useState(5);
-  const [people, setPeople] = useState<{ first_name: string; last_name: string }[]>([]);
   const [results, setResults] = useState<BulkEmployeeResult[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  function startNamesStep() {
-    setPeople(
-      Array.from({ length: count }, (_, i) => people[i] ?? { first_name: "", last_name: "" }),
-    );
-    setStep("names");
-  }
-
-  function updatePerson(index: number, field: "first_name" | "last_name", value: string) {
-    setPeople((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
-    );
-  }
-
   function handleCreateAll() {
+    // Se crean con nombre de marcador ("Empleado 1", "Empleado 2"...) — el
+    // admin no necesita saber quién va en cada cuenta todavía. Más tarde,
+    // desde "Editar" en la tabla, le pone el nombre real a cada una cuando
+    // le asigne la cuenta a una persona.
+    const placeholders = Array.from({ length: count }, (_, i) => ({
+      first_name: "Empleado",
+      last_name: String(i + 1),
+    }));
+
     startTransition(async () => {
-      const created = await createEmployeesBulk(people);
+      const created = await createEmployeesBulk(placeholders);
       setResults(created);
       setStep("results");
     });
   }
-
-  const readyCount = people.filter((p) => p.first_name.trim() && p.last_name.trim()).length;
 
   if (step === "results") {
     const summaryText = results
@@ -507,8 +500,9 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <p className="mt-3 text-xs text-foreground-muted">
-          Anota o comparte cada usuario y contraseña con la persona correspondiente — no
-          se van a volver a mostrar juntos.
+          Anota o comparte cada usuario y contraseña con la persona correspondiente. Cuando
+          sepas quién va en cada una, entra a &quot;Editar&quot; en la tabla y ponle su nombre real —
+          no hace falta crear la cuenta de nuevo.
         </p>
 
         <div className="mt-4 flex gap-2">
@@ -527,54 +521,12 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
     );
   }
 
-  if (step === "names") {
-    return (
-      <Dialog title={`Nombres de los ${count} empleados`} onClose={onClose} wide>
-        <div className="max-h-[55vh] overflow-y-auto pr-1">
-          <div className="flex flex-col gap-3">
-            {people.map((person, i) => (
-              <div key={i} className="grid grid-cols-2 gap-3">
-                <Input
-                  placeholder={`Nombre ${i + 1}`}
-                  value={person.first_name}
-                  onChange={(e) => updatePerson(i, "first_name", e.target.value)}
-                />
-                <Input
-                  placeholder={`Apellido ${i + 1}`}
-                  value={person.last_name}
-                  onChange={(e) => updatePerson(i, "last_name", e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <p className="mt-3 text-xs text-foreground-muted">
-          El usuario y la contraseña de cada uno se generan automáticamente al crearlos.
-        </p>
-
-        <div className="mt-4 flex gap-2">
-          <Button type="button" variant="secondary" onClick={() => setStep("count")} className="flex-1">
-            Atrás
-          </Button>
-          <Button
-            onClick={handleCreateAll}
-            disabled={isPending || readyCount === 0}
-            className="flex-1"
-          >
-            {isPending
-              ? "Creando…"
-              : `Crear ${readyCount || ""} empleado${readyCount === 1 ? "" : "s"}`}
-          </Button>
-        </div>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog title="Crear varios empleados" onClose={onClose}>
       <p className="mb-3 text-sm text-foreground-muted">
-        ¿Cuántos empleados quieres crear? Después te pido el nombre de cada uno.
+        ¿Cuántos empleados quieres crear? Se crean de una vez con un usuario y
+        contraseña listos para usar — luego, cuando sepas para quién es cada uno, le
+        pones el nombre real desde &quot;Editar&quot; en la tabla.
       </p>
       <Label htmlFor="bulk_count">Cantidad</Label>
       <Input
@@ -585,8 +537,8 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
         value={count}
         onChange={(e) => setCount(Math.min(30, Math.max(1, Number(e.target.value) || 1)))}
       />
-      <Button onClick={startNamesStep} className="mt-4 w-full">
-        Continuar
+      <Button onClick={handleCreateAll} disabled={isPending} className="mt-4 w-full">
+        {isPending ? "Creando…" : `Crear ${count} empleado${count === 1 ? "" : "s"}`}
       </Button>
     </Dialog>
   );

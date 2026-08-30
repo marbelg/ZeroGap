@@ -17,6 +17,7 @@ export type Profile = {
   email: string;
   role: UserRole;
   status: UserStatus;
+  phone: string | null;
   department: string | null;
   position: string | null;
   employee_code: string | null;

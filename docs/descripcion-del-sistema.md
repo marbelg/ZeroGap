@@ -421,14 +421,14 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 | Fase | Contenido | Estado |
 |------|-----------|--------|
 | 1 | Autenticación y usuarios | ✅ Completada |
-| 2 | Registro de desayuno, almuerzo y cena | ⬜ Pendiente |
-| 3 | Carga de fotografías | ⬜ Pendiente |
-| 4 | Registro de kilometraje con fotografías inicial/final | ⬜ Pendiente |
-| 5 | Historial del empleado | ⬜ Pendiente |
-| 6 | Panel administrativo de gastos | ⬜ Pendiente |
-| 7 | Dashboard gerencial | ⬜ Pendiente |
-| 8 | Reportes y exportación | ⬜ Pendiente |
-| 9 | Seguridad, validaciones y pruebas | ⬜ Pendiente |
+| 2 | Registro de desayuno, almuerzo y cena | ✅ Completada |
+| 3 | Carga de fotografías | ✅ Completada |
+| 4 | Registro de kilometraje con fotografías inicial/final | ✅ Completada |
+| 5 | Historial del empleado | ✅ Completada |
+| 6 | Panel administrativo de gastos | ✅ Completada |
+| 7 | Dashboard gerencial | ✅ Completada |
+| 8 | Reportes y exportación | ✅ Completada |
+| 9 | Seguridad, validaciones y pruebas | ✅ Pasada de hardening aplicada |
 
 ### Fase 1 — detalle de lo implementado
 
@@ -467,6 +467,80 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   posteriores como placeholders "próximamente" para no bloquear la navegación.
 - PWA instalable en Android/Chrome: manifest, service worker de app-shell y
   banner de instalación personalizado (ver sección 19 y `docs/pwa.md`).
+- Campo **teléfono** agregado al perfil del empleado (`supabase/migrations/0002_add_employee_phone.sql`),
+  editable desde crear/editar empleado.
+
+### Fases 2-5 — detalle de lo implementado (módulo Empleado)
+
+- `/empleado/desayuno`, `/almuerzo`, `/cena`: mismo formulario reutilizable
+  (`MealExpenseForm`) parametrizado por tipo — fecha, hora, monto, moneda
+  (USD/CRC), descripción opcional y foto de comprobante obligatoria, con
+  vista previa antes de enviar.
+- `/empleado/kilometraje`: fecha, hora inicio/fin, lugar inicio/destino,
+  kilometraje inicial/final (calcula los km recorridos en vivo mientras se
+  escribe), descripción opcional, y dos fotos obligatorias (odómetro inicial
+  y final).
+- Captura de foto (`PhotoCapture`): dos botones separados — "Tomar foto"
+  (abre la cámara, `capture="environment"`) y "Elegir de galería" — en vez de
+  un solo input, porque en varios navegadores móviles un input con `capture`
+  abre la cámara directo y oculta la opción de galería.
+- Las fotos se suben a Supabase Storage (bucket privado `receipts`, ruta
+  `{user_id}/{expense_id}/{archivo}`) usando la sesión del propio empleado
+  (RLS, no el cliente admin) — coherente con "cada quien sube lo suyo".
+- `/empleado/mis-gastos`: historial de gastos propios con estado
+  (Reportado/Aprobado/Rechazado), motivo de rechazo cuando aplica, y enlace
+  al comprobante (URL firmada de Storage, válida 1 hora).
+- Todo el envío de gastos usa Server Actions (`src/app/empleado/actions.ts`)
+  que insertan el `expense` primero y luego la foto — si la foto falla, se
+  revierte el `expense` para no dejar registros huérfanos sin comprobante.
+
+### Fase 6 — detalle de lo implementado (Admin → Gastos)
+
+- Tabla compacta de todos los gastos (mismo patrón de filas que Empleados,
+  con "Editar" en línea en vez de popup) con: fecha, empleado, categoría,
+  monto o km, estado, comprobante.
+- Acciones: Aprobar / Rechazar (con motivo, solo cuando está "Reportado"),
+  Editar (monto/moneda/fecha/hora/descripción — no aplica a Kilometraje),
+  Eliminar, y **Crear gasto manual** (el admin lo registra a nombre de un
+  empleado; útil para gastos que no pasaron por el flujo normal).
+- Filtros combinables: fecha (hoy/semana/mes/mes anterior/rango
+  personalizado), empleado (uno o varios), categoría, estado — vía querystring
+  en un `<form method="get">`, sin JavaScript de por medio.
+
+### Fase 7 — detalle de lo implementado (Dashboard)
+
+- KPIs: gasto total (con variación % vs. mes anterior), total por categoría de
+  comida, total de kilómetros, promedio de gasto por empleado activo.
+- Gráfico de tendencia (línea, gasto por día del mes) y de distribución por
+  categoría (barras, solo las 3 categorías monetarias — kilometraje no se
+  mezcla en la misma escala por tratarse de una unidad distinta, km vs.
+  dinero).
+- Ranking de empleados por gasto (barras horizontales, top 8).
+- Colores por categoría fijos (no ciclan): Desayuno=azul, Almuerzo=naranja,
+  Cena=aqua, Kilometraje=amarillo — paleta validada para daltonismo (skill
+  `dataviz`), tokens en `globals.css` (`--chart-series-1..4`).
+
+### Fase 8 — detalle de lo implementado (Reportes)
+
+- `/admin/reportes`: mismos filtros que Gastos, tabla de vista previa, botón
+  "Descargar CSV".
+- `/admin/reportes/export` (route handler): genera el CSV en el servidor con
+  las columnas de la sección 14 (Fecha, Empleado, Categoría, Monto, Moneda,
+  Estado, Kilometraje), respetando los filtros activos.
+
+### Fase 9 — detalle de lo implementado (seguridad/validación)
+
+- **Corregido durante esta pasada**: `createExpenseManual` usaba el cliente
+  admin (salta RLS) sin verificar primero que quien llama sea ADMIN — ya
+  corregido, ahora todas las acciones admin llaman `assertIsAdmin()` primero.
+- Validación de fotos en el servidor (tipo imagen, máx. 10 MB) además del
+  `accept="image/*"` del cliente, que un usuario podría saltarse.
+- Extensión de archivo saneada (`[a-z0-9]{1,5}`) antes de usarla para
+  construir la ruta en Storage — el nombre del archivo lo controla el
+  usuario.
+- Montos deben ser mayores a cero (comida) o el km final mayor al inicial
+  (kilometraje), tanto en el formulario del empleado como en la creación
+  manual del admin.
 
 ## 22. Consideraciones futuras
 

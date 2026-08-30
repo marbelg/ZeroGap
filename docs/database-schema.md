@@ -1,9 +1,10 @@
 # Esquema de base de datos
 
-Refleja el estado actual del esquema en Supabase Postgres. Fuente: la migración
-`supabase/migrations/0001_init.sql`. Este documento describe el estado real —no un
-historial de cambios—; cuando el esquema cambie, se actualiza aquí y se agrega una
-nueva migración numerada, nunca se edita una migración ya aplicada.
+Refleja el estado actual del esquema en Supabase Postgres. Fuente: las migraciones
+en `supabase/migrations/` (`0001_init.sql`, `0002_add_employee_phone.sql`). Este
+documento describe el estado real —no un historial de cambios—; cuando el esquema
+cambie, se actualiza aquí y se agrega una nueva migración numerada, nunca se edita
+una migración ya aplicada.
 
 ## Tipos (enums)
 
@@ -31,6 +32,7 @@ sistema no tiene signup público).
 | `email` | text | único |
 | `role` | `user_role` | default `EMPLOYEE` |
 | `status` | `user_status` | default `ACTIVE`; `INACTIVE` bloquea el login |
+| `phone` | text | opcional (migración `0002`) |
 | `department`, `position`, `employee_code` | text | opcionales |
 | `created_at` | timestamptz | default `now()` |
 

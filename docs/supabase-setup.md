@@ -36,19 +36,24 @@ Si vas a desplegar en Vercel, estas mismas 3 variables se agregan también en
 **Vercel → tu proyecto → Settings → Environment Variables** (con
 `SUPABASE_SERVICE_ROLE_KEY` marcada como solo para el servidor).
 
-## 3. Correr la migración (crea las tablas, RLS, y el bucket de Storage)
+## 3. Correr las migraciones (crea las tablas, RLS, y el bucket de Storage)
 
-Tienes dos formas de aplicar `supabase/migrations/0001_init.sql`. Usa la **Opción
-A** si es la primera vez y no quieres instalar nada.
+Tienes dos formas de aplicar los archivos de `supabase/migrations/`. Usa la
+**Opción A** si es la primera vez y no quieres instalar nada — **corre cada
+archivo en orden** (`0001_init.sql` primero, luego `0002_add_employee_phone.sql`,
+y así con los que se vayan agregando).
 
 ### Opción A — SQL Editor del dashboard (más simple)
 
 1. En el dashboard de tu proyecto: **SQL Editor → New query**.
-2. Abre el archivo `supabase/migrations/0001_init.sql` de este repo, copia todo
-   su contenido y pégalo en el editor.
+2. Abre `supabase/migrations/0001_init.sql` de este repo, copia todo su
+   contenido y pégalo en el editor.
 3. Click **Run**. Debe terminar sin errores (son ~15 statements: tipos, tablas,
    índices, función `is_admin()`, políticas RLS, bucket de Storage).
-4. Verifica en **Table Editor** que aparecen `profiles`, `expenses`, `mileage`,
+4. Repite los pasos 1-3 con `0002_add_employee_phone.sql` (una sola línea:
+   agrega la columna `phone`) y con cualquier migración numerada más nueva que
+   encuentres en esa carpeta.
+5. Verifica en **Table Editor** que aparecen `profiles`, `expenses`, `mileage`,
    `expense_photos`, y en **Storage** el bucket `receipts` (privado).
 
 ### Opción B — Supabase CLI (recomendado si vas a seguir agregando migraciones)

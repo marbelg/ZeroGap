@@ -1,5 +1,10 @@
-import { ComingSoon } from "@/components/coming-soon";
+import { MileageExpenseForm } from "@/components/expense/mileage-expense-form";
 
 export default function KilometrajePage() {
-  return <ComingSoon title="Registrar kilometraje" phase="Fase 4" />;
+  return (
+    <div className="mx-auto max-w-md">
+      <h1 className="mb-4 text-lg font-semibold text-foreground">Registrar kilometraje</h1>
+      <MileageExpenseForm />
+    </div>
+  );
 }

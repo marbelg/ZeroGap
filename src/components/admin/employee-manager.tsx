@@ -5,6 +5,7 @@ import type { Profile } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { UserStatusBadge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   createEmployee,
@@ -20,6 +21,7 @@ import {
 const emptyState: EmployeeFormState = {};
 
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
+  const [tab, setTab] = useState<"EMPLOYEE" | "ADMIN">("EMPLOYEE");
   const [createOpen, setCreateOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [revealPassword, setRevealPassword] = useState<{
@@ -64,30 +66,63 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
     }
   }
 
+  const employeeCount = employees.filter((e) => e.role === "EMPLOYEE").length;
+  const adminCount = employees.filter((e) => e.role === "ADMIN").length;
+  const visible = employees.filter((e) => e.role === tab);
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setBulkOpen(true)}
-          className="w-full sm:w-auto"
-        >
-          Crear varios
-        </Button>
-        <Button size="sm" onClick={() => setCreateOpen(true)} className="w-full sm:w-auto">
-          + Nuevo empleado
-        </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-1 rounded-full bg-surface-muted p-1">
+          <button
+            type="button"
+            onClick={() => setTab("EMPLOYEE")}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              tab === "EMPLOYEE"
+                ? "bg-surface text-foreground shadow-sm"
+                : "text-foreground-muted hover:text-foreground",
+            )}
+          >
+            Empleados ({employeeCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("ADMIN")}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              tab === "ADMIN"
+                ? "bg-surface text-foreground shadow-sm"
+                : "text-foreground-muted hover:text-foreground",
+            )}
+          >
+            Admins ({adminCount})
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setBulkOpen(true)}
+            className="w-full sm:w-auto"
+          >
+            Crear varios
+          </Button>
+          <Button size="sm" onClick={() => setCreateOpen(true)} className="w-full sm:w-auto">
+            + Nuevo empleado
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface">
-        {employees.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-foreground-muted">
-            Aún no hay empleados registrados.
+            {tab === "ADMIN" ? "No hay administradores." : "Aún no hay empleados registrados."}
           </p>
         ) : (
           <div className="divide-y divide-border">
-            {employees.map((employee) => (
+            {visible.map((employee) => (
               <EmployeeRow
                 key={employee.id}
                 employee={employee}
@@ -180,6 +215,7 @@ function EmployeeRow({
           </span>
           <span className="min-w-0 flex-1 truncate text-xs text-foreground-muted">
             {employee.email}
+            {employee.phone ? ` · ${employee.phone}` : ""}
             {employee.department ? ` · ${employee.department}` : ""}
           </span>
         </div>
@@ -251,6 +287,16 @@ function InlineEditForm({
           />
         </div>
       </div>
+      <div>
+        <Label htmlFor={`phone-${employee.id}`}>Teléfono</Label>
+        <Input
+          id={`phone-${employee.id}`}
+          name="phone"
+          type="tel"
+          placeholder="8888-8888"
+          defaultValue={employee.phone ?? ""}
+        />
+      </div>
       <div className="grid grid-cols-2 gap-2.5">
         <div>
           <Label htmlFor={`dept-${employee.id}`}>Departamento</Label>
@@ -296,41 +342,6 @@ function InlineEditForm({
   );
 }
 
-function Dialog({
-  title,
-  onClose,
-  children,
-  wide = false,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">
-      <div
-        className={cn(
-          "max-h-[90vh] w-full overflow-y-auto rounded-t-[var(--radius-lg)] border border-border bg-surface p-5 shadow-xl sm:rounded-[var(--radius-lg)] sm:p-6",
-          wide ? "max-w-2xl" : "max-w-md",
-        )}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-foreground-muted transition-colors hover:text-foreground"
-            aria-label="Cerrar"
-          >
-            ✕
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 function CreateEmployeeDialog({
   onClose,
   onCreated,
@@ -368,9 +379,15 @@ function CreateEmployeeDialog({
             />
           </div>
         </div>
-        <div>
-          <Label htmlFor="email">Correo</Label>
-          <Input id="email" name="email" type="email" required />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label htmlFor="email">Correo</Label>
+            <Input id="email" name="email" type="email" required />
+          </div>
+          <div>
+            <Label htmlFor="phone">Teléfono</Label>
+            <Input id="phone" name="phone" type="tel" placeholder="8888-8888" />
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>

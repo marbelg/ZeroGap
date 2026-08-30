@@ -1,5 +1,138 @@
-import { ComingSoon } from "@/components/coming-soon";
+import { createClient } from "@/lib/supabase/server";
+import { StatTile } from "@/components/dashboard/stat-tile";
+import { CategoryBarChart } from "@/components/dashboard/category-bar-chart";
+import { RankingBarChart } from "@/components/dashboard/ranking-bar-chart";
+import { TrendChart } from "@/components/dashboard/trend-chart";
+import { EXPENSE_TYPE_COLOR, EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { formatCurrency } from "@/lib/utils";
+import type { Expense, Mileage, Profile } from "@/types/database";
 
-export default function AdminDashboardPage() {
-  return <ComingSoon title="Dashboard gerencial" phase="Fase 7" />;
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+function iso(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+export default async function AdminDashboardPage() {
+  const supabase = await createClient();
+  const now = new Date();
+
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+  const [{ data: currentExpenses }, { data: prevExpenses }, { data: employees }] =
+    await Promise.all([
+      supabase
+        .from("expenses")
+        .select("*")
+        .gte("date", iso(monthStart))
+        .lte("date", iso(now))
+        .neq("status", "RECHAZADO"),
+      supabase
+        .from("expenses")
+        .select("*")
+        .gte("date", iso(prevMonthStart))
+        .lte("date", iso(prevMonthEnd))
+        .neq("status", "RECHAZADO"),
+      supabase.from("profiles").select("*").eq("role", "EMPLOYEE"),
+    ]);
+
+  const current = (currentExpenses ?? []) as Expense[];
+  const previous = (prevExpenses ?? []) as Expense[];
+  const employeeList = (employees ?? []) as Profile[];
+
+  const mileageIds = current.filter((e) => e.type === "KILOMETRAJE").map((e) => e.id);
+  const { data: mileageRows } = await supabase
+    .from("mileage")
+    .select("*")
+    .in("expense_id", mileageIds.length > 0 ? mileageIds : ["00000000-0000-0000-0000-000000000000"]);
+  const mileageByExpense = new Map<string, Mileage>((mileageRows ?? []).map((m) => [m.expense_id, m]));
+
+  const moneySum = (list: Expense[]) =>
+    list.filter((e) => e.type !== "KILOMETRAJE").reduce((sum, e) => sum + Number(e.amount), 0);
+
+  const totalActual = moneySum(current);
+  const totalAnterior = moneySum(previous);
+  const deltaPct = totalAnterior > 0 ? ((totalActual - totalAnterior) / totalAnterior) * 100 : 0;
+
+  const sumByType = (type: Expense["type"]) =>
+    current.filter((e) => e.type === type).reduce((sum, e) => sum + Number(e.amount), 0);
+
+  const totalKm = current
+    .filter((e) => e.type === "KILOMETRAJE")
+    .reduce((sum, e) => sum + Number(mileageByExpense.get(e.id)?.kilometers ?? 0), 0);
+
+  const employeesWithExpenses = new Set(
+    current.filter((e) => e.type !== "KILOMETRAJE").map((e) => e.user_id),
+  );
+  const promedio =
+    employeesWithExpenses.size > 0 ? totalActual / employeesWithExpenses.size : 0;
+
+  // Tendencia: total por día del mes actual
+  const byDay = new Map<string, number>();
+  for (const e of current) {
+    if (e.type === "KILOMETRAJE") continue;
+    byDay.set(e.date, (byDay.get(e.date) ?? 0) + Number(e.amount));
+  }
+  const trendPoints = Array.from(byDay.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, value]) => ({
+      label: date.slice(8, 10) + "/" + date.slice(5, 7),
+      value,
+    }));
+
+  // Ranking por empleado
+  const byEmployee = new Map<string, number>();
+  for (const e of current) {
+    if (e.type === "KILOMETRAJE") continue;
+    byEmployee.set(e.user_id, (byEmployee.get(e.user_id) ?? 0) + Number(e.amount));
+  }
+  const employeeById = new Map(employeeList.map((p) => [p.id, p]));
+  const ranking = Array.from(byEmployee.entries())
+    .map(([id, value]) => {
+      const p = employeeById.get(id);
+      return { id, value, label: p ? `${p.first_name} ${p.last_name}` : "—" };
+    })
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8);
+
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+      <div>
+        <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+        <p className="text-sm text-foreground-muted">
+          Resumen de {monthStart.toLocaleDateString("es-CR", { month: "long", year: "numeric" })}.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <StatTile
+          label="Gasto total"
+          value={formatCurrency(totalActual, "CRC")}
+          delta={{ pct: deltaPct, label: "vs. mes anterior" }}
+        />
+        <StatTile label="Desayunos" value={formatCurrency(sumByType("DESAYUNO"), "CRC")} />
+        <StatTile label="Almuerzos" value={formatCurrency(sumByType("ALMUERZO"), "CRC")} />
+        <StatTile label="Cenas" value={formatCurrency(sumByType("CENA"), "CRC")} />
+        <StatTile label="Kilómetros" value={`${totalKm.toFixed(1)} km`} />
+        <StatTile label="Promedio / empleado" value={formatCurrency(promedio, "CRC")} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <TrendChart title="Tendencia de gastos (este mes)" points={trendPoints} />
+        <CategoryBarChart
+          title="Distribución por categoría"
+          data={(["DESAYUNO", "ALMUERZO", "CENA"] as const).map((type) => ({
+            label: EXPENSE_TYPE_LABEL[type],
+            value: sumByType(type),
+            color: EXPENSE_TYPE_COLOR[type],
+          }))}
+        />
+      </div>
+
+      <RankingBarChart title="Ranking de empleados por gasto" data={ranking} />
+    </div>
+  );
 }

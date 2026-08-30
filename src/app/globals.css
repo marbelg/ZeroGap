@@ -23,6 +23,15 @@
   --radius-lg: 1.25rem;
   --radius-md: 0.875rem;
   --radius-sm: 0.5rem;
+
+  /* Paleta categórica de gráficos — orden fijo, validada (ver skill dataviz):
+     slots 1-4 del set de 8 tonos, misma asignación siempre por tipo de gasto. */
+  --chart-series-1: #2a78d6; /* azul — Desayuno */
+  --chart-series-2: #eb6834; /* naranja — Almuerzo */
+  --chart-series-3: #1baf7a; /* aqua — Cena */
+  --chart-series-4: #eda100; /* amarillo — Kilometraje */
+  --chart-gridline: #e1e0d9;
+  --chart-axis: #c3c2b7;
 }
 
 @theme inline {
@@ -69,6 +78,13 @@
     --warning-soft: #3a2a10;
     --danger: #f16274;
     --danger-soft: #3a1620;
+
+    --chart-series-1: #3987e5;
+    --chart-series-2: #d95926;
+    --chart-series-3: #199e70;
+    --chart-series-4: #c98500;
+    --chart-gridline: #2c2c2a;
+    --chart-axis: #383835;
   }
 }
 

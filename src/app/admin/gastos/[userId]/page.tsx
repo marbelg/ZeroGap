@@ -86,7 +86,9 @@ export default async function AdminUserGastosPage({
         </Link>
       </div>
 
-      <BudgetSummary expenses={enriched} settings={settings} />
+      {(employee.role === "EMPLOYEE" || employee.role === "EMPLEADO_INDIRECTO") && (
+        <BudgetSummary expenses={enriched} settings={settings} />
+      )}
 
       <ExpenseManager expenses={enriched} employees={[employee]} />
     </div>

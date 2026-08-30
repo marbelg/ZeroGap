@@ -30,26 +30,63 @@ capacidad de crecimiento futuro.
 ## 3. Módulo de Empleados
 
 Después de iniciar sesión, el empleado tendrá una interfaz extremadamente sencilla con
-cuatro opciones principales:
+las opciones de reporte que le correspondan según su rol. Para el rol `EMPLOYEE` (y
+`EMPLEADO_INDIRECTO`, que usa exactamente la misma interfaz):
 
 - Desayuno
 - Almuerzo
 - Cena
 - Kilometraje
+- Reparación de llantas
+
+Los roles `CAJA_CHICA` y `HOTEL` ven una interfaz con una sola categoría propia en vez
+de estas cinco — ver sección 3.1.
 
 El empleado únicamente podrá consultar y administrar sus propios registros. No tendrá
 acceso a información de otros empleados ni al Dashboard administrativo.
+
+### 3.1 Roles y categorías adicionales (adición posterior al documento base)
+
+Además de `EMPLOYEE` y `ADMIN`, el sistema contempla tres roles más, todos con la
+misma protección de acceso (cada quien solo ve lo suyo):
+
+- **`EMPLEADO_INDIRECTO`** ("Empleado no directo"): interfaz idéntica a `EMPLOYEE`
+  (mismas 5 categorías). Existe como rol separado únicamente para poder
+  identificar y presupuestar aparte los gastos de personal no directo — ver
+  presupuesto mensual por rol en la sección 11 y en Configuración.
+- **`CAJA_CHICA`**: una sola categoría genérica ("Caja chica"), sin las categorías
+  fijas de comida/kilometraje. El formulario pide monto, moneda, foto del
+  comprobante y una **descripción obligatoria** ("¿En qué se gastó?") — a
+  diferencia del resto de categorías, donde la descripción no existe.
+- **`HOTEL`**: perfil especial — en vez de nombre/apellido tiene **nombre del
+  hotel** y una **tarifa por noche** (`nightly_rate`) que configura el
+  administrador. Reporta "Hospedajes" (fecha, noches, la tarifa que el hotel dice
+  haber aplicado, foto de la factura y descripción opcional). El monto que
+  realmente se paga se calcula con noches × tarifa configurada por el admin en
+  el perfil del hotel, **no** con la tarifa que el hotel reporta; si ambas
+  tarifas no coinciden, el administrador ve una alerta visible al revisar ese
+  gasto. A diferencia de las demás categorías (una vez por día), un hotel puede
+  reportar varias estadías el mismo día — la vista de detalle de día lista cada
+  una por separado con la opción de "agregar otra".
+
+Los códigos de empleado (sección 8) usan un prefijo distinto por rol: `A`
+(admin), `E` (empleado), `N` (no directo), `C` (caja chica), `H` (hotel).
 
 ## 4. Registro de desayuno, almuerzo y cena
 
 Cada registro de alimentación deberá permitir:
 
-- Fecha
+- Fecha (no se puede reportar más de 5 semanas atrás ni con fecha futura — ver
+  sección 6)
 - Hora
 - Monto
 - Moneda (USD o CRC)
-- Descripción opcional
 - Fotografía del comprobante
+
+> Estos tres formularios ya no incluyen un campo de descripción (se quitó por
+> ser innecesario en la práctica). La única categoría con descripción — y
+> obligatoria — es Caja chica (sección 3.1). Reparación de llantas usa el mismo
+> formulario que estos tres, sin descripción.
 
 La fotografía podrá tomarse directamente con la cámara del celular o seleccionarse
 desde una fotografía previamente almacenada en el dispositivo.
@@ -64,38 +101,40 @@ El estado inicial será: **Reportado**.
 
 ## 5. Registro de kilometraje
 
-El registro de kilometraje deberá permitir documentar un trayecto.
+> Simplificado respecto al diseño original de este documento (adición
+> posterior): el empleado ya no escribe lugares, horas ni números de odómetro —
+> solo reporta la evidencia; el administrador es quien asigna los kilómetros y
+> el sistema calcula el monto a pagar.
 
-Campos principales:
+El formulario que llena el empleado solo pide:
 
-- Fecha
-- Hora de inicio
-- Hora de finalización
-- Lugar de inicio
-- Lugar de destino
-- Kilometraje inicial
-- Kilometraje final
-- Kilómetros recorridos
-- Descripción opcional
-
-El sistema calculará automáticamente:
-
-```
-Kilómetros recorridos = Kilometraje final - Kilometraje inicial
-```
-
-También deberá permitir dos fotografías:
-
+- Fecha (mismo límite de 5 semanas atrás que el resto de categorías).
 - **Fotografía de inicio**: evidencia del odómetro al comenzar el trayecto.
 - **Fotografía final**: evidencia del odómetro al finalizar el trayecto.
 
 Ambas fotografías podrán tomarse con la cámara del celular o seleccionarse desde la
-galería.
+galería. El gasto se crea con monto 0 y queda como "Sin km asignados" hasta que
+Administración lo revisa.
+
+Al revisar el gasto, el administrador escribe los kilómetros recorridos (a partir de
+lo que ve en las fotos del odómetro) y el sistema calcula automáticamente:
+
+```
+Monto a pagar = Kilómetros asignados × Tarifa por km (configurada en Configuración)
+```
+
+La tarifa por km es un solo valor global que el administrador configura en
+Configuración (sección 21, adición posterior) — no varía por empleado.
 
 ## 6. Historial del empleado
 
 El empleado tendrá una sección denominada "Mis Gastos", donde podrá consultar
-únicamente sus propios registros.
+únicamente sus propios registros de la semana seleccionada, con **navegación
+semanal** (← Anterior / Siguiente →, acotada a 5 semanas hacia atrás y 5 hacia
+adelante — adición posterior a este documento). Por la misma razón, un
+empleado no puede reportar un gasto con fecha de más de 5 semanas atrás (ver
+secciones 4 y 5) — el límite se valida tanto en el campo de fecha del
+formulario como en el servidor.
 
 La información deberá mostrar como mínimo:
 
@@ -112,6 +151,11 @@ Los estados contemplados serán:
 - Rechazado
 
 En caso de rechazo, Administración podrá registrar un motivo.
+
+La vista de detalle de un día (`/empleado/dia/[fecha]`) muestra, además del estado de
+cada categoría, una tarjeta de **"Total del día"** con el monto total reportado ese
+día (y el total de noches, cuando aplica a Hospedaje) — adición posterior a este
+documento.
 
 ## 7. Módulo de Administración
 
@@ -132,16 +176,21 @@ imponga un límite fijo.
 
 Datos principales:
 
-- Nombre
+- Nombre (un hotel solo tiene "nombre del hotel", sin apellido)
 - Apellido
 - Email / usuario
 - Teléfono (opcional)
+- **Cédula** (opcional) — adición posterior a este documento
+- **Número de cuenta bancaria** (opcional) — adición posterior a este documento
 - Contraseña temporal (editable/generable, ver detalle de Fase 1)
-- Rol: Empleado / Administrador
+- Rol: Empleado / Empleado no directo / Caja chica / Hotel / Administrador
+  (ver sección 3.1 para el detalle de los tres roles añadidos)
 - Estado: Activo / Inactivo
 - Departamento (opcional)
 - Puesto (opcional)
 - Código de empleado (opcional; se autogenera si se deja en blanco)
+- **Tarifa por noche** (solo rol Hotel) — usada para calcular el monto de sus
+  hospedajes, ver sección 3.1
 
 Acciones disponibles:
 
@@ -151,9 +200,11 @@ Acciones disponibles:
 - Restablecer contraseña
 - Eliminar usuario
 
-La lista separa Empleados y Administradores en dos pestañas (con el conteo de
-cada una en el título de la pestaña), ya que el administrador puede crear
-cuentas de cualquiera de los dos roles desde el mismo formulario.
+La sección se llama **"Usuarios"** (renombrada de "Empleados") y separa la lista en
+cinco pestañas — Empleados, No directos, Caja chica, Hoteles, Admins — cada una con
+su conteo en el título. El formulario de "Crear" ya no tiene un desplegable de Rol:
+el rol lo determina la pestaña activa cuando se abre "+ Nuevo" o "Crear varios", así
+no se puede dejar el rol en un valor equivocado por accidente.
 
 ## 9. Administración de gastos
 
@@ -202,6 +253,9 @@ La sección de gastos deberá permitir filtrar y combinar criterios:
 - Almuerzo
 - Cena
 - Kilometraje
+- Reparación de llantas
+- Caja chica
+- Hospedaje
 
 **Por estado:**
 - Reportado
@@ -223,6 +277,12 @@ Indicadores principales:
 - Total de cenas
 - Total de kilómetros
 - Promedio de gasto por empleado
+
+Adición posterior a este documento: si el administrador configuró un **presupuesto
+mensual por rol** (Caja chica y/o Empleados no directos, en Configuración), el
+Dashboard muestra una tarjeta comparando el gasto real del mes contra ese
+presupuesto para cada uno de esos dos roles (0 = sin presupuesto configurado, la
+tarjeta no aparece).
 
 ## 12. Gráficos y análisis
 
@@ -263,7 +323,7 @@ Administración deberá poder generar reportes por:
 
 Debe existir una opción para exportar los resultados a CSV o Excel.
 
-El archivo deberá incluir como mínimo:
+El archivo CSV deberá incluir como mínimo:
 
 - Fecha
 - Empleado
@@ -272,6 +332,18 @@ El archivo deberá incluir como mínimo:
 - Moneda
 - Estado
 - Kilometraje cuando aplique
+- **Cédula y número de cuenta bancaria** del empleado — adición posterior a este
+  documento
+
+### Cierre de mes (adición posterior a este documento)
+
+Además del CSV con los filtros activos, Reportes tiene un botón **"Generar cierre de
+mes"** que descarga un `.xlsx` (generado en el servidor con el paquete `exceljs`)
+respetando solo el período seleccionado (ignora los demás filtros) y **solo incluye
+gastos en estado Aprobado** — un cierre de mes es lo que realmente se debe pagar. El
+libro tiene una hoja "Resumen" (total y cantidad de personas por tipo de usuario) más
+una hoja por tipo — Empleados, No directos, Caja chica, Hoteles — con ID, Nombre,
+Cédula, Cuenta bancaria, subtotal por categoría y Total por persona (u hotel).
 
 ## 15. Stack tecnológico obligatorio
 
@@ -314,6 +386,11 @@ Roles:
 - **ADMIN**
 - **EMPLOYEE**
 
+> Adición posterior a este documento: los roles `EMPLEADO_INDIRECTO`, `CAJA_CHICA`
+> y `HOTEL` (sección 3.1) siguen exactamente la misma regla de acceso que
+> `EMPLOYEE` a nivel de RLS — cualquier rol distinto de `ADMIN` solo puede leer y
+> crear sus propios registros.
+
 Un `EMPLOYEE` solamente podrá leer y crear sus propios registros y acceder a sus
 propias fotografías.
 
@@ -343,28 +420,39 @@ de acceso apropiadas.
 
 ## 18. Base de datos
 
-La estructura mínima deberá contemplar:
+La estructura mínima deberá contemplar (ver `docs/database-schema.md` para el
+esquema real completo y actualizado, incluyendo RLS):
 
 ### USERS / PROFILES
 - id
 - first_name
 - last_name
 - email
-- role
+- role (`ADMIN` / `EMPLOYEE` / `EMPLEADO_INDIRECTO` / `CAJA_CHICA` / `HOTEL` —
+  los tres últimos son adición posterior, ver sección 3.1)
 - status
 - department
 - position
+- phone
+- **cedula** — adición posterior
+- **bank_account** — adición posterior
+- **nightly_rate** — solo rol Hotel, adición posterior
+- employee_code
 - created_at
 
 ### EXPENSES
 - id
 - user_id
-- type
+- type (incluye `REPARACION_LLANTAS`, `CAJA_CHICA`, `HOSPEDAJE` — adición
+  posterior, ver sección 3.1)
 - date
 - time
 - amount
 - currency
 - description
+- **nights** — solo Hospedaje, adición posterior
+- **reported_rate** — solo Hospedaje, tarifa que el hotel dice haber aplicado,
+  adición posterior
 - status
 - rejection_reason
 - created_at
@@ -387,6 +475,13 @@ La estructura mínima deberá contemplar:
 - photo_type
 - file_url
 - created_at
+
+### APP_SETTINGS (adición posterior a este documento)
+
+Fila única de configuración global (ver sección 5, 11 y 21): presupuestos
+semanales por categoría de comida, presupuestos mensuales por rol (Caja
+chica / No directos), tarifa por km y día de pago semanal. Editable solo por
+un admin desde Configuración.
 
 > La estructura puede modificarse si existe una arquitectura técnicamente superior,
 > siempre que se mantenga la funcionalidad requerida.
@@ -435,6 +530,7 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 | 7 | Dashboard gerencial | ✅ Completada |
 | 8 | Reportes y exportación | ✅ Completada |
 | 9 | Seguridad, validaciones y pruebas | ✅ Pasada de hardening aplicada |
+| 10 | Roles adicionales (No directo/Caja chica/Hotel), presupuestos, kilometraje asignado por admin y cierre de mes | ✅ Completada (adición posterior a este documento) |
 
 ### Fase 1 — detalle de lo implementado
 
@@ -457,9 +553,9 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 - Creación masiva ("Crear varios"): el admin solo elige cuántas cuentas de
   empleado crear (sin nombres todavía) y el sistema las crea de una vez con
   nombre de marcador ("Empleado 1", "Empleado 2"...), un **ID único**
-  autogenerado (letra de rol + 3 dígitos secuenciales — `A001`, `A002`... para
-  administradores, `E001`, `E002`... para empleados, cada rol con su propio
-  contador), correo autogenerado
+  autogenerado (letra de rol + 3 dígitos secuenciales — `A001`, `A002`...
+  admin, `E001`... empleado, `N001`... no directo, `C001`... caja chica,
+  `H001`... hotel — cada rol con su propio contador), correo autogenerado
   (`nombre.apellido@zerogap.app` o similar) y contraseña temporal — un PIN
   numérico de 4 dígitos en vez de una contraseña alfanumérica, para que sea
   fácil de leer y escribir por empleados con poca familiaridad con
@@ -469,11 +565,14 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   — no hay que volver a crearla. El ID también se puede escribir a mano al
   crear un empleado individual (columna "ID" en la tabla, campo `employee_code`
   en la base de datos).
-- La lista de Empleados usa un diseño compacto de filas (no tabla ancha con
-  scroll horizontal): "Editar" expande el formulario de edición directamente
-  debajo de la fila en vez de abrir un popup — pensado para uso cómodo en
-  celular. Dos pestañas ("Empleados" / "Admins", cada una con su contador)
-  separan la lista por rol.
+- La lista de Usuarios (renombrada de "Empleados" — adición posterior a este
+  documento) usa un diseño compacto de filas (no tabla ancha con scroll
+  horizontal): "Editar" expande el formulario de edición directamente debajo
+  de la fila en vez de abrir un popup — pensado para uso cómodo en celular.
+  Cinco pestañas (Empleados / No directos / Caja chica / Hoteles / Admins,
+  cada una con su contador) separan la lista por rol, y determinan el rol con
+  el que se crea un usuario nuevo desde esa pestaña (ya no hay un desplegable
+  de "Rol" en el formulario de creación).
 - Esquema de base de datos y políticas RLS iniciales (`supabase/migrations/0001_init.sql`),
   cubriendo `profiles`, `expenses`, `mileage`, `expense_photos` y el bucket de
   Storage `receipts` — ver `docs/database-schema.md`.
@@ -487,14 +586,20 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 
 ### Fases 2-5 — detalle de lo implementado (módulo Empleado)
 
-- `/empleado/desayuno`, `/almuerzo`, `/cena`: mismo formulario reutilizable
-  (`MealExpenseForm`) parametrizado por tipo — fecha, hora, monto, moneda
-  (USD/CRC), descripción opcional y foto de comprobante obligatoria, con
-  vista previa antes de enviar.
-- `/empleado/kilometraje`: fecha, hora inicio/fin, lugar inicio/destino,
-  kilometraje inicial/final (calcula los km recorridos en vivo mientras se
-  escribe), descripción opcional, y dos fotos obligatorias (odómetro inicial
-  y final).
+- `/empleado/desayuno`, `/almuerzo`, `/cena`, `/empleado/reparacion-llantas`:
+  mismo formulario reutilizable (`MealExpenseForm`) parametrizado por tipo —
+  fecha (mínimo 5 semanas atrás, máximo hoy — `minReportableDate()` en
+  `src/lib/week.ts`, validado también en el servidor), hora, monto, moneda
+  (USD/CRC) y foto de comprobante obligatoria, con vista previa antes de
+  enviar. **El campo de descripción se quitó de estos formularios** (adición
+  posterior a este documento) — solo Caja chica lo pide, y ahí es obligatorio
+  (`requireDescription`).
+- `/empleado/kilometraje`: **simplificado** (adición posterior a este
+  documento) a solo fecha + dos fotos obligatorias (odómetro inicial y
+  final) — ya no pide lugares, horas ni números de odómetro. El gasto se crea
+  con monto 0; el administrador asigna los kilómetros al revisar las fotos y
+  el sistema calcula el monto con la tarifa de Configuración (ver sección 5 y
+  Fase 6 más abajo).
 - Captura de foto (`PhotoCapture`): dos botones separados — "Tomar foto"
   (abre la cámara, `capture="environment"`) y "Elegir de galería" — en vez de
   un solo input, porque en varios navegadores móviles un input con `capture`
@@ -511,37 +616,86 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   25 MB (`experimental.serverActions.bodySizeLimit`) — el límite por defecto
   de Next (1 MB) es insuficiente para una foto de cámara sin comprimir, y
   kilometraje manda 2 fotos en el mismo envío.
-- Inicio del empleado (`/empleado`): tarjeta "Mi semana" (`WeekTracker`) con
-  los 7 días de la semana actual (lunes a domingo) y una bolita por día con
-  el número de reportes diarios (Desayuno/Almuerzo/Cena, 0 a 3) que ya envió
-  — gris si 0, ámbar si 1-2, verde si 3. Kilometraje no cuenta para esta
-  bolita porque puede haber varios trayectos el mismo día, no es "uno por
-  día" como las comidas.
-- Cada día es un enlace a `/empleado/dia/[fecha]`, que muestra los 3 tipos de
-  comida del día: si ya se reportó, su estado (Reportado/Aprobado/Rechazado
-  con motivo); si falta, un botón "Reportar" que lleva al formulario de esa
-  categoría con la fecha ya puesta (parámetro `?date=`). Al enviar un gasto
-  de comida, el sistema redirige de vuelta a esta vista del día (en vez de a
-  "Mis Gastos") para poder seguir completando lo que falte de una vez.
-- `/empleado/mis-gastos`: historial de gastos propios con estado
-  (Reportado/Aprobado/Rechazado), motivo de rechazo cuando aplica, y enlace
-  al comprobante (URL firmada de Storage, válida 1 hora).
+- Inicio del empleado (`/empleado`): la tarjeta "Mi semana" (`WeekTracker`) se
+  muestra primero en la página (se quitó el texto de leyenda que había debajo
+  del encabezado — adición posterior a este documento), con los 7 días de la
+  semana actual (lunes a domingo) y una bolita por día con el número de
+  reportes diarios que ya envió — gris si 0, ámbar si incompleto, verde si
+  llegó a la meta del día. La meta y qué cuenta como "un reporte" dependen del
+  rol (`dailyTypesForRole`/`optionsForRole` en
+  `src/lib/employee-categories.tsx`): 4 para Empleado/No directo
+  (Desayuno/Almuerzo/Cena/Kilometraje — Llantas no cuenta, no es rutina
+  diaria), 1 para Caja chica y 1 para Hotel. Debajo, los botones de categoría
+  se muestran centrados y compactos en una grilla de 2 columnas.
+- Cada día es un enlace a `/empleado/dia/[fecha]`, que muestra las categorías
+  del día según el rol: si ya se reportó, su estado (Reportado/Aprobado/
+  Rechazado con motivo); si falta, un botón "Reportar" que lleva al
+  formulario de esa categoría con la fecha ya puesta (parámetro `?date=`). Al
+  enviar un gasto, el sistema redirige de vuelta a esta vista del día (en vez
+  de a "Mis Gastos") para poder seguir completando lo que falte de una vez.
+  Arriba de la lista hay una tarjeta **"Total del día"** (monto total, y
+  noches totales si aplica) — adición posterior a este documento. Las
+  categorías marcadas `allowMultiple` (hoy solo Hospedaje) no se limitan a un
+  slot por día: se listan todas las reportadas ese día con la opción
+  "+ Reportar otra estadía".
+- `/empleado/mis-gastos`: historial de gastos propios de la semana
+  seleccionada, con **navegación semanal** (← Anterior / Siguiente →, acotada
+  a ±5 semanas — adición posterior a este documento), un KPI de "Listo para
+  pagar" con el total aprobado de la semana pasada y su desglose
+  (`PaymentKpi`), estado (Reportado/Aprobado/Rechazado), motivo de rechazo
+  cuando aplica, y enlace al comprobante (URL firmada de Storage, válida 1
+  hora). El inicio del empleado también muestra un aviso con el **monto**
+  (no solo la fecha) que se le pagará de la semana pasada y el día de pago
+  configurado en Configuración.
 - Todo el envío de gastos usa Server Actions (`src/app/empleado/actions.ts`)
   que insertan el `expense` primero y luego la foto — si la foto falla, se
   revierte el `expense` para no dejar registros huérfanos sin comprobante.
 
 ### Fase 6 — detalle de lo implementado (Admin → Gastos)
 
-- Tabla compacta de todos los gastos (mismo patrón de filas que Empleados,
-  con "Editar" en línea en vez de popup) con: fecha, empleado, categoría,
-  monto o km, estado, comprobante.
+> Adición posterior a este documento: `/admin/gastos` se rediseñó como una
+> lista de empleados (con el conteo de reportes y pendientes de la semana
+> actual, `GastosEmployeeList`) que lleva al detalle de un empleado
+> (`/admin/gastos/[userId]`) con navegación semanal (← Anterior / Siguiente →,
+> sin límite en este caso porque es el admin quien navega) y el resumen de
+> presupuesto de esa semana. `/admin/reportes` conserva la tabla con todos los
+> gastos y los filtros descritos abajo.
+
+- Tabla compacta de gastos (mismo patrón de filas que Usuarios, con "Editar"
+  en línea en vez de popup) con: fecha, empleado, categoría, monto o km,
+  estado, comprobante.
 - Acciones: Aprobar / Rechazar (con motivo, solo cuando está "Reportado"),
-  Editar (monto/moneda/fecha/hora/descripción — no aplica a Kilometraje),
-  Eliminar, y **Crear gasto manual** (el admin lo registra a nombre de un
-  empleado; útil para gastos que no pasaron por el flujo normal).
-- Filtros combinables: fecha (hoy/semana/mes/mes anterior/rango
-  personalizado), empleado (uno o varios), categoría, estado — vía querystring
-  en un `<form method="get">`, sin JavaScript de por medio.
+  Editar (monto/moneda/fecha/hora — no aplica a Kilometraje), Eliminar, y
+  **Crear gasto manual** (el admin lo registra a nombre de un empleado; útil
+  para gastos que no pasaron por el flujo normal). Cuando el diálogo se abre
+  desde la página de un solo empleado, la categoría disponible se limita a lo
+  que ese rol puede reportar (`optionsForRole`) — adición posterior a este
+  documento, evita crear p. ej. "Desayuno" para un Hotel.
+- **Asignar kilometraje** (adición posterior a este documento): para un gasto
+  de Kilometraje sin km asignados, "Editar" muestra un formulario para que el
+  admin escriba los km recorridos; el sistema calcula el monto
+  (km × tarifa de Configuración) y lo guarda junto con una fila en `mileage`
+  (`assignMileageKm` en `src/app/admin/gastos/actions.ts`).
+- **Alerta de tarifa de hotel** (adición posterior a este documento): si un
+  gasto de Hospedaje tiene una tarifa reportada por el hotel distinta a la
+  tarifa configurada en su perfil, la fila muestra una alerta visible con
+  ambos valores.
+- Filtros combinables (en `/admin/reportes`): fecha (hoy/semana/mes/mes
+  anterior/rango personalizado), empleado (uno o varios), categoría, estado —
+  vía querystring en un `<form method="get">`, sin JavaScript de por medio.
+
+### Configuración (adición posterior a este documento)
+
+`/admin/configuracion` — pantalla rediseñada con tres tarjetas:
+
+- **Presupuesto semanal por empleado**: total y por categoría de comida
+  (Desayuno/Almuerzo/Cena) — solo informativo, 0 = sin aviso.
+- **Presupuesto mensual por rol**: Caja chica y Empleados no directos — solo
+  informativo, comparado contra el gasto real del mes (ver sección 11).
+- **Kilometraje**: tarifa por km (CRC) usada para calcular el monto cuando el
+  admin asigna kilómetros (ver Fase 6 arriba).
+- **Día de pago**: día de la semana en que se paga la semana anterior — el
+  empleado lo ve en su inicio junto con el monto (sección "Fases 2-5").
 
 ### Fase 7 — detalle de lo implementado (Dashboard)
 
@@ -553,8 +707,11 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   dinero).
 - Ranking de empleados por gasto (barras horizontales, top 8).
 - Colores por categoría fijos (no ciclan): Desayuno=azul, Almuerzo=naranja,
-  Cena=aqua, Kilometraje=amarillo — paleta validada para daltonismo (skill
-  `dataviz`), tokens en `globals.css` (`--chart-series-1..4`).
+  Cena=aqua, Kilometraje=amarillo, Reparación de llantas=magenta, Caja
+  chica=verde, Hospedaje=violeta — paleta validada para daltonismo (skill
+  `dataviz`), tokens en `globals.css` (`--chart-series-1..7`).
+- Tarjeta de **presupuesto mensual por rol** (adición posterior a este
+  documento): ver sección 11.
 
 ### Fase 8 — detalle de lo implementado (Reportes)
 
@@ -562,7 +719,11 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   "Descargar CSV".
 - `/admin/reportes/export` (route handler): genera el CSV en el servidor con
   las columnas de la sección 14 (Fecha, Empleado, Categoría, Monto, Moneda,
-  Estado, Kilometraje), respetando los filtros activos.
+  Estado, Kilometraje, Cédula, Cuenta bancaria), respetando los filtros
+  activos.
+- `/admin/reportes/cierre-mes` (route handler, adición posterior a este
+  documento): genera el `.xlsx` de cierre de mes descrito en la sección 14
+  usando `exceljs`.
 
 ### Fase 9 — detalle de lo implementado (seguridad/validación)
 

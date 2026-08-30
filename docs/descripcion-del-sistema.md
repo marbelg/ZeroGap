@@ -442,6 +442,13 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 - Módulo de Administración → Empleados: crear, editar, activar/desactivar,
   restablecer contraseña y eliminar usuarios, con contraseña temporal generada
   automáticamente y mostrada una sola vez al admin (sección 8 completa).
+- Creación masiva ("Crear varios"): el admin elige cuántos empleados crear,
+  ingresa solo nombre y apellido de cada uno, y el sistema genera
+  automáticamente el correo (`nombre.apellido@zerogap.app`) y una contraseña
+  temporal — un PIN numérico de 6 dígitos en vez de una contraseña alfanumérica,
+  para que sea fácil de leer y escribir por empleados con poca familiaridad con
+  contraseñas. Al terminar muestra una tabla con usuario+contraseña de cada uno
+  para compartirlos.
 - Esquema de base de datos y políticas RLS iniciales (`supabase/migrations/0001_init.sql`),
   cubriendo `profiles`, `expenses`, `mileage`, `expense_photos` y el bucket de
   Storage `receipts` — ver `docs/database-schema.md`.

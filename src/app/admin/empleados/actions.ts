@@ -23,10 +23,39 @@ async function assertIsAdmin() {
 }
 
 function generateTempPassword() {
-  // 10 caracteres legibles (sin ambigüedades tipo 0/O, 1/l).
-  const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  const bytes = randomBytes(10);
-  return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+  // PIN numérico de 6 dígitos: fácil de leer y escribir en el teclado del
+  // celular, pensado para empleados con poca familiaridad con contraseñas.
+  const bytes = randomBytes(6);
+  return Array.from(bytes, (b) => (b % 10).toString()).join("");
+}
+
+function slugify(text: string) {
+  // NFD separa acentos de su letra base (ej. "é" -> "e" + acento); el
+  // replace final descarta esos acentos junto con cualquier otro caracter
+  // que no sea a-z0-9, sin necesidad de listar los rangos Unicode a mano.
+  return text
+    .normalize("NFD")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+async function generateUniqueEmail(
+  admin: ReturnType<typeof createAdminClient>,
+  firstName: string,
+  lastName: string,
+) {
+  const base = `${slugify(firstName)}.${slugify(lastName)}`;
+  let suffix = 0;
+  while (true) {
+    const email = `${base}${suffix ? suffix + 1 : ""}@zerogap.app`;
+    const { data } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+    if (!data) return email;
+    suffix++;
+  }
 }
 
 export interface EmployeeFormState {
@@ -84,6 +113,79 @@ export async function createEmployee(
 
   revalidatePath("/admin/empleados");
   return { tempPassword };
+}
+
+export interface BulkEmployeeInput {
+  first_name: string;
+  last_name: string;
+}
+
+export interface BulkEmployeeResult {
+  first_name: string;
+  last_name: string;
+  email?: string;
+  tempPassword?: string;
+  error?: string;
+}
+
+export async function createEmployeesBulk(
+  people: BulkEmployeeInput[],
+): Promise<BulkEmployeeResult[]> {
+  await assertIsAdmin();
+
+  const admin = createAdminClient();
+  const results: BulkEmployeeResult[] = [];
+
+  // Secuencial (no en paralelo): generateUniqueEmail depende de lo que ya
+  // se insertó en la vuelta anterior para no repetir el mismo correo entre
+  // dos personas con nombre igual dentro del mismo lote.
+  for (const person of people) {
+    const first_name = person.first_name.trim();
+    const last_name = person.last_name.trim();
+
+    if (!first_name || !last_name) {
+      results.push({ first_name, last_name, error: "Falta nombre o apellido." });
+      continue;
+    }
+
+    const email = await generateUniqueEmail(admin, first_name, last_name);
+    const tempPassword = generateTempPassword();
+
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email,
+      password: tempPassword,
+      email_confirm: true,
+    });
+
+    if (createError || !created.user) {
+      results.push({
+        first_name,
+        last_name,
+        error: createError?.message ?? "No se pudo crear el usuario.",
+      });
+      continue;
+    }
+
+    const { error: profileError } = await admin.from("profiles").insert({
+      id: created.user.id,
+      first_name,
+      last_name,
+      email,
+      role: "EMPLOYEE",
+      status: "ACTIVE",
+    });
+
+    if (profileError) {
+      await admin.auth.admin.deleteUser(created.user.id);
+      results.push({ first_name, last_name, error: profileError.message });
+      continue;
+    }
+
+    results.push({ first_name, last_name, email, tempPassword });
+  }
+
+  revalidatePath("/admin/empleados");
+  return results;
 }
 
 export async function updateEmployee(

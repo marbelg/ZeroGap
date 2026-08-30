@@ -8,17 +8,20 @@ import { UserStatusBadge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   createEmployee,
+  createEmployeesBulk,
   updateEmployee,
   toggleEmployeeStatus,
   resetEmployeePassword,
   deleteEmployee,
   type EmployeeFormState,
+  type BulkEmployeeResult,
 } from "@/app/admin/empleados/actions";
 
 const emptyState: EmployeeFormState = {};
 
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
   const [createOpen, setCreateOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [editing, setEditing] = useState<Profile | null>(null);
   const [revealPassword, setRevealPassword] = useState<{
     name: string;
@@ -62,7 +65,10 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button size="md" variant="secondary" onClick={() => setBulkOpen(true)}>
+          Crear varios
+        </Button>
         <Button size="md" onClick={() => setCreateOpen(true)}>
           + Nuevo empleado
         </Button>
@@ -154,6 +160,8 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
         />
       )}
 
+      {bulkOpen && <BulkCreateDialog onClose={() => setBulkOpen(false)} />}
+
       {editing && (
         <EditEmployeeDialog employee={editing} onClose={() => setEditing(null)} />
       )}
@@ -173,14 +181,21 @@ function Dialog({
   title,
   onClose,
   children,
+  wide = false,
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  wide?: boolean;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">
-      <div className="w-full max-w-md rounded-t-[var(--radius-lg)] border border-border bg-surface p-6 shadow-xl sm:rounded-[var(--radius-lg)]">
+      <div
+        className={cn(
+          "w-full rounded-t-[var(--radius-lg)] border border-border bg-surface p-6 shadow-xl sm:rounded-[var(--radius-lg)]",
+          wide ? "max-w-2xl" : "max-w-md",
+        )}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
           <button
@@ -415,6 +430,163 @@ function PasswordRevealDialog({
       </div>
       <Button onClick={onClose} className="w-full">
         Listo
+      </Button>
+    </Dialog>
+  );
+}
+
+function BulkCreateDialog({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<"count" | "names" | "results">("count");
+  const [count, setCount] = useState(5);
+  const [people, setPeople] = useState<{ first_name: string; last_name: string }[]>([]);
+  const [results, setResults] = useState<BulkEmployeeResult[]>([]);
+  const [isPending, startTransition] = useTransition();
+
+  function startNamesStep() {
+    setPeople(
+      Array.from({ length: count }, (_, i) => people[i] ?? { first_name: "", last_name: "" }),
+    );
+    setStep("names");
+  }
+
+  function updatePerson(index: number, field: "first_name" | "last_name", value: string) {
+    setPeople((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
+    );
+  }
+
+  function handleCreateAll() {
+    startTransition(async () => {
+      const created = await createEmployeesBulk(people);
+      setResults(created);
+      setStep("results");
+    });
+  }
+
+  const readyCount = people.filter((p) => p.first_name.trim() && p.last_name.trim()).length;
+
+  if (step === "results") {
+    const summaryText = results
+      .filter((r) => r.email && r.tempPassword)
+      .map((r) => `${r.first_name} ${r.last_name}: ${r.email} / ${r.tempPassword}`)
+      .join("\n");
+
+    return (
+      <Dialog title="Empleados creados" onClose={onClose} wide>
+        <div className="max-h-[60vh] overflow-y-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-border text-xs uppercase tracking-wide text-foreground-muted">
+              <tr>
+                <th className="py-2 pr-3 font-medium">Nombre</th>
+                <th className="py-2 pr-3 font-medium">Usuario (correo)</th>
+                <th className="py-2 pr-3 font-medium">Contraseña</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((r, i) => (
+                <tr key={i} className="border-b border-border last:border-0">
+                  <td className="py-2 pr-3 text-foreground">
+                    {r.first_name} {r.last_name}
+                  </td>
+                  {r.error ? (
+                    <td colSpan={2} className="py-2 pr-3 text-danger">
+                      Error: {r.error}
+                    </td>
+                  ) : (
+                    <>
+                      <td className="py-2 pr-3 font-mono text-foreground-muted">{r.email}</td>
+                      <td className="py-2 pr-3 font-mono font-semibold text-foreground">
+                        {r.tempPassword}
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-3 text-xs text-foreground-muted">
+          Anota o comparte cada usuario y contraseña con la persona correspondiente — no
+          se van a volver a mostrar juntos.
+        </p>
+
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={() => navigator.clipboard.writeText(summaryText)}
+            className="flex-1 rounded-full border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted"
+          >
+            Copiar todo
+          </button>
+          <Button onClick={onClose} className="flex-1">
+            Listo
+          </Button>
+        </div>
+      </Dialog>
+    );
+  }
+
+  if (step === "names") {
+    return (
+      <Dialog title={`Nombres de los ${count} empleados`} onClose={onClose} wide>
+        <div className="max-h-[55vh] overflow-y-auto pr-1">
+          <div className="flex flex-col gap-3">
+            {people.map((person, i) => (
+              <div key={i} className="grid grid-cols-2 gap-3">
+                <Input
+                  placeholder={`Nombre ${i + 1}`}
+                  value={person.first_name}
+                  onChange={(e) => updatePerson(i, "first_name", e.target.value)}
+                />
+                <Input
+                  placeholder={`Apellido ${i + 1}`}
+                  value={person.last_name}
+                  onChange={(e) => updatePerson(i, "last_name", e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="mt-3 text-xs text-foreground-muted">
+          El usuario y la contraseña de cada uno se generan automáticamente al crearlos.
+        </p>
+
+        <div className="mt-4 flex gap-2">
+          <Button type="button" variant="secondary" onClick={() => setStep("count")} className="flex-1">
+            Atrás
+          </Button>
+          <Button
+            onClick={handleCreateAll}
+            disabled={isPending || readyCount === 0}
+            className="flex-1"
+          >
+            {isPending
+              ? "Creando…"
+              : `Crear ${readyCount || ""} empleado${readyCount === 1 ? "" : "s"}`}
+          </Button>
+        </div>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog title="Crear varios empleados" onClose={onClose}>
+      <p className="mb-3 text-sm text-foreground-muted">
+        ¿Cuántos empleados quieres crear? Después te pido el nombre de cada uno.
+      </p>
+      <Label htmlFor="bulk_count">Cantidad</Label>
+      <Input
+        id="bulk_count"
+        type="number"
+        min={1}
+        max={30}
+        value={count}
+        onChange={(e) => setCount(Math.min(30, Math.max(1, Number(e.target.value) || 1)))}
+      />
+      <Button onClick={startNamesStep} className="mt-4 w-full">
+        Continuar
       </Button>
     </Dialog>
   );

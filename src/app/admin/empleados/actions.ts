@@ -149,8 +149,12 @@ export async function createEmployee(
   const employeeCodeInput = String(formData.get("employee_code") ?? "").trim() || null;
   const VALID_ROLES: UserRole[] = ["ADMIN", "EMPLOYEE", "EMPLEADO_INDIRECTO", "CAJA_CHICA"];
   const roleInput = String(formData.get("role") ?? "");
-  const role = (VALID_ROLES.includes(roleInput as UserRole) ? roleInput : "EMPLOYEE") as UserRole;
   const passwordInput = String(formData.get("password") ?? "").trim();
+
+  if (!VALID_ROLES.includes(roleInput as UserRole)) {
+    return { error: "Rol inválido." };
+  }
+  const role = roleInput as UserRole;
 
   if (!first_name || !last_name || !email) {
     return { error: "Nombre, apellido y correo son obligatorios." };
@@ -214,6 +218,7 @@ export interface BulkEmployeeResult {
 
 export async function createEmployeesBulk(
   people: BulkEmployeeInput[],
+  role: UserRole,
 ): Promise<BulkEmployeeResult[]> {
   await assertIsAdmin();
 
@@ -232,7 +237,7 @@ export async function createEmployeesBulk(
       continue;
     }
 
-    const employeeCode = await generateUniqueEmployeeCode(admin, "EMPLOYEE");
+    const employeeCode = await generateUniqueEmployeeCode(admin, role);
     const email = await generateUniqueEmail(admin, first_name, last_name);
     const tempPassword = generateTempPassword();
 
@@ -256,7 +261,7 @@ export async function createEmployeesBulk(
       first_name,
       last_name,
       email,
-      role: "EMPLOYEE",
+      role,
       status: "ACTIVE",
       employee_code: employeeCode,
     });

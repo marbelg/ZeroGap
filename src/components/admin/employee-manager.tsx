@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import type { Profile } from "@/types/database";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
 import { UserStatusBadge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -108,7 +108,7 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
             Crear varios
           </Button>
           <Button size="sm" onClick={() => setCreateOpen(true)} className="w-full sm:w-auto">
-            + Nuevo empleado
+            + Nuevo {ROLE_LABEL[tab]}
           </Button>
         </div>
       </div>
@@ -136,16 +136,16 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
 
       {createOpen && (
         <CreateEmployeeDialog
+          role={tab}
           onClose={() => setCreateOpen(false)}
-          onCreated={(name, password, employeeCode, role) => {
+          onCreated={(name, password, employeeCode) => {
             setCreateOpen(false);
-            setTab(role);
             setRevealPassword({ name, password, employeeCode });
           }}
         />
       )}
 
-      {bulkOpen && <BulkCreateDialog onClose={() => setBulkOpen(false)} />}
+      {bulkOpen && <BulkCreateDialog role={tab} onClose={() => setBulkOpen(false)} />}
 
       {passwordFor && (
         <ChangePasswordDialog
@@ -378,20 +378,22 @@ function InlineEditForm({
 }
 
 function CreateEmployeeDialog({
+  role,
   onClose,
   onCreated,
 }: {
+  role: Profile["role"];
   onClose: () => void;
-  onCreated: (name: string, password: string, employeeCode: string | undefined, role: Profile["role"]) => void;
+  onCreated: (name: string, password: string, employeeCode: string | undefined) => void;
 }) {
   const [state, formAction, isPending] = useActionState(createEmployee, emptyState);
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState(generateClientPin);
-  const [role, setRole] = useState<Profile["role"]>("EMPLOYEE");
 
   return (
-    <Dialog title="Nuevo empleado" onClose={onClose}>
+    <Dialog title={`Nuevo ${ROLE_LABEL[role]}`} onClose={onClose}>
       <form action={formAction} className="flex flex-col gap-3">
+        <input type="hidden" name="role" value={role} />
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="first_name">Nombre</Label>
@@ -446,25 +448,9 @@ function CreateEmployeeDialog({
             <Input id="position" name="position" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="employee_code">ID (opcional)</Label>
-            <Input id="employee_code" name="employee_code" placeholder="Se genera solo" />
-          </div>
-          <div>
-            <Label htmlFor="role">Rol</Label>
-            <Select
-              id="role"
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as Profile["role"])}
-            >
-              <option value="EMPLOYEE">Empleado</option>
-              <option value="EMPLEADO_INDIRECTO">Empleado no directo</option>
-              <option value="CAJA_CHICA">Caja chica</option>
-              <option value="ADMIN">Administrador</option>
-            </Select>
-          </div>
+        <div>
+          <Label htmlFor="employee_code">ID (opcional)</Label>
+          <Input id="employee_code" name="employee_code" placeholder="Se genera solo" />
         </div>
 
         <div>
@@ -500,14 +486,14 @@ function CreateEmployeeDialog({
             password={state.tempPassword}
             employeeCode={state.employeeCode}
             onDone={() =>
-              onCreated(fullName || "El nuevo empleado", state.tempPassword!, state.employeeCode, role)
+              onCreated(fullName || "El nuevo usuario", state.tempPassword!, state.employeeCode)
             }
           />
         )}
 
         {!state.tempPassword && (
           <Button type="submit" disabled={isPending} className="mt-2 w-full">
-            {isPending ? "Creando…" : "Crear empleado"}
+            {isPending ? "Creando…" : `Crear ${ROLE_LABEL[role].toLowerCase()}`}
           </Button>
         )}
       </form>
@@ -658,11 +644,12 @@ function ChangePasswordDialog({
   );
 }
 
-function BulkCreateDialog({ onClose }: { onClose: () => void }) {
+function BulkCreateDialog({ role, onClose }: { role: Profile["role"]; onClose: () => void }) {
   const [step, setStep] = useState<"count" | "results">("count");
   const [count, setCount] = useState(5);
   const [results, setResults] = useState<BulkEmployeeResult[]>([]);
   const [isPending, startTransition] = useTransition();
+  const roleLabel = ROLE_LABEL[role].toLowerCase();
 
   function handleCreateAll() {
     // Se crean con nombre de marcador ("Empleado 1", "Empleado 2"...) — el
@@ -670,12 +657,12 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
     // desde "Editar" en la fila, le pone el nombre real a cada una cuando
     // le asigne la cuenta a una persona (identificándola por su ID).
     const placeholders = Array.from({ length: count }, (_, i) => ({
-      first_name: "Empleado",
+      first_name: ROLE_LABEL[role],
       last_name: String(i + 1),
     }));
 
     startTransition(async () => {
-      const created = await createEmployeesBulk(placeholders);
+      const created = await createEmployeesBulk(placeholders, role);
       setResults(created);
       setStep("results");
     });
@@ -688,7 +675,7 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
       .join("\n");
 
     return (
-      <Dialog title="Empleados creados" onClose={onClose} wide>
+      <Dialog title={`Usuarios de "${ROLE_LABEL[role]}" creados`} onClose={onClose} wide>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border text-xs uppercase tracking-wide text-foreground-muted">
@@ -745,11 +732,11 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Dialog title="Crear varios empleados" onClose={onClose}>
+    <Dialog title={`Crear varios de "${ROLE_LABEL[role]}"`} onClose={onClose}>
       <p className="mb-3 text-sm text-foreground-muted">
-        ¿Cuántos empleados quieres crear? Se crean de una vez con un ID, usuario y
-        contraseña listos para usar — luego, cuando sepas para quién es cada uno, le
-        pones el nombre real desde &quot;Editar&quot;.
+        ¿Cuántos usuarios de &quot;{ROLE_LABEL[role]}&quot; quieres crear? Se crean de
+        una vez con un ID, usuario y contraseña listos para usar — luego, cuando sepas
+        para quién es cada uno, le pones el nombre real desde &quot;Editar&quot;.
       </p>
       <Label htmlFor="bulk_count">Cantidad</Label>
       <Input
@@ -761,7 +748,7 @@ function BulkCreateDialog({ onClose }: { onClose: () => void }) {
         onChange={(e) => setCount(Math.min(30, Math.max(1, Number(e.target.value) || 1)))}
       />
       <Button onClick={handleCreateAll} disabled={isPending} className="mt-4 w-full">
-        {isPending ? "Creando…" : `Crear ${count} empleado${count === 1 ? "" : "s"}`}
+        {isPending ? "Creando…" : `Crear ${count} ${roleLabel}${count === 1 ? "" : "s"}`}
       </Button>
     </Dialog>
   );

@@ -23,11 +23,12 @@ async function assertIsAdmin() {
 }
 
 function generateTempPassword() {
-  // PIN numérico de 4 dígitos: fácil de leer y escribir en el teclado del
+  // PIN numérico de 6 dígitos: fácil de leer y escribir en el teclado del
   // celular, pensado para empleados con poca familiaridad con contraseñas.
   // Requiere que en Supabase (Authentication → Sign In / Providers →
-  // Password) la longitud mínima esté en 4 — por defecto Supabase exige 6.
-  const bytes = randomBytes(4);
+  // Password) la longitud mínima esté en 4 o menos — por defecto Supabase
+  // exige 6, así que si ya la bajaste no hace falta tocarla de nuevo.
+  const bytes = randomBytes(6);
   return Array.from(bytes, (b) => (b % 10).toString()).join("");
 }
 
@@ -199,6 +200,7 @@ export async function createEmployee(
     position,
     employee_code,
     nightly_rate,
+    current_pin: tempPassword,
   });
 
   if (profileError) {
@@ -272,6 +274,7 @@ export async function createEmployeesBulk(
       role,
       status: "ACTIVE",
       employee_code: employeeCode,
+      current_pin: tempPassword,
     });
 
     if (profileError) {
@@ -366,6 +369,10 @@ export async function resetEmployeePassword(
   });
 
   if (error) return { error: error.message };
+
+  await admin.from("profiles").update({ current_pin: tempPassword }).eq("id", id);
+
+  revalidatePath("/admin/empleados");
   return { tempPassword };
 }
 

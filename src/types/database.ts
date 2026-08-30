@@ -31,6 +31,7 @@ export type Profile = {
   position: string | null;
   employee_code: string | null;
   nightly_rate: number | null;
+  current_pin: string | null;
   created_at: string;
 }
 

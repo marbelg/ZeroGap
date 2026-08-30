@@ -40,7 +40,7 @@ const ROLE_TABS: { value: Profile["role"]; label: string }[] = [
 // guardar, así que no necesita ser criptográficamente robusta aquí (el
 // servidor no depende de esta función para nada).
 function generateClientPin() {
-  return String(Math.floor(1000 + Math.random() * 9000));
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
@@ -273,7 +273,7 @@ function EmployeeRow({
         <ActionChip disabled={isPending} onClick={onToggle}>
           {employee.status === "ACTIVE" ? "Desactivar" : "Activar"}
         </ActionChip>
-        <ActionChip onClick={onResetPassword}>Restablecer clave</ActionChip>
+        <ActionChip onClick={onResetPassword}>Ver / cambiar clave</ActionChip>
         <ActionChip danger disabled={isPending} onClick={onDelete}>
           Eliminar
         </ActionChip>
@@ -525,7 +525,7 @@ function CreateEmployeeDialog({
         </div>
 
         <div>
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="password">Contraseña (6 dígitos)</Label>
           <div className="flex gap-2">
             <Input
               id="password"
@@ -674,12 +674,22 @@ function ChangePasswordDialog({
   }
 
   return (
-    <Dialog title={`Contraseña de ${employee.first_name} ${employee.last_name}`} onClose={onClose}>
-      <p className="mb-3 text-sm text-foreground-muted">
-        Escribe la contraseña que quieras asignarle, o genera una nueva. Se
-        aplica de inmediato al guardar.
-      </p>
-      <Label htmlFor="change_password">Contraseña</Label>
+    <Dialog title={`Clave de ${employee.first_name} ${employee.last_name}`} onClose={onClose}>
+      <div className="mb-4">
+        <p className="mb-1 text-xs font-medium text-foreground-muted">Clave actual</p>
+        {employee.current_pin ? (
+          <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-surface-muted px-4 py-3 font-mono text-lg font-semibold text-foreground">
+            {employee.current_pin}
+          </div>
+        ) : (
+          <p className="rounded-[var(--radius-md)] border border-dashed border-border px-4 py-3 text-sm text-foreground-muted">
+            No hay una clave guardada todavía — genera una abajo.
+          </p>
+        )}
+      </div>
+
+      <p className="mb-2 text-xs font-medium text-foreground-muted">Cambiar clave</p>
+      <Label htmlFor="change_password">Nueva clave (6 dígitos)</Label>
       <div className="flex gap-2">
         <Input
           id="change_password"

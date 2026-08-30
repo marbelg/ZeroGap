@@ -393,7 +393,7 @@ function ManualExpenseDialog({
 }) {
   const [state, formAction, isPending] = useActionState(createExpenseManual, manualEmptyState);
   const [type, setType] = useState<
-    "DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE" | "REPARACION_LLANTAS"
+    "DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE" | "REPARACION_LLANTAS" | "CAJA_CHICA"
   >("DESAYUNO");
 
   useEffect(() => {
@@ -438,6 +438,7 @@ function ManualExpenseDialog({
               <option value="CENA">Cena</option>
               <option value="KILOMETRAJE">Kilometraje</option>
               <option value="REPARACION_LLANTAS">Reparación de llantas</option>
+              <option value="CAJA_CHICA">Caja chica</option>
             </Select>
           </div>
         </div>

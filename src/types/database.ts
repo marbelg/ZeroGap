@@ -1,6 +1,12 @@
-export type UserRole = "ADMIN" | "EMPLOYEE";
+export type UserRole = "ADMIN" | "EMPLOYEE" | "EMPLEADO_INDIRECTO" | "CAJA_CHICA";
 export type UserStatus = "ACTIVE" | "INACTIVE";
-export type ExpenseType = "DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE" | "REPARACION_LLANTAS";
+export type ExpenseType =
+  | "DESAYUNO"
+  | "ALMUERZO"
+  | "CENA"
+  | "KILOMETRAJE"
+  | "REPARACION_LLANTAS"
+  | "CAJA_CHICA";
 export type ExpenseStatus = "REPORTADO" | "APROBADO" | "RECHAZADO";
 export type Currency = "USD" | "CRC";
 export type PhotoType = "COMPROBANTE" | "ODOMETRO_INICIAL" | "ODOMETRO_FINAL";

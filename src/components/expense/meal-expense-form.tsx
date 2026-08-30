@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { createMealExpense, type ExpenseFormState } from "@/app/empleado/actions";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import type { ExpenseType } from "@/types/database";
 import { minReportableDate, todayISODate } from "@/lib/week";
@@ -19,9 +19,11 @@ function nowTimeValue() {
 export function MealExpenseForm({
   type,
   initialDate,
+  requireDescription,
 }: {
   type: ExpenseType;
   initialDate?: string;
+  requireDescription?: boolean;
 }) {
   const action = createMealExpense.bind(null, type);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -70,6 +72,19 @@ export function MealExpenseForm({
           </Select>
         </div>
       </div>
+
+      {requireDescription && (
+        <div>
+          <Label htmlFor="description">¿En qué se gastó?</Label>
+          <Textarea
+            id="description"
+            name="description"
+            rows={3}
+            placeholder="Ej. Compra de artículos de limpieza para la oficina"
+            required
+          />
+        </div>
+      )}
 
       <PhotoCapture name="photo" label="Foto del comprobante" required />
 

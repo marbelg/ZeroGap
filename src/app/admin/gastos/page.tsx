@@ -8,7 +8,7 @@ export default async function AdminGastosPage() {
   const { data: employees } = await supabase
     .from("profiles")
     .select("*")
-    .eq("role", "EMPLOYEE")
+    .neq("role", "ADMIN")
     .order("first_name");
 
   const weekDays = currentWeekDays();

@@ -42,12 +42,16 @@ export async function createMealExpense(
   const amount = Number(formData.get("amount"));
   const currency = String(formData.get("currency") ?? "CRC") as Currency;
   const photo = formData.get("photo") as File | null;
+  const description = String(formData.get("description") ?? "").trim() || null;
 
   if (!date || !time) return { error: "Fecha y hora son obligatorias." };
   const dateError = validateReportDate(date);
   if (dateError) return { error: dateError };
   if (!Number.isFinite(amount) || amount <= 0) {
     return { error: "El monto debe ser mayor a cero." };
+  }
+  if (type === "CAJA_CHICA" && !description) {
+    return { error: "Agrega una descripción del gasto." };
   }
   if (!photo || photo.size === 0) {
     return { error: "Debes adjuntar la foto del comprobante." };
@@ -64,6 +68,7 @@ export async function createMealExpense(
       time,
       amount,
       currency,
+      description,
       status: "REPORTADO",
     })
     .select("id")

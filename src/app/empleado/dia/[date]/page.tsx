@@ -4,17 +4,8 @@ import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { dailyTypesForRole, optionsForRole } from "@/lib/employee-categories";
 import type { ExpenseType } from "@/types/database";
-
-const DAILY_TYPES: ExpenseType[] = ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE"];
-
-const TYPE_HREF: Record<ExpenseType, string> = {
-  DESAYUNO: "/empleado/desayuno",
-  ALMUERZO: "/empleado/almuerzo",
-  CENA: "/empleado/cena",
-  KILOMETRAJE: "/empleado/kilometraje",
-  REPARACION_LLANTAS: "/empleado/reparacion-llantas",
-};
 
 export default async function DayDetailPage({
   params,
@@ -31,12 +22,23 @@ export default async function DayDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user!.id)
+    .single();
+  const role = profile?.role ?? "EMPLOYEE";
+  const dailyTypes = dailyTypesForRole(role);
+  const typeHref: Partial<Record<ExpenseType, string>> = Object.fromEntries(
+    optionsForRole(role).map((o) => [o.type, o.href]),
+  );
+
   const { data: expenses } = await supabase
     .from("expenses")
     .select("*")
     .eq("user_id", user!.id)
     .eq("date", date)
-    .in("type", DAILY_TYPES);
+    .in("type", dailyTypes);
 
   const byType = new Map((expenses ?? []).map((e) => [e.type, e]));
 
@@ -59,7 +61,7 @@ export default async function DayDetailPage({
       )}
 
       <div className="flex flex-col gap-3">
-        {DAILY_TYPES.map((type) => {
+        {dailyTypes.map((type) => {
           const expense = byType.get(type);
           return (
             <Card key={type} className="p-4">
@@ -71,7 +73,7 @@ export default async function DayDetailPage({
                   <ExpenseStatusBadge status={expense.status} />
                 ) : (
                   <Link
-                    href={`${TYPE_HREF[type]}?date=${date}`}
+                    href={`${typeHref[type]}?date=${date}`}
                     className="rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
                   >
                     Reportar

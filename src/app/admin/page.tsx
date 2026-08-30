@@ -36,7 +36,7 @@ export default async function AdminDashboardPage() {
         .gte("date", iso(prevMonthStart))
         .lte("date", iso(prevMonthEnd))
         .neq("status", "RECHAZADO"),
-      supabase.from("profiles").select("*").eq("role", "EMPLOYEE"),
+      supabase.from("profiles").select("*").neq("role", "ADMIN"),
     ]);
 
   const current = (currentExpenses ?? []) as Expense[];
@@ -120,7 +120,7 @@ export default async function AdminDashboardPage() {
         <CategoryBarChart
           title="Distribución por categoría"
           data={(
-            ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS"] as const
+            ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS", "CAJA_CHICA"] as const
           ).map((type) => ({
             label: EXPENSE_TYPE_LABEL[type],
             value: sumByType(type),

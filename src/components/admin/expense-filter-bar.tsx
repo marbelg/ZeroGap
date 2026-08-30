@@ -42,6 +42,7 @@ export function ExpenseFilterBar({
         <option value="CENA">Cena</option>
         <option value="KILOMETRAJE">Kilometraje</option>
         <option value="REPARACION_LLANTAS">Reparación de llantas</option>
+        <option value="CAJA_CHICA">Caja chica</option>
       </select>
 
       <select

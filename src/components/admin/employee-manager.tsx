@@ -20,6 +20,20 @@ import {
 
 const emptyState: EmployeeFormState = {};
 
+const ROLE_LABEL: Record<Profile["role"], string> = {
+  ADMIN: "Administrador",
+  EMPLOYEE: "Empleado",
+  EMPLEADO_INDIRECTO: "Empleado no directo",
+  CAJA_CHICA: "Caja chica",
+};
+
+const ROLE_TABS: { value: Profile["role"]; label: string }[] = [
+  { value: "EMPLOYEE", label: "Empleados" },
+  { value: "EMPLEADO_INDIRECTO", label: "No directos" },
+  { value: "CAJA_CHICA", label: "Caja chica" },
+  { value: "ADMIN", label: "Admins" },
+];
+
 // Solo para prellenar el campo en la UI — el admin la puede editar antes de
 // guardar, así que no necesita ser criptográficamente robusta aquí (el
 // servidor no depende de esta función para nada).
@@ -28,7 +42,7 @@ function generateClientPin() {
 }
 
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
-  const [tab, setTab] = useState<"EMPLOYEE" | "ADMIN">("EMPLOYEE");
+  const [tab, setTab] = useState<Profile["role"]>("EMPLOYEE");
   const [createOpen, setCreateOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [passwordFor, setPasswordFor] = useState<Profile | null>(null);
@@ -58,38 +72,30 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
   }
 
 
-  const employeeCount = employees.filter((e) => e.role === "EMPLOYEE").length;
-  const adminCount = employees.filter((e) => e.role === "ADMIN").length;
   const visible = employees.filter((e) => e.role === tab);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-1 rounded-full bg-surface-muted p-1">
-          <button
-            type="button"
-            onClick={() => setTab("EMPLOYEE")}
-            className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-              tab === "EMPLOYEE"
-                ? "bg-surface text-foreground shadow-sm"
-                : "text-foreground-muted hover:text-foreground",
-            )}
-          >
-            Empleados ({employeeCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("ADMIN")}
-            className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-              tab === "ADMIN"
-                ? "bg-surface text-foreground shadow-sm"
-                : "text-foreground-muted hover:text-foreground",
-            )}
-          >
-            Admins ({adminCount})
-          </button>
+        <div className="flex flex-wrap gap-1 rounded-full bg-surface-muted p-1">
+          {ROLE_TABS.map((roleTab) => {
+            const count = employees.filter((e) => e.role === roleTab.value).length;
+            return (
+              <button
+                key={roleTab.value}
+                type="button"
+                onClick={() => setTab(roleTab.value)}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                  tab === roleTab.value
+                    ? "bg-surface text-foreground shadow-sm"
+                    : "text-foreground-muted hover:text-foreground",
+                )}
+              >
+                {roleTab.label} ({count})
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -110,7 +116,7 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface">
         {visible.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-foreground-muted">
-            {tab === "ADMIN" ? "No hay administradores." : "Aún no hay empleados registrados."}
+            No hay usuarios en &ldquo;{ROLE_LABEL[tab]}&rdquo;.
           </p>
         ) : (
           <div className="divide-y divide-border">
@@ -447,6 +453,8 @@ function CreateEmployeeDialog({
             <Label htmlFor="role">Rol</Label>
             <Select id="role" name="role" defaultValue="EMPLOYEE">
               <option value="EMPLOYEE">Empleado</option>
+              <option value="EMPLEADO_INDIRECTO">Empleado no directo</option>
+              <option value="CAJA_CHICA">Caja chica</option>
               <option value="ADMIN">Administrador</option>
             </Select>
           </div>

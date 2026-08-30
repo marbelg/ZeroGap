@@ -92,14 +92,20 @@ async function generateUniqueEmployeeCode(
   admin: ReturnType<typeof createAdminClient>,
   role: UserRole,
 ) {
-  // Código corto: A### para administradores, E### para empleados — pensado
-  // para escribirlo en un carnet/papel físico y repartirlo, no para ser
-  // secreto. Cada rol lleva su propio contador; al llenar los 999 números
-  // de tres dígitos, sigue con EA001, luego EB001, etc. (ver
-  // letterSuffixForBlock). Además de esta verificación en la app, la
-  // columna `employee_code` tiene un UNIQUE en la base de datos (migración
-  // 0003) como respaldo ante condiciones de carrera.
-  const prefix = role === "ADMIN" ? "A" : "E";
+  // Código corto: A### admin, E### empleado, I### empleado no directo,
+  // C### caja chica — pensado para escribirlo en un carnet/papel físico y
+  // repartirlo, no para ser secreto. Cada rol lleva su propio contador; al
+  // llenar los 999 números de tres dígitos, sigue con EA001, luego EB001,
+  // etc. (ver letterSuffixForBlock). Además de esta verificación en la app,
+  // la columna `employee_code` tiene un UNIQUE en la base de datos
+  // (migración 0003) como respaldo ante condiciones de carrera.
+  const ROLE_PREFIX: Record<UserRole, string> = {
+    ADMIN: "A",
+    EMPLOYEE: "E",
+    EMPLEADO_INDIRECTO: "I",
+    CAJA_CHICA: "C",
+  };
+  const prefix = ROLE_PREFIX[role];
 
   const { count } = await admin
     .from("profiles")
@@ -141,7 +147,9 @@ export async function createEmployee(
   const department = String(formData.get("department") ?? "").trim() || null;
   const position = String(formData.get("position") ?? "").trim() || null;
   const employeeCodeInput = String(formData.get("employee_code") ?? "").trim() || null;
-  const role = (formData.get("role") === "ADMIN" ? "ADMIN" : "EMPLOYEE") as UserRole;
+  const VALID_ROLES: UserRole[] = ["ADMIN", "EMPLOYEE", "EMPLEADO_INDIRECTO", "CAJA_CHICA"];
+  const roleInput = String(formData.get("role") ?? "");
+  const role = (VALID_ROLES.includes(roleInput as UserRole) ? roleInput : "EMPLOYEE") as UserRole;
   const passwordInput = String(formData.get("password") ?? "").trim();
 
   if (!first_name || !last_name || !email) {

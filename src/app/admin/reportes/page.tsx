@@ -29,13 +29,6 @@ export default async function ReportesPage({
   if (sp.type) query.set("type", sp.type);
   if (sp.status) query.set("status", sp.status);
 
-  // El cierre de mes solo respeta el período (fecha) — siempre incluye a
-  // todos los usuarios y tipos, y solo lo aprobado (se filtra en el server).
-  const closingQuery = new URLSearchParams();
-  if (sp.date) closingQuery.set("date", sp.date);
-  if (sp.from) closingQuery.set("from", sp.from);
-  if (sp.to) closingQuery.set("to", sp.to);
-
   const total = enriched.reduce((sum, e) => sum + Number(e.amount), 0);
 
   return (
@@ -49,10 +42,10 @@ export default async function ReportesPage({
         </div>
         <div className="flex flex-wrap gap-2">
           <a
-            href={`/admin/reportes/cierre-mes?${closingQuery.toString()}`}
+            href="/admin/reportes/control-viaticos"
             className="flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted"
           >
-            Generar cierre de mes
+            Generar control viáticos
           </a>
           <a
             href={`/admin/reportes/export?${query.toString()}`}

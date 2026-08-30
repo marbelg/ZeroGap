@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
-import type { Profile } from "@/types/database";
+import type { ExpenseType, Profile } from "@/types/database";
 import type { EnrichedExpense } from "@/lib/expenses";
 import { EXPENSE_TYPE_LABEL, EXPENSE_TYPE_COLOR } from "@/lib/expense-meta";
+import { optionsForRole } from "@/lib/employee-categories";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -409,15 +410,23 @@ function ManualExpenseDialog({
   onClose: () => void;
 }) {
   const [state, formAction, isPending] = useActionState(createExpenseManual, manualEmptyState);
-  const [type, setType] = useState<
-    | "DESAYUNO"
-    | "ALMUERZO"
-    | "CENA"
-    | "KILOMETRAJE"
-    | "REPARACION_LLANTAS"
-    | "CAJA_CHICA"
-    | "HOSPEDAJE"
-  >("DESAYUNO");
+  // Si solo hay un empleado en contexto (el caso normal: se abre desde la
+  // página de un usuario específico), la categoría se limita a lo que ese
+  // rol puede reportar — así no se puede crear "Desayuno" para un hotel.
+  const singleEmployee = employees.length === 1 ? employees[0] : null;
+  const ALL_TYPES: ExpenseType[] = [
+    "DESAYUNO",
+    "ALMUERZO",
+    "CENA",
+    "KILOMETRAJE",
+    "REPARACION_LLANTAS",
+    "CAJA_CHICA",
+    "HOSPEDAJE",
+  ];
+  const allowedTypes = singleEmployee
+    ? optionsForRole(singleEmployee.role).map((o) => o.type)
+    : ALL_TYPES;
+  const [type, setType] = useState<ExpenseType>(allowedTypes[0]);
 
   useEffect(() => {
     if (state.ok) onClose();
@@ -454,15 +463,13 @@ function ManualExpenseDialog({
               id="m_type"
               name="type"
               value={type}
-              onChange={(e) => setType(e.target.value as typeof type)}
+              onChange={(e) => setType(e.target.value as ExpenseType)}
             >
-              <option value="DESAYUNO">Desayuno</option>
-              <option value="ALMUERZO">Almuerzo</option>
-              <option value="CENA">Cena</option>
-              <option value="KILOMETRAJE">Kilometraje</option>
-              <option value="REPARACION_LLANTAS">Reparación de llantas</option>
-              <option value="CAJA_CHICA">Caja chica</option>
-              <option value="HOSPEDAJE">Hospedaje</option>
+              {allowedTypes.map((t) => (
+                <option key={t} value={t}>
+                  {EXPENSE_TYPE_LABEL[t]}
+                </option>
+              ))}
             </Select>
           </div>
         </div>

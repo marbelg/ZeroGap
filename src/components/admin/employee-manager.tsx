@@ -137,8 +137,9 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
       {createOpen && (
         <CreateEmployeeDialog
           onClose={() => setCreateOpen(false)}
-          onCreated={(name, password, employeeCode) => {
+          onCreated={(name, password, employeeCode, role) => {
             setCreateOpen(false);
+            setTab(role);
             setRevealPassword({ name, password, employeeCode });
           }}
         />
@@ -381,11 +382,12 @@ function CreateEmployeeDialog({
   onCreated,
 }: {
   onClose: () => void;
-  onCreated: (name: string, password: string, employeeCode?: string) => void;
+  onCreated: (name: string, password: string, employeeCode: string | undefined, role: Profile["role"]) => void;
 }) {
   const [state, formAction, isPending] = useActionState(createEmployee, emptyState);
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState(generateClientPin);
+  const [role, setRole] = useState<Profile["role"]>("EMPLOYEE");
 
   return (
     <Dialog title="Nuevo empleado" onClose={onClose}>
@@ -451,7 +453,12 @@ function CreateEmployeeDialog({
           </div>
           <div>
             <Label htmlFor="role">Rol</Label>
-            <Select id="role" name="role" defaultValue="EMPLOYEE">
+            <Select
+              id="role"
+              name="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as Profile["role"])}
+            >
               <option value="EMPLOYEE">Empleado</option>
               <option value="EMPLEADO_INDIRECTO">Empleado no directo</option>
               <option value="CAJA_CHICA">Caja chica</option>
@@ -493,7 +500,7 @@ function CreateEmployeeDialog({
             password={state.tempPassword}
             employeeCode={state.employeeCode}
             onDone={() =>
-              onCreated(fullName || "El nuevo empleado", state.tempPassword!, state.employeeCode)
+              onCreated(fullName || "El nuevo empleado", state.tempPassword!, state.employeeCode, role)
             }
           />
         )}

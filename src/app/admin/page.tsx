@@ -110,8 +110,24 @@ export default async function AdminDashboardPage() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 8);
 
+  // Dos grupos con escalas muy distintas (caja chica/hospedaje son montos
+  // grandes de una vez, la comida diaria es de a poco) — separados en dos
+  // gráficos para que ninguno "aplaste" al otro visualmente.
+  const dailyCategoryData = (
+    ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS"] as const
+  ).map((type) => ({
+    label: EXPENSE_TYPE_LABEL[type],
+    value: sumByType(type),
+    color: EXPENSE_TYPE_COLOR[type],
+  }));
+  const lumpCategoryData = (["CAJA_CHICA", "HOSPEDAJE"] as const).map((type) => ({
+    label: EXPENSE_TYPE_LABEL[type],
+    value: sumByType(type),
+    color: EXPENSE_TYPE_COLOR[type],
+  }));
+
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="mx-auto flex max-w-6xl flex-col gap-3">
       <div>
         <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
         <p className="text-sm text-foreground-muted">
@@ -119,7 +135,7 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
         <StatTile
           label="Gasto total"
           value={formatCurrency(totalActual, "CRC")}
@@ -133,7 +149,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {hasRoleBudget && (
-        <Card className="flex flex-col gap-3 p-4">
+        <Card className="flex flex-col gap-2 p-3">
           <p className="text-sm font-semibold text-foreground">Presupuesto mensual por rol</p>
           <BudgetLine
             label="Caja chica"
@@ -148,26 +164,12 @@ export default async function AdminDashboardPage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <TrendChart title="Tendencia de gastos (este mes)" points={trendPoints} />
-        <CategoryBarChart
-          title="Distribución por categoría"
-          data={(
-            [
-              "DESAYUNO",
-              "ALMUERZO",
-              "CENA",
-              "KILOMETRAJE",
-              "REPARACION_LLANTAS",
-              "CAJA_CHICA",
-              "HOSPEDAJE",
-            ] as const
-          ).map((type) => ({
-            label: EXPENSE_TYPE_LABEL[type],
-            value: sumByType(type),
-            color: EXPENSE_TYPE_COLOR[type],
-          }))}
-        />
+        <div className="flex flex-col gap-3">
+          <CategoryBarChart title="Gastos diarios" data={dailyCategoryData} compact />
+          <CategoryBarChart title="Caja chica y hospedaje" data={lumpCategoryData} compact />
+        </div>
       </div>
 
       <RankingBarChart title="Ranking de empleados por gasto" data={ranking} />

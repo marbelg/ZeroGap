@@ -13,17 +13,21 @@ export interface CategoryBarDatum {
 export function CategoryBarChart({
   title,
   data,
+  compact,
 }: {
   title: string;
   data: CategoryBarDatum[];
+  compact?: boolean;
 }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const max = Math.max(1, ...data.map((d) => d.value));
 
   return (
-    <Card className="p-4">
-      <p className="mb-4 text-sm font-semibold text-foreground">{title}</p>
-      <div className="flex h-40 items-stretch gap-3 border-b border-[var(--chart-axis)] pb-0">
+    <Card className="p-3">
+      <p className="mb-2 text-sm font-semibold text-foreground">{title}</p>
+      <div
+        className={`flex items-stretch gap-2 border-b border-[var(--chart-axis)] pb-0 ${compact ? "h-20" : "h-32"}`}
+      >
         {data.map((d, i) => {
           const heightPct = Math.max(2, (d.value / max) * 100);
           return (
@@ -50,14 +54,14 @@ export function CategoryBarChart({
           );
         })}
       </div>
-      <div className="mt-2 flex gap-3">
+      <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
         {data.map((d) => (
-          <div key={d.label} className="flex flex-1 items-center gap-1.5">
+          <div key={d.label} className="flex items-center gap-1.5">
             <span
-              className="size-2 shrink-0 rounded-full"
+              className="size-1.5 shrink-0 rounded-full"
               style={{ backgroundColor: d.color }}
             />
-            <span className="truncate text-xs text-foreground-muted">{d.label}</span>
+            <span className="text-[11px] text-foreground-muted">{d.label}</span>
           </div>
         ))}
       </div>

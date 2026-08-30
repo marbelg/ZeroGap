@@ -10,12 +10,12 @@ export function StatTile({
   delta?: { pct: number; label: string } | null;
 }) {
   return (
-    <Card className="p-4">
+    <Card className="p-3">
       <p className="text-xs font-medium text-foreground-muted">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+      <p className="mt-0.5 text-lg font-semibold text-foreground">{value}</p>
       {delta && (
         <p
-          className={`mt-1 text-xs font-medium ${
+          className={`mt-0.5 text-[11px] font-medium ${
             delta.pct > 0 ? "text-success" : delta.pct < 0 ? "text-danger" : "text-foreground-muted"
           }`}
         >

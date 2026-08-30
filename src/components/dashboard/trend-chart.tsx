@@ -10,10 +10,10 @@ export interface TrendPoint {
 }
 
 const WIDTH = 600;
-const HEIGHT = 180;
+const HEIGHT = 140;
 const PAD_X = 8;
-const PAD_TOP = 12;
-const PAD_BOTTOM = 24;
+const PAD_TOP = 10;
+const PAD_BOTTOM = 20;
 
 export function TrendChart({ title, points }: { title: string; points: TrendPoint[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
@@ -54,8 +54,8 @@ export function TrendChart({ title, points }: { title: string; points: TrendPoin
   const activeCoord = hovered !== null ? coords[hovered] : null;
 
   return (
-    <Card className="p-4">
-      <p className="mb-2 text-sm font-semibold text-foreground">{title}</p>
+    <Card className="p-3">
+      <p className="mb-1.5 text-sm font-semibold text-foreground">{title}</p>
       {points.length === 0 ? (
         <p className="py-14 text-center text-sm text-foreground-muted">Sin datos todavía.</p>
       ) : (

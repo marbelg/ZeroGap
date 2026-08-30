@@ -30,9 +30,9 @@ export function RankingBarChart({
   }
 
   return (
-    <Card className="p-4">
-      <p className="mb-4 text-sm font-semibold text-foreground">{title}</p>
-      <div className="flex flex-col gap-2.5">
+    <Card className="p-3">
+      <p className="mb-2.5 text-sm font-semibold text-foreground">{title}</p>
+      <div className="flex flex-col gap-2">
         {data.map((d) => {
           const widthPct = Math.max(3, (d.value / max) * 100);
           return (
@@ -40,21 +40,21 @@ export function RankingBarChart({
               key={d.id}
               onMouseEnter={() => setHovered(d.id)}
               onMouseLeave={() => setHovered((h) => (h === d.id ? null : h))}
-              className="flex items-center gap-2.5"
+              className="flex items-center gap-2"
             >
-              <span className="w-24 shrink-0 truncate text-xs text-foreground-muted">
+              <span className="w-20 shrink-0 truncate text-xs text-foreground-muted">
                 {d.label}
               </span>
-              <div className="relative h-5 flex-1 rounded-[4px] bg-surface-muted">
+              <div className="relative h-3.5 flex-1 rounded-[4px] bg-surface-muted">
                 <div
-                  className="h-5 rounded-[4px] bg-brand transition-opacity"
+                  className="h-3.5 rounded-[4px] bg-brand transition-opacity"
                   style={{
                     width: `${widthPct}%`,
                     opacity: hovered === null || hovered === d.id ? 1 : 0.45,
                   }}
                 />
               </div>
-              <span className="w-20 shrink-0 text-right text-xs font-semibold text-foreground">
+              <span className="w-16 shrink-0 text-right text-xs font-semibold text-foreground">
                 {formatCurrency(d.value, "CRC")}
               </span>
             </div>

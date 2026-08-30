@@ -18,6 +18,8 @@ export type Profile = {
   role: UserRole;
   status: UserStatus;
   phone: string | null;
+  cedula: string | null;
+  bank_account: string | null;
   department: string | null;
   position: string | null;
   employee_code: string | null;

@@ -223,6 +223,7 @@ function EmployeeRow({
           <span className="min-w-0 flex-1 truncate text-xs text-foreground-muted">
             {employee.email}
             {employee.phone ? ` · ${employee.phone}` : ""}
+            {employee.cedula ? ` · Céd. ${employee.cedula}` : ""}
             {employee.department ? ` · ${employee.department}` : ""}
           </span>
         </div>
@@ -294,14 +295,34 @@ function InlineEditForm({
           />
         </div>
       </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label htmlFor={`phone-${employee.id}`}>Teléfono</Label>
+          <Input
+            id={`phone-${employee.id}`}
+            name="phone"
+            type="tel"
+            placeholder="8888-8888"
+            defaultValue={employee.phone ?? ""}
+          />
+        </div>
+        <div>
+          <Label htmlFor={`cedula-${employee.id}`}>Cédula</Label>
+          <Input
+            id={`cedula-${employee.id}`}
+            name="cedula"
+            placeholder="1-2345-6789"
+            defaultValue={employee.cedula ?? ""}
+          />
+        </div>
+      </div>
       <div>
-        <Label htmlFor={`phone-${employee.id}`}>Teléfono</Label>
+        <Label htmlFor={`bank-${employee.id}`}>Número de cuenta</Label>
         <Input
-          id={`phone-${employee.id}`}
-          name="phone"
-          type="tel"
-          placeholder="8888-8888"
-          defaultValue={employee.phone ?? ""}
+          id={`bank-${employee.id}`}
+          name="bank_account"
+          placeholder="CR00000000000000000000"
+          defaultValue={employee.bank_account ?? ""}
         />
       </div>
       <div className="grid grid-cols-2 gap-2.5">
@@ -395,6 +416,16 @@ function CreateEmployeeDialog({
           <div>
             <Label htmlFor="phone">Teléfono</Label>
             <Input id="phone" name="phone" type="tel" placeholder="8888-8888" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label htmlFor="cedula">Cédula</Label>
+            <Input id="cedula" name="cedula" placeholder="1-2345-6789" />
+          </div>
+          <div>
+            <Label htmlFor="bank_account">Número de cuenta</Label>
+            <Input id="bank_account" name="bank_account" placeholder="CR00000000000000000000" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">

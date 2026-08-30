@@ -136,6 +136,8 @@ export async function createEmployee(
   const last_name = String(formData.get("last_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const phone = String(formData.get("phone") ?? "").trim() || null;
+  const cedula = String(formData.get("cedula") ?? "").trim() || null;
+  const bank_account = String(formData.get("bank_account") ?? "").trim() || null;
   const department = String(formData.get("department") ?? "").trim() || null;
   const position = String(formData.get("position") ?? "").trim() || null;
   const employeeCodeInput = String(formData.get("employee_code") ?? "").trim() || null;
@@ -170,6 +172,8 @@ export async function createEmployee(
     last_name,
     email,
     phone,
+    cedula,
+    bank_account,
     role,
     status: "ACTIVE",
     department,
@@ -272,6 +276,8 @@ export async function updateEmployee(
   const first_name = String(formData.get("first_name") ?? "").trim();
   const last_name = String(formData.get("last_name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim() || null;
+  const cedula = String(formData.get("cedula") ?? "").trim() || null;
+  const bank_account = String(formData.get("bank_account") ?? "").trim() || null;
   const department = String(formData.get("department") ?? "").trim() || null;
   const position = String(formData.get("position") ?? "").trim() || null;
   const employee_code = String(formData.get("employee_code") ?? "").trim() || null;
@@ -283,7 +289,7 @@ export async function updateEmployee(
   const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
-    .update({ first_name, last_name, phone, department, position, employee_code })
+    .update({ first_name, last_name, phone, cedula, bank_account, department, position, employee_code })
     .eq("id", id);
 
   if (error) return { error: error.message };

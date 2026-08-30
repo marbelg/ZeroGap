@@ -20,10 +20,18 @@ import {
 
 const emptyState: EmployeeFormState = {};
 
+// Solo para prellenar el campo en la UI — el admin la puede editar antes de
+// guardar, así que no necesita ser criptográficamente robusta aquí (el
+// servidor no depende de esta función para nada).
+function generateClientPin() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
 export function EmployeeManager({ employees }: { employees: Profile[] }) {
   const [tab, setTab] = useState<"EMPLOYEE" | "ADMIN">("EMPLOYEE");
   const [createOpen, setCreateOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [passwordFor, setPasswordFor] = useState<Profile | null>(null);
   const [revealPassword, setRevealPassword] = useState<{
     name: string;
     password: string;
@@ -49,22 +57,6 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
     });
   }
 
-  async function handleResetPassword(employee: Profile) {
-    if (
-      !window.confirm(
-        `¿Generar una nueva contraseña temporal para ${employee.first_name}?`,
-      )
-    )
-      return;
-    const result = await resetEmployeePassword(employee.id);
-    if (result.tempPassword) {
-      setRevealPassword({
-        name: `${employee.first_name} ${employee.last_name}`,
-        password: result.tempPassword,
-        employeeCode: employee.employee_code ?? undefined,
-      });
-    }
-  }
 
   const employeeCount = employees.filter((e) => e.role === "EMPLOYEE").length;
   const adminCount = employees.filter((e) => e.role === "ADMIN").length;
@@ -128,7 +120,7 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
                 employee={employee}
                 isPending={isPending}
                 onToggle={() => handleToggle(employee)}
-                onResetPassword={() => handleResetPassword(employee)}
+                onResetPassword={() => setPasswordFor(employee)}
                 onDelete={() => handleDelete(employee)}
               />
             ))}
@@ -147,6 +139,21 @@ export function EmployeeManager({ employees }: { employees: Profile[] }) {
       )}
 
       {bulkOpen && <BulkCreateDialog onClose={() => setBulkOpen(false)} />}
+
+      {passwordFor && (
+        <ChangePasswordDialog
+          employee={passwordFor}
+          onClose={() => setPasswordFor(null)}
+          onDone={(password) => {
+            setPasswordFor(null);
+            setRevealPassword({
+              name: `${passwordFor.first_name} ${passwordFor.last_name}`,
+              password,
+              employeeCode: passwordFor.employee_code ?? undefined,
+            });
+          }}
+        />
+      )}
 
       {revealPassword && (
         <PasswordRevealDialog
@@ -351,6 +358,7 @@ function CreateEmployeeDialog({
 }) {
   const [state, formAction, isPending] = useActionState(createEmployee, emptyState);
   const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState(generateClientPin);
 
   return (
     <Dialog title="Nuevo empleado" onClose={onClose}>
@@ -410,6 +418,28 @@ function CreateEmployeeDialog({
               <option value="EMPLOYEE">Empleado</option>
               <option value="ADMIN">Administrador</option>
             </Select>
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="password">Contraseña</Label>
+          <div className="flex gap-2">
+            <Input
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+              className="font-mono"
+            />
+            <button
+              type="button"
+              onClick={() => setPassword(generateClientPin())}
+              className="shrink-0 rounded-[var(--radius-md)] border border-border px-3 text-xs font-semibold text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+            >
+              Generar
+            </button>
           </div>
         </div>
 
@@ -511,6 +541,73 @@ function PasswordRevealDialog({
       <Button onClick={onClose} className="w-full">
         Listo
       </Button>
+    </Dialog>
+  );
+}
+
+function ChangePasswordDialog({
+  employee,
+  onClose,
+  onDone,
+}: {
+  employee: Profile;
+  onClose: () => void;
+  onDone: (password: string) => void;
+}) {
+  const [password, setPassword] = useState(generateClientPin);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSave() {
+    setError(null);
+    startTransition(async () => {
+      const result = await resetEmployeePassword(employee.id, password);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      if (result.tempPassword) onDone(result.tempPassword);
+    });
+  }
+
+  return (
+    <Dialog title={`Contraseña de ${employee.first_name} ${employee.last_name}`} onClose={onClose}>
+      <p className="mb-3 text-sm text-foreground-muted">
+        Escribe la contraseña que quieras asignarle, o genera una nueva. Se
+        aplica de inmediato al guardar.
+      </p>
+      <Label htmlFor="change_password">Contraseña</Label>
+      <div className="flex gap-2">
+        <Input
+          id="change_password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          minLength={6}
+          className="font-mono"
+        />
+        <button
+          type="button"
+          onClick={() => setPassword(generateClientPin())}
+          className="shrink-0 rounded-[var(--radius-md)] border border-border px-3 text-xs font-semibold text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+        >
+          Generar
+        </button>
+      </div>
+
+      {error && (
+        <p className="mt-3 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-4 flex gap-2">
+        <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          Cancelar
+        </Button>
+        <Button type="button" onClick={handleSave} disabled={isPending} className="flex-1">
+          {isPending ? "Guardando…" : "Guardar"}
+        </Button>
+      </div>
     </Dialog>
   );
 }

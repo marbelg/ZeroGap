@@ -27,13 +27,14 @@ export default function LoginPage() {
         className="w-full max-w-sm rounded-[var(--radius-lg)] border border-border bg-surface p-6 shadow-sm"
       >
         <div className="mb-4">
-          <Label htmlFor="email">Correo</Label>
+          <Label htmlFor="identifier">Usuario</Label>
           <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="tu@empresa.com"
+            id="identifier"
+            name="identifier"
+            type="text"
+            autoComplete="username"
+            autoCapitalize="characters"
+            placeholder="Tu ID (ej. E001) o correo"
             required
           />
         </div>

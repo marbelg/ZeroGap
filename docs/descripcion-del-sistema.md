@@ -435,13 +435,19 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 - Scaffold del proyecto: Next.js 16 (App Router) + TypeScript + Tailwind CSS 4,
   desplegable en Vercel.
 - Autenticación con Supabase Auth (email + contraseña). Sin auto-registro público:
-  los usuarios los crea Administración (sección 8).
+  los usuarios los crea Administración (sección 8). El login acepta **ID de
+  empleado (ej. `E001`) o correo** en el mismo campo — si lo que se escribe no
+  tiene `@`, el servidor lo resuelve a su correo real antes de autenticar
+  (`src/app/login/actions.ts`).
 - `proxy.ts` (equivalente a middleware en Next 16) protege todas las rutas:
   redirige a `/login` si no hay sesión, y separa `/admin` vs `/empleado` según el
   rol del perfil.
 - Módulo de Administración → Empleados: crear, editar, activar/desactivar,
   restablecer contraseña y eliminar usuarios, con contraseña temporal generada
-  automáticamente y mostrada una sola vez al admin (sección 8 completa).
+  automáticamente y mostrada una sola vez al admin (sección 8 completa). La
+  contraseña (al crear y al restablecer) es **editable**: el campo trae un PIN
+  de 6 dígitos generado como sugerencia, con botón "Generar" para otro nuevo,
+  pero el admin puede escribir la que quiera (mínimo 6 caracteres).
 - Creación masiva ("Crear varios"): el admin solo elige cuántas cuentas de
   empleado crear (sin nombres todavía) y el sistema las crea de una vez con
   nombre de marcador ("Empleado 1", "Empleado 2"...), un **ID único**

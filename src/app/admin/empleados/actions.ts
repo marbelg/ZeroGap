@@ -29,6 +29,11 @@ function generateTempPassword() {
   return Array.from(bytes, (b) => (b % 10).toString()).join("");
 }
 
+function validatePassword(password: string): string | null {
+  if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres.";
+  return null;
+}
+
 function slugify(text: string) {
   // NFD separa acentos de su letra base (ej. "é" -> "e" + acento); el
   // replace final descarta esos acentos junto con cualquier otro caracter
@@ -133,13 +138,18 @@ export async function createEmployee(
   const position = String(formData.get("position") ?? "").trim() || null;
   const employeeCodeInput = String(formData.get("employee_code") ?? "").trim() || null;
   const role = (formData.get("role") === "ADMIN" ? "ADMIN" : "EMPLOYEE") as UserRole;
+  const passwordInput = String(formData.get("password") ?? "").trim();
 
   if (!first_name || !last_name || !email) {
     return { error: "Nombre, apellido y correo son obligatorios." };
   }
+  if (passwordInput) {
+    const passwordError = validatePassword(passwordInput);
+    if (passwordError) return { error: passwordError };
+  }
 
   const admin = createAdminClient();
-  const tempPassword = generateTempPassword();
+  const tempPassword = passwordInput || generateTempPassword();
   const employee_code = employeeCodeInput ?? (await generateUniqueEmployeeCode(admin, role));
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
@@ -294,10 +304,18 @@ export async function toggleEmployeeStatus(id: string, active: boolean) {
 
 export async function resetEmployeePassword(
   id: string,
+  password?: string,
 ): Promise<EmployeeFormState> {
   await assertIsAdmin();
+
+  const trimmed = password?.trim();
+  if (trimmed) {
+    const passwordError = validatePassword(trimmed);
+    if (passwordError) return { error: passwordError };
+  }
+
   const admin = createAdminClient();
-  const tempPassword = generateTempPassword();
+  const tempPassword = trimmed || generateTempPassword();
 
   const { error } = await admin.auth.admin.updateUserById(id, {
     password: tempPassword,

@@ -16,12 +16,15 @@ import {
   deleteExpenseAdmin,
   updateExpenseAdmin,
   createExpenseManual,
+  assignMileageKm,
   type ExpenseEditState,
   type ManualExpenseState,
+  type AssignKmState,
 } from "@/app/admin/gastos/actions";
 
 const editEmptyState: ExpenseEditState = {};
 const manualEmptyState: ManualExpenseState = {};
+const assignKmEmptyState: AssignKmState = {};
 
 export function ExpenseManager({
   expenses,
@@ -38,7 +41,7 @@ export function ExpenseManager({
     (acc, e) => {
       acc.count++;
       if (e.status === "REPORTADO") acc.pending++;
-      if (e.type !== "KILOMETRAJE") acc.total += Number(e.amount);
+      acc.total += Number(e.amount);
       return acc;
     },
     { count: 0, pending: 0, total: 0 },
@@ -150,6 +153,8 @@ function ExpenseRow({
 }) {
   const [editing, setEditing] = useState(false);
   const photo = expense.photos[0];
+  const startPhoto = expense.photos.find((p) => p.photo_type === "ODOMETRO_INICIAL");
+  const endPhoto = expense.photos.find((p) => p.photo_type === "ODOMETRO_FINAL");
 
   return (
     <div className="px-5 py-4">
@@ -164,12 +169,21 @@ function ExpenseRow({
           {employee ? `${employee.first_name} ${employee.last_name}` : "—"}
         </span>
         <span className="text-xs text-foreground-muted">{formatDate(expense.date)}</span>
-        <span className="ml-auto font-semibold text-foreground">
-          {expense.type === "KILOMETRAJE"
-            ? expense.mileage
-              ? `${Number(expense.mileage.kilometers).toFixed(1)} km`
-              : "Viaje"
-            : formatCurrency(expense.amount, expense.currency)}
+        <span className="ml-auto text-right font-semibold text-foreground">
+          {expense.type === "KILOMETRAJE" ? (
+            expense.mileage ? (
+              <>
+                {Number(expense.mileage.kilometers).toFixed(1)} km
+                <span className="block text-xs font-normal text-foreground-muted">
+                  {formatCurrency(expense.amount, expense.currency)}
+                </span>
+              </>
+            ) : (
+              <span className="text-sm font-medium text-warning">Sin km asignados</span>
+            )
+          ) : (
+            formatCurrency(expense.amount, expense.currency)
+          )}
         </span>
         <ExpenseStatusBadge status={expense.status} />
       </div>
@@ -182,15 +196,40 @@ function ExpenseRow({
       )}
 
       <div className="mt-2 flex flex-wrap gap-1">
-        {photo?.signedUrl && (
-          <a
-            href={photo.signedUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full px-2.5 py-1 text-xs font-medium text-brand hover:bg-brand-soft"
-          >
-            Ver comprobante{expense.photos.length > 1 ? ` (${expense.photos.length})` : ""}
-          </a>
+        {expense.type === "KILOMETRAJE" ? (
+          <>
+            {startPhoto?.signedUrl && (
+              <a
+                href={startPhoto.signedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full px-2.5 py-1 text-xs font-medium text-brand hover:bg-brand-soft"
+              >
+                Ver foto de inicio
+              </a>
+            )}
+            {endPhoto?.signedUrl && (
+              <a
+                href={endPhoto.signedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full px-2.5 py-1 text-xs font-medium text-brand hover:bg-brand-soft"
+              >
+                Ver foto de fin
+              </a>
+            )}
+          </>
+        ) : (
+          photo?.signedUrl && (
+            <a
+              href={photo.signedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-2.5 py-1 text-xs font-medium text-brand hover:bg-brand-soft"
+            >
+              Ver comprobante{expense.photos.length > 1 ? ` (${expense.photos.length})` : ""}
+            </a>
+          )
         )}
         {expense.status === "REPORTADO" && (
           <>
@@ -202,20 +241,76 @@ function ExpenseRow({
             </ActionChip>
           </>
         )}
-        {expense.type !== "KILOMETRAJE" && (
-          <ActionChip onClick={() => setEditing((v) => !v)}>
-            {editing ? "Cerrar" : "Editar"}
-          </ActionChip>
-        )}
+        <ActionChip onClick={() => setEditing((v) => !v)}>
+          {editing ? "Cerrar" : expense.type === "KILOMETRAJE" ? "Asignar km" : "Editar"}
+        </ActionChip>
         <ActionChip danger disabled={isPending} onClick={onDelete}>
           Eliminar
         </ActionChip>
       </div>
 
-      {editing && (
+      {editing && expense.type === "KILOMETRAJE" && (
+        <InlineAssignKmForm expense={expense} onClose={() => setEditing(false)} />
+      )}
+      {editing && expense.type !== "KILOMETRAJE" && (
         <InlineExpenseEditForm expense={expense} onClose={() => setEditing(false)} />
       )}
     </div>
+  );
+}
+
+function InlineAssignKmForm({
+  expense,
+  onClose,
+}: {
+  expense: EnrichedExpense;
+  onClose: () => void;
+}) {
+  const [state, formAction, isPending] = useActionState(assignMileageKm, assignKmEmptyState);
+
+  useEffect(() => {
+    if (state.ok) onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.ok]);
+
+  return (
+    <form
+      action={formAction}
+      className="mt-3 flex flex-col gap-2.5 rounded-[var(--radius-md)] bg-surface-muted p-3"
+    >
+      <input type="hidden" name="expense_id" value={expense.id} />
+      <div>
+        <Label htmlFor={`km-${expense.id}`}>Kilómetros recorridos</Label>
+        <Input
+          id={`km-${expense.id}`}
+          name="km"
+          type="number"
+          step="0.1"
+          min="0"
+          defaultValue={expense.mileage ? Number(expense.mileage.kilometers) : ""}
+          required
+        />
+        <p className="mt-1 text-xs text-foreground-muted">
+          Revisa las fotos de inicio/fin y escribe cuántos km fueron — el monto a
+          pagar se calcula solo con la tarifa configurada.
+        </p>
+      </div>
+
+      {state.error && (
+        <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
+          {state.error}
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <Button type="button" variant="secondary" size="sm" onClick={onClose} className="flex-1">
+          Cancelar
+        </Button>
+        <Button type="submit" size="sm" disabled={isPending} className="flex-1">
+          {isPending ? "Guardando…" : "Guardar"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -297,7 +392,9 @@ function ManualExpenseDialog({
   onClose: () => void;
 }) {
   const [state, formAction, isPending] = useActionState(createExpenseManual, manualEmptyState);
-  const [type, setType] = useState<"DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE">("DESAYUNO");
+  const [type, setType] = useState<
+    "DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE" | "REPARACION_LLANTAS"
+  >("DESAYUNO");
 
   useEffect(() => {
     if (state.ok) onClose();
@@ -340,6 +437,7 @@ function ManualExpenseDialog({
               <option value="ALMUERZO">Almuerzo</option>
               <option value="CENA">Cena</option>
               <option value="KILOMETRAJE">Kilometraje</option>
+              <option value="REPARACION_LLANTAS">Reparación de llantas</option>
             </Select>
           </div>
         </div>

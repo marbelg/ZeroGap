@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { enrichExpenses } from "@/lib/expenses";
 import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
+import { getAppSettings } from "@/lib/settings";
 import { ExpenseManager } from "@/components/admin/expense-manager";
+import { BudgetSummary } from "@/components/admin/budget-summary";
 
 export default async function AdminUserGastosPage({
   params,
@@ -36,20 +38,29 @@ export default async function AdminUserGastosPage({
     .order("time", { ascending: false });
 
   const enriched = await enrichExpenses(supabase, expenses ?? []);
+  const settings = await getAppSettings(supabase);
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <Link href="/admin/gastos" className="text-xs font-medium text-foreground-muted">
         ← Volver a Gastos
       </Link>
 
-      <div className="mb-4 mt-1">
-        <h1 className="text-lg font-semibold text-foreground">
-          {employee.first_name} {employee.last_name}
-        </h1>
-        <p className="text-xs text-foreground-muted">
-          {employee.employee_code ?? "—"} · {employee.email}
-        </p>
+      <div className="mb-4 mt-1 flex items-center justify-between gap-2">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">
+            {employee.first_name} {employee.last_name}
+          </h1>
+          <p className="text-xs text-foreground-muted">
+            {employee.employee_code ?? "—"} · {employee.email}
+          </p>
+        </div>
+        <a
+          href={`/admin/reportes/export?employee=${userId}&date=custom&from=${weekDays[0].date}&to=${weekDays[6].date}`}
+          className="shrink-0 rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface-muted"
+        >
+          Descargar reporte de la semana
+        </a>
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-2 rounded-[var(--radius-lg)] border border-border bg-surface p-3">
@@ -74,6 +85,8 @@ export default async function AdminUserGastosPage({
           Siguiente →
         </Link>
       </div>
+
+      <BudgetSummary expenses={enriched} settings={settings} />
 
       <ExpenseManager expenses={enriched} employees={[employee]} />
     </div>

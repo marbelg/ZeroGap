@@ -12,7 +12,7 @@ export function ExpenseFilterBar({
   clearHref: string;
 }) {
   const preset = (sp.date as DatePreset) || "mes";
-  const employeeIds = sp.employee ? sp.employee.split(",").filter(Boolean) : [];
+  const selectedEmployee = sp.employee ? sp.employee.split(",")[0] : "";
 
   return (
     <form
@@ -41,6 +41,7 @@ export function ExpenseFilterBar({
         <option value="ALMUERZO">Almuerzo</option>
         <option value="CENA">Cena</option>
         <option value="KILOMETRAJE">Kilometraje</option>
+        <option value="REPARACION_LLANTAS">Reparación de llantas</option>
       </select>
 
       <select
@@ -56,10 +57,10 @@ export function ExpenseFilterBar({
 
       <select
         name="employee"
-        multiple
-        defaultValue={employeeIds}
-        className="h-10 rounded-[var(--radius-sm)] border border-border bg-surface px-2 text-xs text-foreground"
+        defaultValue={selectedEmployee}
+        className="h-10 rounded-[var(--radius-sm)] border border-border bg-surface px-2 text-sm text-foreground"
       >
+        <option value="">Todos los empleados</option>
         {employees.map((e) => (
           <option key={e.id} value={e.id}>
             {e.first_name} {e.last_name}

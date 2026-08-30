@@ -1,6 +1,6 @@
 export type UserRole = "ADMIN" | "EMPLOYEE";
 export type UserStatus = "ACTIVE" | "INACTIVE";
-export type ExpenseType = "DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE";
+export type ExpenseType = "DESAYUNO" | "ALMUERZO" | "CENA" | "KILOMETRAJE" | "REPARACION_LLANTAS";
 export type ExpenseStatus = "REPORTADO" | "APROBADO" | "RECHAZADO";
 export type Currency = "USD" | "CRC";
 export type PhotoType = "COMPROBANTE" | "ODOMETRO_INICIAL" | "ODOMETRO_FINAL";
@@ -59,6 +59,17 @@ export type ExpensePhoto = {
   created_at: string;
 }
 
+export type AppSettings = {
+  id: boolean;
+  weekly_budget_total: number;
+  weekly_budget_desayuno: number;
+  weekly_budget_almuerzo: number;
+  weekly_budget_cena: number;
+  km_rate: number;
+  payment_day_of_week: number;
+  updated_at: string;
+}
+
 // Tipado mínimo compatible con el genérico `Database` que espera
 // `@supabase/ssr` / `@supabase/supabase-js`. Se puede reemplazar por el
 // tipo generado con `supabase gen types typescript` una vez exista el
@@ -91,6 +102,12 @@ export interface Database {
         Row: ExpensePhoto;
         Insert: Partial<ExpensePhoto> & Pick<ExpensePhoto, "expense_id" | "photo_type" | "file_url">;
         Update: Partial<ExpensePhoto>;
+        Relationships: [];
+      };
+      app_settings: {
+        Row: AppSettings;
+        Insert: Partial<AppSettings>;
+        Update: Partial<AppSettings>;
         Relationships: [];
       };
     };

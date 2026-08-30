@@ -1,0 +1,65 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+async function assertIsAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autenticado.");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "ADMIN") throw new Error("No autorizado.");
+}
+
+export interface SettingsFormState {
+  error?: string;
+  ok?: boolean;
+}
+
+function parseMoney(formData: FormData, key: string): number {
+  const value = Number(formData.get(key));
+  return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+export async function updateSettings(
+  _prevState: SettingsFormState,
+  formData: FormData,
+): Promise<SettingsFormState> {
+  await assertIsAdmin();
+
+  const weekly_budget_total = parseMoney(formData, "weekly_budget_total");
+  const weekly_budget_desayuno = parseMoney(formData, "weekly_budget_desayuno");
+  const weekly_budget_almuerzo = parseMoney(formData, "weekly_budget_almuerzo");
+  const weekly_budget_cena = parseMoney(formData, "weekly_budget_cena");
+  const km_rate = parseMoney(formData, "km_rate");
+  const payment_day_of_week = Math.min(6, Math.max(0, Number(formData.get("payment_day_of_week")) || 0));
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("app_settings")
+    .update({
+      weekly_budget_total,
+      weekly_budget_desayuno,
+      weekly_budget_almuerzo,
+      weekly_budget_cena,
+      km_rate,
+      payment_day_of_week,
+    })
+    .eq("id", true);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/configuracion");
+  revalidatePath("/admin/gastos");
+  revalidatePath("/empleado");
+  return { ok: true };
+}

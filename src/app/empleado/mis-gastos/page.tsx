@@ -56,7 +56,7 @@ export default async function MisGastosPage({
                 <ExpenseStatusBadge status={expense.status} />
               </div>
 
-              <div className="mt-2 flex items-center justify-between">
+              <div className="mt-2 flex items-center justify-between gap-2">
                 <p className="text-lg font-semibold text-foreground">
                   {expense.type === "KILOMETRAJE"
                     ? expense.mileage
@@ -64,15 +64,53 @@ export default async function MisGastosPage({
                       : "Viaje reportado"
                     : formatCurrency(expense.amount, expense.currency)}
                 </p>
-                {expense.photos[0]?.signedUrl && (
-                  <a
-                    href={expense.photos[0].signedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-semibold text-brand"
-                  >
-                    Ver comprobante{expense.photos.length > 1 ? ` (${expense.photos.length})` : ""}
-                  </a>
+                {expense.type === "KILOMETRAJE" ? (
+                  <div className="flex shrink-0 gap-2">
+                    {expense.photos
+                      .filter((p) => p.photo_type === "ODOMETRO_INICIAL")
+                      .map(
+                        (p) =>
+                          p.signedUrl && (
+                            <a
+                              key={p.id}
+                              href={p.signedUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-semibold text-brand"
+                            >
+                              Inicio
+                            </a>
+                          ),
+                      )}
+                    {expense.photos
+                      .filter((p) => p.photo_type === "ODOMETRO_FINAL")
+                      .map(
+                        (p) =>
+                          p.signedUrl && (
+                            <a
+                              key={p.id}
+                              href={p.signedUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-semibold text-brand"
+                            >
+                              Fin
+                            </a>
+                          ),
+                      )}
+                  </div>
+                ) : (
+                  expense.photos[0]?.signedUrl && (
+                    <a
+                      href={expense.photos[0].signedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 text-xs font-semibold text-brand"
+                    >
+                      Ver comprobante
+                      {expense.photos.length > 1 ? ` (${expense.photos.length})` : ""}
+                    </a>
+                  )
                 )}
               </div>
 

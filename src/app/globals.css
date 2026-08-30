@@ -30,6 +30,7 @@
   --chart-series-2: #eb6834; /* naranja — Almuerzo */
   --chart-series-3: #1baf7a; /* aqua — Cena */
   --chart-series-4: #eda100; /* amarillo — Kilometraje */
+  --chart-series-5: #e87ba4; /* magenta — Reparación de llantas */
   --chart-gridline: #e1e0d9;
   --chart-axis: #c3c2b7;
 }
@@ -83,6 +84,7 @@
     --chart-series-2: #d95926;
     --chart-series-3: #199e70;
     --chart-series-4: #c98500;
+    --chart-series-5: #d55181;
     --chart-gridline: #2c2c2a;
     --chart-axis: #383835;
   }

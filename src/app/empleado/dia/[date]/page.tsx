@@ -6,13 +6,14 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { ExpenseType } from "@/types/database";
 
-const DAILY_TYPES: ExpenseType[] = ["DESAYUNO", "ALMUERZO", "CENA"];
+const DAILY_TYPES: ExpenseType[] = ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE"];
 
 const TYPE_HREF: Record<ExpenseType, string> = {
   DESAYUNO: "/empleado/desayuno",
   ALMUERZO: "/empleado/almuerzo",
   CENA: "/empleado/cena",
   KILOMETRAJE: "/empleado/kilometraje",
+  REPARACION_LLANTAS: "/empleado/reparacion-llantas",
 };
 
 export default async function DayDetailPage({
@@ -79,7 +80,9 @@ export default async function DayDetailPage({
               </div>
               {expense && (
                 <p className="mt-1 text-sm text-foreground-muted">
-                  {formatCurrency(expense.amount, expense.currency)}
+                  {type === "KILOMETRAJE" && Number(expense.amount) === 0
+                    ? "Viaje reportado"
+                    : formatCurrency(expense.amount, expense.currency)}
                 </p>
               )}
               {expense?.status === "RECHAZADO" && expense.rejection_reason && (

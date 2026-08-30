@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadReceiptPhoto, validatePhotoFile } from "@/lib/supabase/storage";
+import { getAppSettings } from "@/lib/settings";
 import type { Currency, ExpenseType } from "@/types/database";
 
 async function assertIsAdmin() {
@@ -43,6 +44,61 @@ export async function rejectExpense(id: string, reason: string) {
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/gastos");
+}
+
+export interface AssignKmState {
+  error?: string;
+  ok?: boolean;
+}
+
+export async function assignMileageKm(
+  _prevState: AssignKmState,
+  formData: FormData,
+): Promise<AssignKmState> {
+  await assertIsAdmin();
+
+  const expenseId = String(formData.get("expense_id") ?? "");
+  const km = Number(formData.get("km"));
+
+  if (!expenseId || !Number.isFinite(km) || km <= 0) {
+    return { error: "Ingresa un número de kilómetros válido." };
+  }
+
+  const admin = createAdminClient();
+
+  const { data: expense } = await admin
+    .from("expenses")
+    .select("time")
+    .eq("id", expenseId)
+    .single();
+
+  if (!expense) return { error: "No se encontró el gasto." };
+
+  const settings = await getAppSettings(admin);
+  const amount = Number((km * settings.km_rate).toFixed(2));
+
+  const { error: mileageError } = await admin.from("mileage").upsert(
+    {
+      expense_id: expenseId,
+      start_location: "—",
+      end_location: "—",
+      start_time: expense.time,
+      end_time: expense.time,
+      initial_odometer: 0,
+      final_odometer: km,
+    },
+    { onConflict: "expense_id" },
+  );
+  if (mileageError) return { error: mileageError.message };
+
+  const { error: expenseError } = await admin
+    .from("expenses")
+    .update({ amount, currency: "CRC" })
+    .eq("id", expenseId);
+  if (expenseError) return { error: expenseError.message };
+
+  revalidatePath("/admin/gastos");
+  return { ok: true };
 }
 
 export async function deleteExpenseAdmin(id: string) {

@@ -19,7 +19,7 @@ function todayDateValue() {
  * del viaje). Sin lugares, horas ni números de odómetro que escribir — los
  * empleados que lo usan tienen poca familiaridad con leer/escribir.
  */
-export function MileageExpenseForm() {
+export function MileageExpenseForm({ initialDate }: { initialDate?: string }) {
   const [state, formAction, isPending] = useActionState(createMileageExpense, initialState);
   const router = useRouter();
 
@@ -27,7 +27,13 @@ export function MileageExpenseForm() {
     <form action={formAction} className="flex flex-col gap-5">
       <div>
         <Label htmlFor="date">Fecha</Label>
-        <Input id="date" name="date" type="date" defaultValue={todayDateValue()} required />
+        <Input
+          id="date"
+          name="date"
+          type="date"
+          defaultValue={initialDate || todayDateValue()}
+          required
+        />
       </div>
 
       <PhotoCapture name="start_photo" label="Foto de inicio del viaje" required />

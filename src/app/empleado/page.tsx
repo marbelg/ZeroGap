@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { currentWeekDays } from "@/lib/week";
 import { WeekTracker } from "@/components/employee/week-tracker";
+import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
 
 // Íconos pensados para reconocerse a simple vista, sin leer el texto
 // (taza de café, tenedor+cuchillo, luna, carro) — pensado para empleados
@@ -54,6 +55,18 @@ const options = [
       </>
     ),
   },
+  {
+    href: "/empleado/reparacion-llantas",
+    label: "Llantas",
+    color: "from-[#f2a1c2] to-[#d5528a]",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 4v2M12 18v2M4 12h2M18 12h2" />
+      </>
+    ),
+  },
 ];
 
 export default async function EmployeeHomePage() {
@@ -67,7 +80,7 @@ export default async function EmployeeHomePage() {
     .from("expenses")
     .select("date, type")
     .eq("user_id", user!.id)
-    .in("type", ["DESAYUNO", "ALMUERZO", "CENA"])
+    .in("type", ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE"])
     .gte("date", weekDays[0].date)
     .lte("date", weekDays[6].date);
 
@@ -79,6 +92,21 @@ export default async function EmployeeHomePage() {
     countsByDate[day.date] = typesThatDay.size;
   }
 
+  // Mini-dashboard: cuándo se pagan los gastos de la semana pasada. "Hoy - 7
+  // días" siempre cae en la semana pasada, sin depender de parsear strings
+  // de fecha (evita líos de huso horario).
+  const settings = await getAppSettings(supabase);
+  const lastWeekReference = new Date();
+  lastWeekReference.setDate(lastWeekReference.getDate() - 7);
+  const lastWeekDays = currentWeekDays(lastWeekReference);
+  const { count: lastWeekCount } = await supabase
+    .from("expenses")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user!.id)
+    .gte("date", lastWeekDays[0].date)
+    .lte("date", lastWeekDays[6].date);
+  const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6">
       <div>
@@ -89,6 +117,16 @@ export default async function EmployeeHomePage() {
           Elige una categoría para registrar tu gasto.
         </p>
       </div>
+
+      {(lastWeekCount ?? 0) > 0 && (
+        <div className="rounded-[var(--radius-md)] bg-brand-soft px-4 py-3 text-sm text-brand">
+          Tus gastos de la semana pasada se pagan el{" "}
+          <span className="font-semibold">
+            {dayOfWeekLabel(settings.payment_day_of_week)} {paymentDate.getDate()}
+          </span>
+          .
+        </div>
+      )}
 
       <WeekTracker weekDays={weekDays} countsByDate={countsByDate} />
 
@@ -121,25 +159,6 @@ export default async function EmployeeHomePage() {
           </Link>
         ))}
       </div>
-
-      <Link
-        href="/empleado/mis-gastos"
-        className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-surface-muted px-5 py-4 text-sm font-medium text-foreground transition-colors hover:bg-border"
-      >
-        Ver mis gastos
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-4"
-        >
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </Link>
     </div>
   );
 }

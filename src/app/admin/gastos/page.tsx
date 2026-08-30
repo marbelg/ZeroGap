@@ -27,7 +27,7 @@ export default async function AdminGastosPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-5xl">
       <div className="mb-5">
         <h1 className="text-lg font-semibold text-foreground">Gastos</h1>
         <p className="text-sm text-foreground-muted">

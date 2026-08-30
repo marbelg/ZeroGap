@@ -50,8 +50,7 @@ export default async function AdminDashboardPage() {
     .in("expense_id", mileageIds.length > 0 ? mileageIds : ["00000000-0000-0000-0000-000000000000"]);
   const mileageByExpense = new Map<string, Mileage>((mileageRows ?? []).map((m) => [m.expense_id, m]));
 
-  const moneySum = (list: Expense[]) =>
-    list.filter((e) => e.type !== "KILOMETRAJE").reduce((sum, e) => sum + Number(e.amount), 0);
+  const moneySum = (list: Expense[]) => list.reduce((sum, e) => sum + Number(e.amount), 0);
 
   const totalActual = moneySum(current);
   const totalAnterior = moneySum(previous);
@@ -64,16 +63,13 @@ export default async function AdminDashboardPage() {
     .filter((e) => e.type === "KILOMETRAJE")
     .reduce((sum, e) => sum + Number(mileageByExpense.get(e.id)?.kilometers ?? 0), 0);
 
-  const employeesWithExpenses = new Set(
-    current.filter((e) => e.type !== "KILOMETRAJE").map((e) => e.user_id),
-  );
+  const employeesWithExpenses = new Set(current.map((e) => e.user_id));
   const promedio =
     employeesWithExpenses.size > 0 ? totalActual / employeesWithExpenses.size : 0;
 
   // Tendencia: total por día del mes actual
   const byDay = new Map<string, number>();
   for (const e of current) {
-    if (e.type === "KILOMETRAJE") continue;
     byDay.set(e.date, (byDay.get(e.date) ?? 0) + Number(e.amount));
   }
   const trendPoints = Array.from(byDay.entries())
@@ -86,7 +82,6 @@ export default async function AdminDashboardPage() {
   // Ranking por empleado
   const byEmployee = new Map<string, number>();
   for (const e of current) {
-    if (e.type === "KILOMETRAJE") continue;
     byEmployee.set(e.user_id, (byEmployee.get(e.user_id) ?? 0) + Number(e.amount));
   }
   const employeeById = new Map(employeeList.map((p) => [p.id, p]));
@@ -124,7 +119,9 @@ export default async function AdminDashboardPage() {
         <TrendChart title="Tendencia de gastos (este mes)" points={trendPoints} />
         <CategoryBarChart
           title="Distribución por categoría"
-          data={(["DESAYUNO", "ALMUERZO", "CENA"] as const).map((type) => ({
+          data={(
+            ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS"] as const
+          ).map((type) => ({
             label: EXPENSE_TYPE_LABEL[type],
             value: sumByType(type),
             color: EXPENSE_TYPE_COLOR[type],

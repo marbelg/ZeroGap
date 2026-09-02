@@ -1,12 +1,26 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { currentWeekDays } from "@/lib/week";
+import { currentWeekDays, weekDaysForOffset } from "@/lib/week";
 import { WeekTracker } from "@/components/employee/week-tracker";
 import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import { optionsForRole, dailyTypesForRole } from "@/lib/employee-categories";
 
-export default async function EmployeeHomePage() {
+// Igual que en Mis Gastos: 5 semanas hacia atrás y hacia adelante.
+const MIN_OFFSET = -5;
+const MAX_OFFSET = 5;
+
+export default async function EmployeeHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ offset?: string }>;
+}) {
+  const { offset: offsetParam } = await searchParams;
+  const offset = Math.min(
+    MAX_OFFSET,
+    Math.max(MIN_OFFSET, Math.trunc(Number(offsetParam ?? 0)) || 0),
+  );
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -21,7 +35,7 @@ export default async function EmployeeHomePage() {
   const options = optionsForRole(role);
   const dailyTypes = dailyTypesForRole(role);
 
-  const weekDays = currentWeekDays();
+  const weekDays = weekDaysForOffset(offset);
   const { data: weekExpenses } = await supabase
     .from("expenses")
     .select("date, type")
@@ -76,6 +90,9 @@ export default async function EmployeeHomePage() {
         countsByDate={countsByDate}
         maxDaily={dailyTypes.length}
         categoriesLabel={options.map((o) => o.label).join(" · ")}
+        offset={offset}
+        minOffset={MIN_OFFSET}
+        maxOffset={MAX_OFFSET}
       />
 
       {lastWeekCount > 0 && (

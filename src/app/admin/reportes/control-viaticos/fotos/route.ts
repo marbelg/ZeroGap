@@ -122,9 +122,14 @@ export async function GET() {
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
 
   const path = `reports/control-viaticos-fotos_${from}_${to}.zip`;
+  // No hay política RLS de UPDATE en storage.objects para "receipts" (solo
+  // select/insert/delete) — `upsert: true` sobre un archivo ya existente
+  // dispara un UPDATE por debajo y RLS lo bloquea en silencio. Se borra
+  // primero (política delete, admin-only) y se sube como INSERT limpio.
+  await supabase.storage.from("receipts").remove([path]);
   const { error: uploadError } = await supabase.storage
     .from("receipts")
-    .upload(path, zipBuffer, { upsert: true, contentType: "application/zip" });
+    .upload(path, zipBuffer, { contentType: "application/zip" });
 
   if (uploadError) {
     return NextResponse.json({ error: "No se pudo generar el archivo." }, { status: 500 });

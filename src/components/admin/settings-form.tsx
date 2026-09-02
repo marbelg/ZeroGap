@@ -72,12 +72,12 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
               <path d="M4 20V10M12 20V4M20 20v-7" />
             </>
           }
-          title="Presupuesto semanal por empleado"
-          hint="Solo informativo: si se pasa, se ve como aviso — no bloquea reportar. 0 = sin aviso."
+          title="Presupuesto por empleado"
+          hint="Solo informativo: si se pasa, se ve como aviso — no bloquea reportar. 0 = sin aviso. Total es semanal; Desayuno/Almuerzo/Cena son el máximo permitido por día."
         />
         <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           <div>
-            <Label htmlFor="weekly_budget_total">Total</Label>
+            <Label htmlFor="weekly_budget_total">Total (semanal)</Label>
             <Input
               id="weekly_budget_total"
               name="weekly_budget_total"
@@ -89,7 +89,7 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
             />
           </div>
           <div>
-            <Label htmlFor="weekly_budget_desayuno">Desayuno</Label>
+            <Label htmlFor="weekly_budget_desayuno">Desayuno (diario)</Label>
             <Input
               id="weekly_budget_desayuno"
               name="weekly_budget_desayuno"
@@ -101,7 +101,7 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
             />
           </div>
           <div>
-            <Label htmlFor="weekly_budget_almuerzo">Almuerzo</Label>
+            <Label htmlFor="weekly_budget_almuerzo">Almuerzo (diario)</Label>
             <Input
               id="weekly_budget_almuerzo"
               name="weekly_budget_almuerzo"
@@ -113,7 +113,7 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
             />
           </div>
           <div>
-            <Label htmlFor="weekly_budget_cena">Cena</Label>
+            <Label htmlFor="weekly_budget_cena">Cena (diario)</Label>
             <Input
               id="weekly_budget_cena"
               name="weekly_budget_cena"

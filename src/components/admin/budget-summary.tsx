@@ -47,25 +47,32 @@ export function BudgetSummary({
 
   if (!hasAnyBudget) return null;
 
-  const sumByType = (type: Expense["type"]) =>
-    expenses.filter((e) => e.type === type).reduce((sum, e) => sum + Number(e.amount), 0);
   const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  // Desayuno/Almuerzo/Cena son un tope por día (un solo reporte), no semanal
+  // — se compara el reporte más caro de la semana contra ese tope, no la
+  // suma de los 5-7 reportes de la semana (eso siempre marcaría "excedido").
+  const maxByType = (type: Expense["type"]) =>
+    Math.max(0, ...expenses.filter((e) => e.type === type).map((e) => Number(e.amount)));
 
   return (
     <div className="mb-4 flex flex-col gap-3 rounded-[var(--radius-lg)] border border-border bg-surface p-4">
       <p className="text-sm font-semibold text-foreground">Presupuesto de esta semana</p>
-      <BudgetLine label="Total" spent={total} budget={settings.weekly_budget_total} />
+      <BudgetLine label="Total (semana)" spent={total} budget={settings.weekly_budget_total} />
       <BudgetLine
-        label="Desayuno"
-        spent={sumByType("DESAYUNO")}
+        label="Desayuno (día más caro)"
+        spent={maxByType("DESAYUNO")}
         budget={settings.weekly_budget_desayuno}
       />
       <BudgetLine
-        label="Almuerzo"
-        spent={sumByType("ALMUERZO")}
+        label="Almuerzo (día más caro)"
+        spent={maxByType("ALMUERZO")}
         budget={settings.weekly_budget_almuerzo}
       />
-      <BudgetLine label="Cena" spent={sumByType("CENA")} budget={settings.weekly_budget_cena} />
+      <BudgetLine
+        label="Cena (día más caro)"
+        spent={maxByType("CENA")}
+        budget={settings.weekly_budget_cena}
+      />
     </div>
   );
 }

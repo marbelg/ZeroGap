@@ -46,6 +46,15 @@ export async function getReceiptSignedUrl(
   return data.signedUrl;
 }
 
+export async function downloadReceiptPhoto(
+  supabase: SupabaseClient<Database>,
+  path: string,
+) {
+  const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).download(path);
+  if (error || !data) return null;
+  return Buffer.from(await data.arrayBuffer());
+}
+
 export async function getReceiptSignedUrls(
   supabase: SupabaseClient<Database>,
   paths: string[],

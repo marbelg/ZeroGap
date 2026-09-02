@@ -335,15 +335,17 @@ El archivo CSV deberá incluir como mínimo:
 - **Cédula y número de cuenta bancaria** del empleado — adición posterior a este
   documento
 
-### Cierre de mes (adición posterior a este documento)
+### Control de viáticos (adición posterior a este documento)
 
-Además del CSV con los filtros activos, Reportes tiene un botón **"Generar cierre de
-mes"** que descarga un `.xlsx` (generado en el servidor con el paquete `exceljs`)
-respetando solo el período seleccionado (ignora los demás filtros) y **solo incluye
-gastos en estado Aprobado** — un cierre de mes es lo que realmente se debe pagar. El
-libro tiene una hoja "Resumen" (total y cantidad de personas por tipo de usuario) más
-una hoja por tipo — Empleados, No directos, Caja chica, Hoteles — con ID, Nombre,
-Cédula, Cuenta bancaria, subtotal por categoría y Total por persona (u hotel).
+Además del CSV con los filtros activos, Reportes tiene un botón **"Generar control
+viáticos"** que descarga un `.xlsx` (generado en el servidor con el paquete
+`exceljs`). A diferencia del CSV, **no depende de los filtros de la pantalla de
+Reportes**: siempre toma la semana anterior completa (lunes a domingo) y **solo
+incluye gastos en estado Aprobado** — es un control fijo de pago semanal. El libro
+tiene una única hoja ("Control de viáticos") con un bloque por tipo de usuario, en
+este orden — Empleados, No directos, Caja chica, Hoteles — cada uno con ID, Nombre,
+Cédula, Cuenta bancaria, Total por persona (u hotel) y un subtotal al final del
+bloque.
 
 ## 15. Stack tecnológico obligatorio
 
@@ -530,7 +532,7 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
 | 7 | Dashboard gerencial | ✅ Completada |
 | 8 | Reportes y exportación | ✅ Completada |
 | 9 | Seguridad, validaciones y pruebas | ✅ Pasada de hardening aplicada |
-| 10 | Roles adicionales (No directo/Caja chica/Hotel), presupuestos, kilometraje asignado por admin y cierre de mes | ✅ Completada (adición posterior a este documento) |
+| 10 | Roles adicionales (No directo/Caja chica/Hotel), presupuestos, kilometraje asignado por admin y control de viáticos | ✅ Completada (adición posterior a este documento) |
 
 ### Fase 1 — detalle de lo implementado
 
@@ -721,8 +723,8 @@ El proyecto debe ser fácil de desarrollar localmente, mantener y desplegar.
   las columnas de la sección 14 (Fecha, Empleado, Categoría, Monto, Moneda,
   Estado, Kilometraje, Cédula, Cuenta bancaria), respetando los filtros
   activos.
-- `/admin/reportes/cierre-mes` (route handler, adición posterior a este
-  documento): genera el `.xlsx` de cierre de mes descrito en la sección 14
+- `/admin/reportes/control-viaticos` (route handler, adición posterior a este
+  documento): genera el `.xlsx` de control de viáticos descrito en la sección 14
   usando `exceljs`.
 
 ### Fase 9 — detalle de lo implementado (seguridad/validación)

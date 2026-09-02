@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatTile } from "@/components/dashboard/stat-tile";
 import { CategoryBarChart } from "@/components/dashboard/category-bar-chart";
@@ -17,13 +18,28 @@ function iso(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-export default async function AdminDashboardPage() {
+// El admin puede navegar meses atrás sin límite; hacia adelante no tiene
+// sentido (no hay gastos futuros), así que se tope en el mes actual.
+const MAX_OFFSET = 0;
+
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ offset?: string }>;
+}) {
+  const { offset: offsetParam } = await searchParams;
+  const offset = Math.min(MAX_OFFSET, Math.trunc(Number(offsetParam ?? 0)) || 0);
+
   const supabase = await createClient();
   const now = new Date();
 
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+  const monthStart = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0);
+  // Mes actual: hasta hoy (no tiene sentido consultar fechas futuras). Un
+  // mes pasado: el mes completo.
+  const monthUpperBound = offset === 0 ? now : monthEnd;
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() + offset - 1, 1);
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth() + offset, 0);
 
   const [{ data: currentExpenses }, { data: prevExpenses }, { data: employees }] =
     await Promise.all([
@@ -31,7 +47,7 @@ export default async function AdminDashboardPage() {
         .from("expenses")
         .select("*")
         .gte("date", iso(monthStart))
-        .lte("date", iso(now))
+        .lte("date", iso(monthUpperBound))
         .neq("status", "RECHAZADO"),
       supabase
         .from("expenses")
@@ -128,11 +144,43 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-3">
-      <div>
-        <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
-        <p className="text-sm text-foreground-muted">
-          Resumen de {monthStart.toLocaleDateString("es-CR", { month: "long", year: "numeric" })}.
-        </p>
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+          <p className="text-sm text-foreground-muted">
+            Resumen de {monthStart.toLocaleDateString("es-CR", { month: "long", year: "numeric" })}.
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Link
+            href={`?offset=${offset - 1}`}
+            aria-label="Mes anterior"
+            className="flex size-9 items-center justify-center rounded-full border border-border text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+          >
+            ←
+          </Link>
+          {offset < MAX_OFFSET ? (
+            <Link
+              href={`?offset=${offset + 1}`}
+              aria-label="Mes siguiente"
+              className="flex size-9 items-center justify-center rounded-full border border-border text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+            >
+              →
+            </Link>
+          ) : (
+            <span className="flex size-9 items-center justify-center rounded-full border border-border text-foreground-muted/30">
+              →
+            </span>
+          )}
+          {offset !== 0 && (
+            <Link
+              href="/admin"
+              className="ml-1 text-xs font-medium text-brand"
+            >
+              Mes actual
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
@@ -165,7 +213,10 @@ export default async function AdminDashboardPage() {
       )}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <TrendChart title="Tendencia de gastos (este mes)" points={trendPoints} />
+        <TrendChart
+          title={`Tendencia de gastos (${monthStart.toLocaleDateString("es-CR", { month: "long" })})`}
+          points={trendPoints}
+        />
         <div className="flex flex-col gap-3">
           <CategoryBarChart title="Gastos diarios" data={dailyCategoryData} compact />
           <CategoryBarChart title="Caja chica y hospedaje" data={lumpCategoryData} compact />

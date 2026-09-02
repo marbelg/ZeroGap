@@ -81,15 +81,15 @@ export default async function EmployeeHomePage() {
       {lastWeekCount > 0 && (
         <div className="rounded-[var(--radius-md)] bg-brand-soft px-4 py-3 text-sm text-brand">
           <p>
-            Se te pagan{" "}
+            El{" "}
+            <span className="font-semibold">
+              {dayOfWeekLabel(settings.payment_day_of_week)} {paymentDate.getDate()}
+            </span>{" "}
+            se te pagan{" "}
             <span className="font-semibold">
               {formatCurrency(lastWeekApprovedTotal, "CRC")}
             </span>{" "}
-            de la semana pasada el{" "}
-            <span className="font-semibold">
-              {dayOfWeekLabel(settings.payment_day_of_week)} {paymentDate.getDate()}
-            </span>
-            .
+            correspondientes a la semana pasada.
           </p>
           {lastWeekPending > 0 && (
             <p className="mt-1 text-xs text-brand/80">

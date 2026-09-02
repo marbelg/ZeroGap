@@ -48,6 +48,14 @@ export default async function ReportesPage({
             Generar control viáticos
           </a>
           <a
+            href="/admin/reportes/control-viaticos/fotos"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted"
+          >
+            Descargar fotos (ZIP)
+          </a>
+          <a
             href={`/admin/reportes/export?${query.toString()}`}
             className="flex h-10 items-center justify-center rounded-full bg-brand px-5 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
           >

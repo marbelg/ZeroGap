@@ -114,7 +114,7 @@ export default async function AdminDashboardPage() {
   // grandes de una vez, la comida diaria es de a poco) — separados en dos
   // gráficos para que ninguno "aplaste" al otro visualmente.
   const dailyCategoryData = (
-    ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS"] as const
+    ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE", "REPARACION_LLANTAS", "PEAJE"] as const
   ).map((type) => ({
     label: EXPENSE_TYPE_LABEL[type],
     value: sumByType(type),

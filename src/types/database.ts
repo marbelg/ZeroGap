@@ -7,7 +7,8 @@ export type ExpenseType =
   | "KILOMETRAJE"
   | "REPARACION_LLANTAS"
   | "CAJA_CHICA"
-  | "HOSPEDAJE";
+  | "HOSPEDAJE"
+  | "PEAJE";
 export type ExpenseStatus = "REPORTADO" | "APROBADO" | "RECHAZADO";
 export type Currency = "USD" | "CRC";
 export type PhotoType = "COMPROBANTE" | "ODOMETRO_INICIAL" | "ODOMETRO_FINAL";

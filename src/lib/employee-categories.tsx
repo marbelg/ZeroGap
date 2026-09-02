@@ -54,6 +54,14 @@ const LLANTAS_ICON = (
   </>
 );
 
+const PEAJE_ICON = (
+  <>
+    <path d="M5 4v16M19 4v16" />
+    <path d="M5 9l14-3" />
+    <circle cx="5" cy="9" r="1" />
+  </>
+);
+
 const CAJA_CHICA_ICON = (
   <>
     <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2Z" />
@@ -104,6 +112,13 @@ const EMPLOYEE_OPTIONS: ExpenseCategoryOption[] = [
     label: "Llantas",
     color: "from-[#f2a1c2] to-[#d5528a]",
     icon: LLANTAS_ICON,
+  },
+  {
+    href: "/empleado/peaje",
+    type: "PEAJE",
+    label: "Peaje",
+    color: "from-[#f28b82] to-[#c62828]",
+    icon: PEAJE_ICON,
   },
 ];
 

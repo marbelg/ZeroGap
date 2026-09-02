@@ -422,6 +422,7 @@ function ManualExpenseDialog({
     "REPARACION_LLANTAS",
     "CAJA_CHICA",
     "HOSPEDAJE",
+    "PEAJE",
   ];
   const allowedTypes = singleEmployee
     ? optionsForRole(singleEmployee.role).map((o) => o.type)

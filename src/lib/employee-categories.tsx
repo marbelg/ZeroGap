@@ -62,6 +62,14 @@ const PEAJE_ICON = (
   </>
 );
 
+const OTROS_ICON = (
+  <>
+    <circle cx="5" cy="12" r="1.5" />
+    <circle cx="12" cy="12" r="1.5" />
+    <circle cx="19" cy="12" r="1.5" />
+  </>
+);
+
 const CAJA_CHICA_ICON = (
   <>
     <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2Z" />
@@ -119,6 +127,13 @@ const EMPLOYEE_OPTIONS: ExpenseCategoryOption[] = [
     label: "Peaje",
     color: "from-[#f28b82] to-[#c62828]",
     icon: PEAJE_ICON,
+  },
+  {
+    href: "/empleado/otros",
+    type: "OTROS",
+    label: "Otros",
+    color: "from-[#9ca3af] to-[#4b5563]",
+    icon: OTROS_ICON,
   },
 ];
 

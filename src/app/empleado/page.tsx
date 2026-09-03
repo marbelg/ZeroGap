@@ -84,64 +84,49 @@ export default async function EmployeeHomePage({
   const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4">
+    <div className="mx-auto flex max-w-md flex-col gap-3">
       <WeekTracker
         weekDays={weekDays}
         countsByDate={countsByDate}
         maxDaily={dailyTypes.length}
-        categoriesLabel={options.map((o) => o.label).join(" · ")}
+        paymentAmountLabel={
+          lastWeekCount > 0 ? formatCurrency(lastWeekApprovedTotal, "CRC") : undefined
+        }
+        paymentDateLabel={
+          lastWeekCount > 0
+            ? `${dayOfWeekLabel(settings.payment_day_of_week)} ${paymentDate.getDate()}`
+            : undefined
+        }
+        paymentPendingLabel={
+          lastWeekPending > 0
+            ? `${lastWeekPending} pendiente${lastWeekPending === 1 ? "" : "s"}`
+            : undefined
+        }
         offset={offset}
         minOffset={MIN_OFFSET}
         maxOffset={MAX_OFFSET}
       />
 
-      {lastWeekCount > 0 && (
-        <div className="rounded-[var(--radius-md)] bg-brand-soft px-4 py-3 text-sm text-brand">
-          <p>
-            El{" "}
-            <span className="font-semibold">
-              {dayOfWeekLabel(settings.payment_day_of_week)} {paymentDate.getDate()}
-            </span>{" "}
-            se te pagan{" "}
-            <span className="font-semibold">
-              {formatCurrency(lastWeekApprovedTotal, "CRC")}
-            </span>{" "}
-            correspondientes a la semana pasada.
-          </p>
-          {lastWeekPending > 0 && (
-            <p className="mt-1 text-xs text-brand/80">
-              {lastWeekPending} reporte{lastWeekPending === 1 ? "" : "s"} de esa semana
-              todavía no {lastWeekPending === 1 ? "está aprobado" : "están aprobados"} — el
-              monto puede cambiar.
-            </p>
-          )}
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {options.map((option) => (
           <Link
             key={option.href}
             href={option.href}
-            className="group flex flex-col items-center gap-2.5 rounded-[var(--radius-lg)] border border-border bg-surface p-4 shadow-sm transition-transform active:scale-[0.97]"
+            className={`group flex flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] bg-gradient-to-br p-2.5 text-white shadow-sm transition-transform active:scale-[0.97] ${option.color}`}
           >
-            <div
-              className={`flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white ${option.color}`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-5"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="size-6"
-              >
-                {option.icon}
-              </svg>
-            </div>
-            <span className="text-sm font-semibold text-foreground">
+              {option.icon}
+            </svg>
+            <span className="text-center text-[11px] font-semibold leading-tight">
               {option.label}
             </span>
           </Link>

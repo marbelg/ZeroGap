@@ -9,6 +9,7 @@ export const EXPENSE_TYPE_LABEL: Record<ExpenseType, string> = {
   CAJA_CHICA: "Caja chica",
   HOSPEDAJE: "Hospedaje",
   PEAJE: "Peaje",
+  OTROS: "Otros",
 };
 
 // Paleta categórica fija validada (dataviz skill) — mismo orden siempre:
@@ -23,4 +24,5 @@ export const EXPENSE_TYPE_COLOR: Record<ExpenseType, string> = {
   CAJA_CHICA: "var(--chart-series-6)",
   HOSPEDAJE: "var(--chart-series-7)",
   PEAJE: "var(--chart-series-8)",
+  OTROS: "var(--chart-series-9)",
 };

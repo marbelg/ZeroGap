@@ -50,7 +50,7 @@ export async function createMealExpense(
   if (!Number.isFinite(amount) || amount <= 0) {
     return { error: "El monto debe ser mayor a cero." };
   }
-  if (type === "CAJA_CHICA" && !description) {
+  if ((type === "CAJA_CHICA" || type === "OTROS") && !description) {
     return { error: "Agrega una descripción del gasto." };
   }
   if (!photo || photo.size === 0) {

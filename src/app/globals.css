@@ -34,6 +34,7 @@
   --chart-series-6: #008300; /* verde — Caja chica */
   --chart-series-7: #4a3aa7; /* violeta — Hospedaje */
   --chart-series-8: #e34948; /* rojo — Peaje */
+  --chart-series-9: #6b7280; /* gris — Otros */
   --chart-gridline: #e1e0d9;
   --chart-axis: #c3c2b7;
 }
@@ -91,6 +92,7 @@
     --chart-series-6: #008300;
     --chart-series-7: #9085e9;
     --chart-series-8: #e66767;
+    --chart-series-9: #9aa1ac;
     --chart-gridline: #2c2c2a;
     --chart-axis: #383835;
   }

@@ -6,7 +6,9 @@ export function WeekTracker({
   weekDays,
   countsByDate,
   maxDaily = 4,
-  categoriesLabel = "Desayuno · Almuerzo · Cena · Kilometraje",
+  paymentAmountLabel,
+  paymentDateLabel,
+  paymentPendingLabel,
   offset = 0,
   minOffset = 0,
   maxOffset = 0,
@@ -14,7 +16,11 @@ export function WeekTracker({
   weekDays: WeekDay[];
   countsByDate: Record<string, number>;
   maxDaily?: number;
-  categoriesLabel?: string;
+  // Resumen de pago de la semana pasada, mostrado a la par de "Mi semana"
+  // en vez de la lista de categorías (ahorra espacio vertical).
+  paymentAmountLabel?: string;
+  paymentDateLabel?: string;
+  paymentPendingLabel?: string;
   // Semana mostrada respecto a la actual (0 = esta semana). Permite navegar
   // con flechas sin salir de la pantalla de inicio ni elegir un tipo de gasto.
   offset?: number;
@@ -22,22 +28,32 @@ export function WeekTracker({
   maxOffset?: number;
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-4">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-3">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <p className="text-sm font-semibold text-foreground">Mi semana</p>
-        <p className="text-xs text-foreground-muted">{categoriesLabel}</p>
+        {paymentAmountLabel && (
+          <div className="text-right leading-tight">
+            <p className="text-xs font-bold text-brand">
+              {paymentAmountLabel} Aprobados
+            </p>
+            <p className="text-[10px] text-foreground-muted">
+              Pago: {paymentDateLabel}
+              {paymentPendingLabel && <> · {paymentPendingLabel}</>}
+            </p>
+          </div>
+        )}
       </div>
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-2 flex items-center justify-between gap-2">
         {offset > minOffset ? (
           <Link
             href={`/empleado?offset=${offset - 1}`}
             aria-label="Semana anterior"
-            className="flex size-7 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+            className="flex size-6 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
           >
             ←
           </Link>
         ) : (
-          <span className="flex size-7 shrink-0 items-center justify-center text-foreground-muted/30">
+          <span className="flex size-6 shrink-0 items-center justify-center text-foreground-muted/30">
             ←
           </span>
         )}
@@ -53,17 +69,17 @@ export function WeekTracker({
           <Link
             href={`/empleado?offset=${offset + 1}`}
             aria-label="Semana siguiente"
-            className="flex size-7 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+            className="flex size-6 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
           >
             →
           </Link>
         ) : (
-          <span className="flex size-7 shrink-0 items-center justify-center text-foreground-muted/30">
+          <span className="flex size-6 shrink-0 items-center justify-center text-foreground-muted/30">
             →
           </span>
         )}
       </div>
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1">
         {weekDays.map((day) => {
           const count = countsByDate[day.date] ?? 0;
           return (
@@ -71,16 +87,16 @@ export function WeekTracker({
               key={day.date}
               href={`/empleado/dia/${day.date}`}
               className={cn(
-                "flex flex-col items-center gap-1.5 rounded-[var(--radius-md)] py-2 transition-colors",
+                "flex flex-col items-center gap-1 rounded-[var(--radius-md)] py-1.5 transition-colors",
                 day.isToday ? "bg-brand-soft" : "hover:bg-surface-muted",
               )}
             >
-              <span className="text-[10px] font-medium uppercase text-foreground-muted">
+              <span className="text-[9px] font-medium uppercase text-foreground-muted">
                 {day.dayName}
               </span>
               <span
                 className={cn(
-                  "flex size-7 items-center justify-center rounded-full text-xs font-bold",
+                  "flex size-6 items-center justify-center rounded-full text-[11px] font-bold",
                   count === 0 && "bg-surface-muted text-foreground-muted",
                   count > 0 && count < maxDaily && "bg-warning-soft text-warning",
                   count >= maxDaily && "bg-success-soft text-success",
@@ -88,7 +104,7 @@ export function WeekTracker({
               >
                 {count}
               </span>
-              <span className="text-[10px] text-foreground-muted">{day.dayNumber}</span>
+              <span className="text-[9px] text-foreground-muted">{day.dayNumber}</span>
             </Link>
           );
         })}

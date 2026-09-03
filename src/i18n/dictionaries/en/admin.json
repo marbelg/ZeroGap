@@ -17,5 +17,15 @@
     },
     "reportes": { "title": "Reports", "subtitle": "Filter by month, employee, category, or status and export to CSV." },
     "configuracion": { "title": "Settings", "subtitle": "Budgets, mileage rate, and payment day." }
+  },
+  "duplicates": {
+    "cardTitle": "Possible duplicates",
+    "cardEmpty": "No pending duplicates.",
+    "cardCountSingular": "1 expense awaiting review",
+    "cardCountPlural": "expenses awaiting review",
+    "cardLink": "Review in Expenses",
+    "sameEmployeeMessage": "This employee reported the same receipt more than once.",
+    "otherEmployeeSuffix": " also reported this same receipt.",
+    "reportesBadgeLabel": "Possible duplicate"
   }
 }

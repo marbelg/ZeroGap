@@ -6,6 +6,7 @@ import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { getAppSettings } from "@/lib/settings";
 import { ExpenseManager } from "@/components/admin/expense-manager";
 import { BudgetSummary } from "@/components/admin/budget-summary";
+import { getDuplicateMatches } from "@/lib/duplicate-detection";
 import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function AdminUserGastosPage({
@@ -41,6 +42,7 @@ export default async function AdminUserGastosPage({
 
   const enriched = await enrichExpenses(supabase, expenses ?? []);
   const settings = await getAppSettings(supabase);
+  const duplicateMatches = await getDuplicateMatches(supabase);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -92,7 +94,7 @@ export default async function AdminUserGastosPage({
         <BudgetSummary expenses={enriched} settings={settings} />
       )}
 
-      <ExpenseManager expenses={enriched} employees={[employee]} />
+      <ExpenseManager expenses={enriched} employees={[employee]} duplicateMatches={duplicateMatches} />
     </div>
   );
 }

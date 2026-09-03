@@ -17,5 +17,15 @@
     },
     "reportes": { "title": "Rapports", "subtitle": "Filtrez par mois, employé, catégorie ou statut et exportez en CSV." },
     "configuracion": { "title": "Paramètres", "subtitle": "Budgets, tarif au kilomètre et jour de paiement." }
+  },
+  "duplicates": {
+    "cardTitle": "Doublons possibles",
+    "cardEmpty": "Aucun doublon en attente.",
+    "cardCountSingular": "1 dépense en attente de révision",
+    "cardCountPlural": "dépenses en attente de révision",
+    "cardLink": "Réviser dans Dépenses",
+    "sameEmployeeMessage": "Cet employé a déclaré le même reçu plus d'une fois.",
+    "otherEmployeeSuffix": " a aussi déclaré ce même reçu.",
+    "reportesBadgeLabel": "Doublon possible"
   }
 }

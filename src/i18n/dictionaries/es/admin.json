@@ -17,5 +17,15 @@
     },
     "reportes": { "title": "Reportes", "subtitle": "Filtra por mes, empleado, categoría o estado y exporta a CSV." },
     "configuracion": { "title": "Configuración", "subtitle": "Presupuestos, tarifa de kilometraje y día de pago." }
+  },
+  "duplicates": {
+    "cardTitle": "Posibles duplicados",
+    "cardEmpty": "Sin duplicados pendientes de revisar.",
+    "cardCountSingular": "1 gasto esperando revisión",
+    "cardCountPlural": "gastos esperando revisión",
+    "cardLink": "Revisar en Gastos",
+    "sameEmployeeMessage": "Este empleado reportó el mismo recibo más de una vez.",
+    "otherEmployeeSuffix": " también reportó este mismo recibo.",
+    "reportesBadgeLabel": "Posible duplicado"
   }
 }

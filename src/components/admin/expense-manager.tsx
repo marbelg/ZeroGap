@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import type { ExpenseType, Profile } from "@/types/database";
 import type { EnrichedExpense } from "@/lib/expenses";
+import type { DuplicateMatch } from "@/lib/duplicate-detection";
 import { expenseTypeLabel, EXPENSE_TYPE_COLOR } from "@/lib/expense-meta";
 import { optionsForRole } from "@/lib/employee-categories";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
@@ -31,9 +32,11 @@ const assignKmEmptyState: AssignKmState = {};
 export function ExpenseManager({
   expenses,
   employees,
+  duplicateMatches,
 }: {
   expenses: EnrichedExpense[];
   employees: Profile[];
+  duplicateMatches?: Map<string, DuplicateMatch>;
 }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -98,6 +101,7 @@ export function ExpenseManager({
                 onApprove={() => handleApprove(expense.id)}
                 onReject={() => handleReject(expense.id)}
                 onDelete={() => handleDelete(expense.id)}
+                duplicateMatch={duplicateMatches?.get(expense.id)}
               />
             ))}
           </div>
@@ -145,6 +149,7 @@ function ExpenseRow({
   onApprove,
   onReject,
   onDelete,
+  duplicateMatch,
 }: {
   expense: EnrichedExpense;
   employee?: Profile;
@@ -152,10 +157,12 @@ function ExpenseRow({
   onApprove: () => void;
   onReject: () => void;
   onDelete: () => void;
+  duplicateMatch?: DuplicateMatch;
 }) {
   const [editing, setEditing] = useState(false);
   const dict = useDict();
   const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
+  const D = dict.admin.duplicates;
   const photo = expense.photos[0];
   const startPhoto = expense.photos.find((p) => p.photo_type === "ODOMETRO_INICIAL");
   const endPhoto = expense.photos.find((p) => p.photo_type === "ODOMETRO_FINAL");
@@ -198,6 +205,15 @@ function ExpenseRow({
         </span>
         <ExpenseStatusBadge status={expense.status} dict={dict} />
       </div>
+
+      {duplicateMatch && (
+        <p className="mt-1 rounded-[var(--radius-sm)] bg-warning-soft px-3 py-2 text-xs font-medium text-warning">
+          ⚠️{" "}
+          {duplicateMatch.sameEmployee
+            ? D.sameEmployeeMessage
+            : `${duplicateMatch.otherEmployeeNames.join(", ")}${D.otherEmployeeSuffix}`}
+        </p>
+      )}
 
       {expense.type === "HOSPEDAJE" &&
         expense.reported_rate != null &&

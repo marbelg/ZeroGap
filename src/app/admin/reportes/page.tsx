@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { enrichExpenses } from "@/lib/expenses";
 import { getFilteredExpenses, type ExpenseSearchParams } from "@/lib/expense-filters";
 import { ExpenseFilterBar } from "@/components/admin/expense-filter-bar";
+import { getDuplicateMatches } from "@/lib/duplicate-detection";
 import { expenseTypeLabel } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -20,6 +21,8 @@ export default async function ReportesPage({
 
   const expenses = await getFilteredExpenses(supabase, sp);
   const enriched = await enrichExpenses(supabase, expenses);
+  const duplicateMatches = await getDuplicateMatches(supabase);
+  const D = dict.admin.duplicates;
 
   const { data: employees } = await supabase.from("profiles").select("*").order("first_name");
   const employeeById = new Map((employees ?? []).map((e) => [e.id, e]));
@@ -117,7 +120,18 @@ export default async function ReportesPage({
                       {e.mileage ? Number(e.mileage.kilometers).toFixed(1) : "—"}
                     </td>
                     <td className="px-4 py-2.5">
-                      <ExpenseStatusBadge status={e.status} dict={dict} />
+                      <div className="flex items-center gap-1.5">
+                        <ExpenseStatusBadge status={e.status} dict={dict} />
+                        {duplicateMatches.has(e.id) && (
+                          <span
+                            title={D.reportesBadgeLabel}
+                            aria-label={D.reportesBadgeLabel}
+                            className="text-warning"
+                          >
+                            ⚠️
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

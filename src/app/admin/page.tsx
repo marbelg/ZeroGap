@@ -8,6 +8,7 @@ import { BudgetLine } from "@/components/admin/budget-summary";
 import { Card } from "@/components/ui/card";
 import { EXPENSE_TYPE_COLOR, expenseTypeLabel } from "@/lib/expense-meta";
 import { getAppSettings } from "@/lib/settings";
+import { getDuplicateMatches } from "@/lib/duplicate-detection";
 import { formatCurrency } from "@/lib/utils";
 import type { Expense, Mileage, Profile } from "@/types/database";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -62,6 +63,8 @@ export default async function AdminDashboardPage({
     ]);
 
   const settings = await getAppSettings(supabase);
+  const duplicateMatches = await getDuplicateMatches(supabase);
+  const D = dict.admin.duplicates;
 
   const current = (currentExpenses ?? []) as Expense[];
   const previous = (prevExpenses ?? []) as Expense[];
@@ -201,6 +204,25 @@ export default async function AdminDashboardPage({
         <StatTile label="Kilómetros" value={`${totalKm.toFixed(1)} km`} />
         <StatTile label="Promedio / empleado" value={formatCurrency(promedio, "CRC")} />
       </div>
+
+      {duplicateMatches.size > 0 && (
+        <Card className="flex items-center justify-between gap-3 border-warning/30 bg-warning-soft p-3">
+          <div>
+            <p className="text-sm font-semibold text-warning">{D.cardTitle}</p>
+            <p className="text-xs text-warning/80">
+              {duplicateMatches.size === 1
+                ? D.cardCountSingular
+                : `${duplicateMatches.size} ${D.cardCountPlural}`}
+            </p>
+          </div>
+          <Link
+            href="/admin/gastos"
+            className="shrink-0 rounded-full bg-warning px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            {D.cardLink}
+          </Link>
+        </Card>
+      )}
 
       {hasRoleBudget && (
         <Card className="flex flex-col gap-2 p-3">

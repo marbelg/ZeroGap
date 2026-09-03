@@ -3,16 +3,15 @@ export type Locale = "es" | "en" | "fr";
 export interface LocaleMeta {
   code: Locale;
   label: string;
-  flag: string;
-  // Solo "es" tiene contenido real hoy. "en"/"fr" quedan visibles en el
-  // selector pero deshabilitados hasta que exista una traducción real.
-  enabled: boolean;
 }
 
+// Qué idiomas están realmente visibles para los usuarios (más allá de "es",
+// siempre activo) lo decide el admin en Configuración — ver
+// `enabledLocalesFrom` en `src/lib/settings.ts` y `setLocaleAction`.
 export const LOCALE_META: LocaleMeta[] = [
-  { code: "es", label: "ES", flag: "🇨🇷", enabled: true },
-  { code: "en", label: "EN", flag: "🇺🇸", enabled: true },
-  { code: "fr", label: "FR", flag: "🇨🇦", enabled: true },
+  { code: "es", label: "ES" },
+  { code: "en", label: "EN" },
+  { code: "fr", label: "FR" },
 ];
 
 export const DEFAULT_LOCALE: Locale = "es";

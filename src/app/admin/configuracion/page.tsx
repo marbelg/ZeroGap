@@ -9,7 +9,7 @@ export default async function ConfiguracionPage() {
   const settings = await getAppSettings(supabase);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-4xl">
       <div className="mb-5">
         <h1 className="text-lg font-semibold text-foreground">
           {dict.admin.pages.configuracion.title}

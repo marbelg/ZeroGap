@@ -5,6 +5,7 @@ import { signOut } from "@/lib/auth-actions";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { LocaleProvider } from "@/i18n/locale-provider";
+import { getAppSettings, enabledLocalesFrom } from "@/lib/settings";
 
 export default async function AdminLayout({
   children,
@@ -27,15 +28,26 @@ export default async function AdminLayout({
   if (profile?.role !== "ADMIN") redirect("/empleado");
 
   const dict = await getDictionary();
+  const settings = await getAppSettings(supabase);
+  const enabledLocales = enabledLocalesFrom(settings);
 
   return (
     <LocaleProvider dict={dict}>
       <div className="flex min-h-dvh flex-col bg-background md:flex-row">
         <aside className="border-b border-border bg-surface px-3 py-2.5 md:w-56 md:shrink-0 md:border-b-0 md:border-r md:px-3 md:py-6">
           <div className="mb-6 hidden items-center gap-2.5 px-2 md:flex">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#6d5cf6] to-[#4a3cd6] text-sm font-bold text-white">
-              ZG
-            </div>
+            {settings.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={settings.logo_url}
+                alt=""
+                className="size-9 shrink-0 rounded-xl object-contain"
+              />
+            ) : (
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#6d5cf6] to-[#4a3cd6] text-sm font-bold text-white">
+                ZG
+              </div>
+            )}
             <span className="text-sm font-semibold text-foreground">{dict.admin.brand}</span>
           </div>
           <AdminNav />
@@ -55,7 +67,7 @@ export default async function AdminLayout({
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <LanguageSwitcher currentLocale={dict.locale} />
+              <LanguageSwitcher currentLocale={dict.locale} enabledLocales={enabledLocales} />
               <form action={signOut}>
                 <button
                   type="submit"

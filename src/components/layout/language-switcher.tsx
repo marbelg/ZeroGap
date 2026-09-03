@@ -7,10 +7,18 @@ import { cn } from "@/lib/utils";
 // JavaScript de cliente para que funcione. Al enviarse, el Server Action
 // guarda la cookie de idioma y Next vuelve a renderizar la ruta actual con
 // el nuevo diccionario.
-export function LanguageSwitcher({ currentLocale }: { currentLocale: Locale }) {
+export function LanguageSwitcher({
+  currentLocale,
+  enabledLocales,
+}: {
+  currentLocale: Locale;
+  enabledLocales: Locale[];
+}) {
+  const visible = LOCALE_META.filter((locale) => enabledLocales.includes(locale.code));
+
   return (
     <div className="flex items-center gap-1">
-      {LOCALE_META.map((locale) => {
+      {visible.map((locale) => {
         const isActive = locale.code === currentLocale;
         return (
           <form key={locale.code} action={setLocaleAction.bind(null, locale.code)}>

@@ -84,6 +84,9 @@ export type AppSettings = {
   payment_day_of_week: number;
   monthly_budget_caja_chica: number;
   monthly_budget_no_directo: number;
+  locale_en_enabled: boolean;
+  locale_fr_enabled: boolean;
+  logo_url: string | null;
   updated_at: string;
 }
 

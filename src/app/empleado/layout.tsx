@@ -5,6 +5,7 @@ import { signOut } from "@/lib/auth-actions";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { LocaleProvider } from "@/i18n/locale-provider";
+import { getAppSettings, enabledLocalesFrom } from "@/lib/settings";
 
 export default async function EmployeeLayout({
   children,
@@ -25,6 +26,8 @@ export default async function EmployeeLayout({
     .single();
 
   const dict = await getDictionary();
+  const settings = await getAppSettings(supabase);
+  const enabledLocales = enabledLocalesFrom(settings);
 
   return (
     <LocaleProvider dict={dict}>
@@ -42,7 +45,7 @@ export default async function EmployeeLayout({
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher currentLocale={dict.locale} />
+            <LanguageSwitcher currentLocale={dict.locale} enabledLocales={enabledLocales} />
             <form action={signOut}>
               <button
                 type="submit"

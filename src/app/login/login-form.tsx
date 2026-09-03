@@ -6,22 +6,38 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { useDict } from "@/i18n/locale-provider";
+import type { Locale } from "@/i18n/locales";
 
 const initialState: LoginState = {};
 
-export default function LoginForm() {
+export default function LoginForm({
+  enabledLocales,
+  logoUrl,
+}: {
+  enabledLocales: Locale[];
+  logoUrl: string | null;
+}) {
   const [state, formAction, isPending] = useActionState(signIn, initialState);
   const dict = useDict();
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col items-center justify-center bg-background px-5 py-10">
       <div className="mb-4">
-        <LanguageSwitcher currentLocale={dict.locale} />
+        <LanguageSwitcher currentLocale={dict.locale} enabledLocales={enabledLocales} />
       </div>
       <div className="mb-8 flex flex-col items-center gap-3">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6d5cf6] to-[#4a3cd6] text-xl font-bold text-white shadow-lg shadow-brand/25">
-          ZG
-        </div>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logoUrl}
+            alt=""
+            className="size-14 rounded-2xl object-contain shadow-lg shadow-brand/25"
+          />
+        ) : (
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6d5cf6] to-[#4a3cd6] text-xl font-bold text-white shadow-lg shadow-brand/25">
+            ZG
+          </div>
+        )}
         <div className="text-center">
           <h1 className="text-xl font-semibold text-foreground">ZeroGap</h1>
           <p className="text-sm text-foreground-muted">{dict.auth.brandTagline}</p>

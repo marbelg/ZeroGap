@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { GastosEmployeeList, type EmployeeGastoStats } from "@/components/admin/gastos-employee-list";
+import { DuplicatesKpiCard } from "@/components/admin/duplicates-kpi";
+import { getDuplicateSummaries } from "@/lib/duplicate-detection";
 import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function AdminGastosPage({
@@ -43,6 +45,8 @@ export default async function AdminGastosPage({
     statsByUser[e.user_id] = s;
   }
 
+  const duplicateSummaries = await getDuplicateSummaries(supabase);
+
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-5">
@@ -73,7 +77,7 @@ export default async function AdminGastosPage({
         </Link>
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-3">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-4">
           <p className="text-xs font-medium text-foreground-muted">Aprobados</p>
           <p className="text-2xl font-semibold text-success">{approvedCount}</p>
@@ -82,6 +86,7 @@ export default async function AdminGastosPage({
           <p className="text-xs font-medium text-foreground-muted">Pendientes de aprobar</p>
           <p className="text-2xl font-semibold text-warning">{pendingCount}</p>
         </div>
+        <DuplicatesKpiCard summaries={duplicateSummaries} />
       </div>
 
       <GastosEmployeeList employees={employees ?? []} statsByUser={statsByUser} />

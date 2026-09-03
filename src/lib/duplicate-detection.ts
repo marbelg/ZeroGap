@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database";
+import type { Currency, Database, ExpenseType } from "@/types/database";
 
 interface ExpenseSignatureRow {
   id: string;
@@ -90,4 +90,82 @@ export async function getDuplicateMatches(
     });
   }
   return result;
+}
+
+export interface DuplicateSummary {
+  expenseId: string;
+  employeeId: string;
+  employeeName: string;
+  type: ExpenseType;
+  amount: number;
+  currency: Currency;
+  date: string;
+  sameEmployee: boolean;
+  otherEmployeeNames: string[];
+}
+
+// Igual regla que getDuplicateMatches, pero devuelve una lista lista para
+// mostrar (con empleado/monto/categoría/fecha de CADA gasto marcado) en vez
+// de un mapa por id — la usa el KPI clickeable de "Gastos" para desplegar
+// el detalle sin que la pantalla tenga que volver a consultar nada.
+export async function getDuplicateSummaries(
+  supabase: SupabaseClient<Database>,
+): Promise<DuplicateSummary[]> {
+  const { data } = await supabase
+    .from("expenses")
+    .select("id, user_id, type, amount, currency, date, status")
+    .in("status", ["REPORTADO", "APROBADO"]);
+
+  const rows = (data ?? []) as ExpenseSignatureRow[];
+  if (rows.length === 0) return [];
+
+  const groups = new Map<string, ExpenseSignatureRow[]>();
+  for (const row of rows) {
+    const key = `${row.type}|${row.amount}|${row.currency}|${row.date}`;
+    const group = groups.get(key);
+    if (group) group.push(row);
+    else groups.set(key, [row]);
+  }
+
+  const flagged: { row: ExpenseSignatureRow; otherUserIds: string[] }[] = [];
+  const userIdsToLookUp = new Set<string>();
+
+  for (const group of groups.values()) {
+    if (group.length < 2 || !group.some((r) => r.status === "REPORTADO")) continue;
+    for (const row of group) {
+      if (row.status !== "REPORTADO") continue;
+      const others = group.filter((r) => r.id !== row.id);
+      const otherUserIds = Array.from(
+        new Set(others.filter((o) => o.user_id !== row.user_id).map((o) => o.user_id)),
+      );
+      userIdsToLookUp.add(row.user_id);
+      otherUserIds.forEach((id) => userIdsToLookUp.add(id));
+      flagged.push({ row, otherUserIds });
+    }
+  }
+
+  if (flagged.length === 0) return [];
+
+  const nameById = new Map<string, string>();
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, first_name, last_name")
+    .in("id", Array.from(userIdsToLookUp));
+  for (const p of profiles ?? []) {
+    nameById.set(p.id, `${p.first_name} ${p.last_name}`.trim());
+  }
+
+  return flagged
+    .map(({ row, otherUserIds }) => ({
+      expenseId: row.id,
+      employeeId: row.user_id,
+      employeeName: nameById.get(row.user_id) ?? "—",
+      type: row.type as ExpenseType,
+      amount: row.amount,
+      currency: row.currency as Currency,
+      date: row.date,
+      sameEmployee: otherUserIds.length === 0,
+      otherEmployeeNames: otherUserIds.map((uid) => nameById.get(uid) ?? "—"),
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
 }

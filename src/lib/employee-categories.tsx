@@ -8,9 +8,10 @@ export interface ExpenseCategoryOption {
   label: string;
   color: string;
   icon: ReactNode;
-  // Un hotel puede hospedar a varios colaboradores el mismo día — a
-  // diferencia del resto de categorías (una vez al día), esta permite
-  // reportar más de una vez el mismo día sin que se "reemplacen" entre sí.
+  // Desayuno/Almuerzo/Cena son únicos por día (una sola vez). El resto
+  // (Kilometraje, Llantas, Peaje, Otros, Hospedaje) permite reportar varias
+  // veces el mismo día sin que se "reemplacen" entre sí — ej. varios
+  // trayectos, varios peajes, o un hotel con varios colaboradores.
   allowMultiple?: boolean;
 }
 
@@ -115,6 +116,7 @@ function employeeOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): Expens
       label: LABEL.KILOMETRAJE,
       color: "from-[#4dd0e1] to-[#0097a7]",
       icon: KILOMETRAJE_ICON,
+      allowMultiple: true,
     },
     {
       href: "/empleado/reparacion-llantas",
@@ -122,6 +124,7 @@ function employeeOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): Expens
       label: LABEL.REPARACION_LLANTAS,
       color: "from-[#f2a1c2] to-[#d5528a]",
       icon: LLANTAS_ICON,
+      allowMultiple: true,
     },
     {
       href: "/empleado/peaje",
@@ -129,6 +132,7 @@ function employeeOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): Expens
       label: LABEL.PEAJE,
       color: "from-[#f28b82] to-[#c62828]",
       icon: PEAJE_ICON,
+      allowMultiple: true,
     },
     {
       href: "/empleado/otros",
@@ -136,6 +140,7 @@ function employeeOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): Expens
       label: LABEL.OTROS,
       color: "from-[#9ca3af] to-[#4b5563]",
       icon: OTROS_ICON,
+      allowMultiple: true,
     },
   ];
 }

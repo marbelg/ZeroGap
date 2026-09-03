@@ -60,6 +60,8 @@ export default async function DayDetailPage({
   const options = optionsForRole(role, dict);
   const allTypes = options.map((o) => o.type);
   const optionByType = new Map(options.map((o) => [o.type, o]));
+  const singleTypes = allTypes.filter((t) => !optionByType.get(t)?.allowMultiple);
+  const multiTypes = allTypes.filter((t) => optionByType.get(t)?.allowMultiple);
 
   const { data: expenses } = await supabase
     .from("expenses")
@@ -112,16 +114,53 @@ export default async function DayDetailPage({
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
-        {allTypes.map((type) => {
-          const option = optionByType.get(type);
-          const typeExpenses = expensesByType.get(type) ?? [];
-          const href = `${option?.href}?date=${date}`;
+      {/* Únicas por día (Desayuno/Almuerzo/Cena): tarjetas chicas en 2
+          columnas — siempre es una sola por tipo, así que caben compactas
+          sin desperdiciar espacio vertical. */}
+      {singleTypes.length > 0 && (
+        <div className="grid grid-cols-2 gap-3">
+          {singleTypes.map((type) => {
+            const option = optionByType.get(type);
+            const href = `${option?.href}?date=${date}`;
+            const expense = (expensesByType.get(type) ?? [])[0];
+            return (
+              <Card key={type} className="p-3">
+                <p className="text-sm font-medium text-foreground">{EXPENSE_TYPE_LABEL[type]}</p>
+                <div className="mt-1.5">
+                  {expense ? (
+                    <ExpenseStatusBadge status={expense.status} dict={dict} />
+                  ) : (
+                    <Link
+                      href={href}
+                      className="inline-block rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
+                    >
+                      {T.report}
+                    </Link>
+                  )}
+                </div>
+                {expense && <ExpenseAmountLine expense={expense} T={T} />}
+                {expense?.status === "RECHAZADO" && expense.rejection_reason && (
+                  <p className="mt-2 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-xs text-danger">
+                    {T.rejectionReasonPrefix}
+                    {expense.rejection_reason}
+                  </p>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
-          // Categorías que permiten varias veces al día (ej. Hospedaje):
-          // se lista cada reporte por separado y siempre se puede agregar
-          // otro — nunca se "esconde" detrás de uno solo.
-          if (option?.allowMultiple) {
+      {/* Se pueden reportar varias veces el mismo día (Kilometraje, Llantas,
+          Peaje, Otros, Hospedaje): se lista cada reporte por separado y
+          siempre se puede agregar otro — nunca se "esconde" detrás de uno
+          solo. */}
+      {multiTypes.length > 0 && (
+        <div className="flex flex-col gap-3">
+          {multiTypes.map((type) => {
+            const option = optionByType.get(type);
+            const typeExpenses = expensesByType.get(type) ?? [];
+            const href = `${option?.href}?date=${date}`;
             return (
               <div key={type} className="flex flex-col gap-2">
                 <p className="text-sm font-medium text-foreground">{EXPENSE_TYPE_LABEL[type]}</p>
@@ -150,35 +189,9 @@ export default async function DayDetailPage({
                 </Link>
               </div>
             );
-          }
-
-          const expense = typeExpenses[0];
-          return (
-            <Card key={type} className="p-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-medium text-foreground">{EXPENSE_TYPE_LABEL[type]}</span>
-                {expense ? (
-                  <ExpenseStatusBadge status={expense.status} dict={dict} />
-                ) : (
-                  <Link
-                    href={href}
-                    className="rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
-                  >
-                    {T.report}
-                  </Link>
-                )}
-              </div>
-              {expense && <ExpenseAmountLine expense={expense} T={T} />}
-              {expense?.status === "RECHAZADO" && expense.rejection_reason && (
-                <p className="mt-2 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-xs text-danger">
-                  {T.rejectionReasonPrefix}
-                  {expense.rejection_reason}
-                </p>
-              )}
-            </Card>
-          );
-        })}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 }

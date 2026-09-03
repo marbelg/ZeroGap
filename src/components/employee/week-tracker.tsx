@@ -6,9 +6,6 @@ export function WeekTracker({
   weekDays,
   countsByDate,
   maxDaily = 4,
-  paymentAmountLabel,
-  paymentDateLabel,
-  paymentPendingLabel,
   offset = 0,
   minOffset = 0,
   maxOffset = 0,
@@ -16,11 +13,6 @@ export function WeekTracker({
   weekDays: WeekDay[];
   countsByDate: Record<string, number>;
   maxDaily?: number;
-  // Resumen de pago de la semana pasada, mostrado a la par de "Mi semana"
-  // en vez de la lista de categorías (ahorra espacio vertical).
-  paymentAmountLabel?: string;
-  paymentDateLabel?: string;
-  paymentPendingLabel?: string;
   // Semana mostrada respecto a la actual (0 = esta semana). Permite navegar
   // con flechas sin salir de la pantalla de inicio ni elegir un tipo de gasto.
   offset?: number;
@@ -29,20 +21,7 @@ export function WeekTracker({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-3">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <p className="text-sm font-semibold text-foreground">Mi semana</p>
-        {paymentAmountLabel && (
-          <div className="text-right leading-tight">
-            <p className="text-xs font-bold text-brand">
-              {paymentAmountLabel} Aprobados
-            </p>
-            <p className="text-[10px] text-foreground-muted">
-              Pago: {paymentDateLabel}
-              {paymentPendingLabel && <> · {paymentPendingLabel}</>}
-            </p>
-          </div>
-        )}
-      </div>
+      <p className="mb-2 text-sm font-semibold text-foreground">Mi semana</p>
       <div className="mb-2 flex items-center justify-between gap-2">
         {offset > minOffset ? (
           <Link

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { currentWeekDays, weekDaysForOffset } from "@/lib/week";
 import { WeekTracker } from "@/components/employee/week-tracker";
+import { StatusKpiRow, type KpiDef } from "@/components/employee/status-kpi-row";
 import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import { optionsForRole, dailyTypesForRole } from "@/lib/employee-categories";
@@ -9,6 +10,34 @@ import { optionsForRole, dailyTypesForRole } from "@/lib/employee-categories";
 // Igual que en Mis Gastos: 5 semanas hacia atrás y hacia adelante.
 const MIN_OFFSET = -5;
 const MAX_OFFSET = 5;
+
+const CHECK_ICON = (
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M8.5 12.5l2.2 2.2L15.5 9.5" />
+  </>
+);
+
+const CLOCK_ICON = (
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3.5 2" />
+  </>
+);
+
+const REJECTED_ICON = (
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+  </>
+);
+
+const REPORTED_ICON = (
+  <>
+    <path d="M7 3h7l4 4v14H7Z" />
+    <path d="M9 11h6M9 15h6" />
+  </>
+);
 
 export default async function EmployeeHomePage({
   searchParams,
@@ -64,32 +93,80 @@ export default async function EmployeeHomePage({
     countsByDate[day.date] = count;
   }
 
-  // Mini-dashboard: cuándo se pagan los gastos de la semana pasada. "Hoy - 7
-  // días" siempre cae en la semana pasada, sin depender de parsear strings
-  // de fecha (evita líos de huso horario).
+  // KPIs de pago: Aprobados/Pendientes/Rechazados son siempre de la semana
+  // pasada (lo que se paga el día de pago configurado); Reportados es de la
+  // semana EN CURSO (para que el empleado vea cuánto lleva reportado antes
+  // de que se cierre la semana) — a propósito, dos rangos de fecha
+  // distintos en la misma fila de KPIs.
   const settings = await getAppSettings(supabase);
   const lastWeekReference = new Date();
   lastWeekReference.setDate(lastWeekReference.getDate() - 7);
   const lastWeekDays = currentWeekDays(lastWeekReference);
   const { data: lastWeekExpenses } = await supabase
     .from("expenses")
-    .select("amount, status")
+    .select("id, type, date, amount, currency, status, rejection_reason")
     .eq("user_id", user!.id)
     .gte("date", lastWeekDays[0].date)
-    .lte("date", lastWeekDays[6].date);
-  const lastWeekCount = lastWeekExpenses?.length ?? 0;
-  const lastWeekApproved = (lastWeekExpenses ?? []).filter((e) => e.status === "APROBADO");
-  const lastWeekApprovedTotal = lastWeekApproved.reduce((sum, e) => sum + Number(e.amount), 0);
-  const lastWeekPending = (lastWeekExpenses ?? []).filter((e) => e.status === "REPORTADO").length;
-  const lastWeekRejected = (lastWeekExpenses ?? []).filter((e) => e.status === "RECHAZADO").length;
+    .lte("date", lastWeekDays[6].date)
+    .order("date", { ascending: true });
+
+  const lastWeekApprovedList = (lastWeekExpenses ?? []).filter((e) => e.status === "APROBADO");
+  const lastWeekPendingList = (lastWeekExpenses ?? []).filter((e) => e.status === "REPORTADO");
+  const lastWeekRejectedList = (lastWeekExpenses ?? []).filter((e) => e.status === "RECHAZADO");
+  const lastWeekApprovedTotal = lastWeekApprovedList.reduce(
+    (sum, e) => sum + Number(e.amount),
+    0,
+  );
   const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
-  const paymentPendingLabel =
-    [
-      lastWeekPending > 0 ? `${lastWeekPending} pendiente${lastWeekPending === 1 ? "" : "s"}` : null,
-      lastWeekRejected > 0 ? `${lastWeekRejected} rechazado${lastWeekRejected === 1 ? "" : "s"}` : null,
-    ]
-      .filter(Boolean)
-      .join(" · ") || undefined;
+  const paymentDateLabel = `${dayOfWeekLabel(settings.payment_day_of_week)} ${paymentDate.getDate()}`;
+
+  const thisWeekDays = currentWeekDays(new Date());
+  const { data: thisWeekReportedExpenses } = await supabase
+    .from("expenses")
+    .select("id, type, date, amount, currency, status, rejection_reason")
+    .eq("user_id", user!.id)
+    .gte("date", thisWeekDays[0].date)
+    .lte("date", thisWeekDays[6].date)
+    .order("date", { ascending: true });
+
+  const kpis: KpiDef[] = [
+    {
+      key: "aprobados",
+      label: "Aprobados",
+      sublabel: `Semana pasada · Pago: ${paymentDateLabel}`,
+      icon: CHECK_ICON,
+      color: "success",
+      value: formatCurrency(lastWeekApprovedTotal, "CRC"),
+      items: lastWeekApprovedList,
+    },
+    {
+      key: "reportados",
+      label: "Reportados",
+      sublabel: "Esta semana",
+      icon: REPORTED_ICON,
+      color: "brand",
+      value: String((thisWeekReportedExpenses ?? []).length),
+      items: thisWeekReportedExpenses ?? [],
+    },
+    {
+      key: "pendientes",
+      label: "Pendientes",
+      sublabel: "Semana pasada",
+      icon: CLOCK_ICON,
+      color: "warning",
+      value: String(lastWeekPendingList.length),
+      items: lastWeekPendingList,
+    },
+    {
+      key: "rechazados",
+      label: "Rechazados",
+      sublabel: "Semana pasada",
+      icon: REJECTED_ICON,
+      color: "danger",
+      value: String(lastWeekRejectedList.length),
+      items: lastWeekRejectedList,
+    },
+  ];
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3">
@@ -97,19 +174,12 @@ export default async function EmployeeHomePage({
         weekDays={weekDays}
         countsByDate={countsByDate}
         maxDaily={dailyTypes.length}
-        paymentAmountLabel={
-          lastWeekCount > 0 ? formatCurrency(lastWeekApprovedTotal, "CRC") : undefined
-        }
-        paymentDateLabel={
-          lastWeekCount > 0
-            ? `${dayOfWeekLabel(settings.payment_day_of_week)} ${paymentDate.getDate()}`
-            : undefined
-        }
-        paymentPendingLabel={paymentPendingLabel}
         offset={offset}
         minOffset={MIN_OFFSET}
         maxOffset={MAX_OFFSET}
       />
+
+      <StatusKpiRow kpis={kpis} />
 
       <div className="grid grid-cols-3 gap-2">
         {options.map((option) => (

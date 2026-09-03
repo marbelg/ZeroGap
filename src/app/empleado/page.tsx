@@ -80,8 +80,16 @@ export default async function EmployeeHomePage({
   const lastWeekCount = lastWeekExpenses?.length ?? 0;
   const lastWeekApproved = (lastWeekExpenses ?? []).filter((e) => e.status === "APROBADO");
   const lastWeekApprovedTotal = lastWeekApproved.reduce((sum, e) => sum + Number(e.amount), 0);
-  const lastWeekPending = lastWeekCount - lastWeekApproved.length;
+  const lastWeekPending = (lastWeekExpenses ?? []).filter((e) => e.status === "REPORTADO").length;
+  const lastWeekRejected = (lastWeekExpenses ?? []).filter((e) => e.status === "RECHAZADO").length;
   const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
+  const paymentPendingLabel =
+    [
+      lastWeekPending > 0 ? `${lastWeekPending} pendiente${lastWeekPending === 1 ? "" : "s"}` : null,
+      lastWeekRejected > 0 ? `${lastWeekRejected} rechazado${lastWeekRejected === 1 ? "" : "s"}` : null,
+    ]
+      .filter(Boolean)
+      .join(" · ") || undefined;
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3">
@@ -97,11 +105,7 @@ export default async function EmployeeHomePage({
             ? `${dayOfWeekLabel(settings.payment_day_of_week)} ${paymentDate.getDate()}`
             : undefined
         }
-        paymentPendingLabel={
-          lastWeekPending > 0
-            ? `${lastWeekPending} pendiente${lastWeekPending === 1 ? "" : "s"}`
-            : undefined
-        }
+        paymentPendingLabel={paymentPendingLabel}
         offset={offset}
         minOffset={MIN_OFFSET}
         maxOffset={MAX_OFFSET}

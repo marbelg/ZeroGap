@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { compressImage } from "@/lib/compress-image";
-import { dict } from "@/i18n/dictionary";
+import { useDict } from "@/i18n/locale-provider";
 
 interface PhotoCaptureProps {
   name: string;
@@ -23,6 +23,7 @@ export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const dict = useDict();
 
   async function handleFile(file: File | undefined) {
     if (!file) return;

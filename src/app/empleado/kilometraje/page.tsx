@@ -1,5 +1,5 @@
 import { MileageExpenseForm } from "@/components/expense/mileage-expense-form";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function KilometrajePage({
   searchParams,
@@ -7,6 +7,7 @@ export default async function KilometrajePage({
   searchParams: Promise<{ date?: string }>;
 }) {
   const { date } = await searchParams;
+  const dict = await getDictionary();
   return (
     <div className="mx-auto max-w-md">
       <h1 className="mb-4 text-lg font-semibold text-foreground">

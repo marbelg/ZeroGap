@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { enrichExpenses } from "@/lib/expenses";
 import { getFilteredExpenses } from "@/lib/expense-filters";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { expenseTypeLabel } from "@/lib/expense-meta";
+import { ES_DICTIONARY } from "@/i18n/get-dictionary";
 import { toCsv } from "@/lib/csv";
 
 export async function GET(request: NextRequest) {
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
   const { data: employees } = await supabase.from("profiles").select("*");
   const employeeById = new Map((employees ?? []).map((e) => [e.id, e]));
 
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(ES_DICTIONARY);
   const rows = enriched.map((e) => {
     const employee = employeeById.get(e.user_id);
     return [

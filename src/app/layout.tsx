@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { LocaleProvider } from "@/i18n/locale-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,16 +35,20 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const dict = await getDictionary();
+
   return (
     <html
-      lang="es"
+      lang={dict.locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
-        <ServiceWorkerRegister />
-        <InstallPrompt />
+        <LocaleProvider dict={dict}>
+          {children}
+          <ServiceWorkerRegister />
+          <InstallPrompt />
+        </LocaleProvider>
       </body>
     </html>
   );

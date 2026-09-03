@@ -2,8 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
-import { dict } from "@/i18n/dictionary";
+import { expenseTypeLabel } from "@/lib/expense-meta";
+import { useDict } from "@/i18n/locale-provider";
 import type { Currency, ExpenseType } from "@/types/database";
 
 export interface KpiExpenseItem {
@@ -38,6 +38,8 @@ const COLOR_CLASSES: Record<KpiDef["color"], string> = {
 export function StatusKpiRow({ kpis }: { kpis: KpiDef[] }) {
   const [selected, setSelected] = useState<string | null>(null);
   const active = kpis.find((k) => k.key === selected);
+  const dict = useDict();
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
 
   return (
     <div className="flex flex-col gap-2">

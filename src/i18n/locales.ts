@@ -11,8 +11,8 @@ export interface LocaleMeta {
 
 export const LOCALE_META: LocaleMeta[] = [
   { code: "es", label: "ES", flag: "🇨🇷", enabled: true },
-  { code: "en", label: "EN", flag: "🇺🇸", enabled: false },
-  { code: "fr", label: "FR", flag: "🇨🇦", enabled: false },
+  { code: "en", label: "EN", flag: "🇺🇸", enabled: true },
+  { code: "fr", label: "FR", flag: "🇨🇦", enabled: true },
 ];
 
 export const DEFAULT_LOCALE: Locale = "es";

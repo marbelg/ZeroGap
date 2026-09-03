@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { getAppSettings } from "@/lib/settings";
 import { SettingsForm } from "@/components/admin/settings-form";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function ConfiguracionPage() {
+  const dict = await getDictionary();
   const supabase = await createClient();
   const settings = await getAppSettings(supabase);
 

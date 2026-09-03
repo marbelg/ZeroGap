@@ -1,7 +1,9 @@
 import type { ExpenseType } from "@/types/database";
-import { dict } from "@/i18n/dictionary";
+import type { Dictionary } from "@/i18n/get-dictionary";
 
-export const EXPENSE_TYPE_LABEL: Record<ExpenseType, string> = dict.expenses.typeLabel;
+export function expenseTypeLabel(dict: Dictionary): Record<ExpenseType, string> {
+  return dict.expenses.typeLabel;
+}
 
 // Paleta categórica fija validada (dataviz skill) — mismo orden siempre:
 // slot 1 azul, 2 naranja, 3 aqua, 4 amarillo, 5 magenta. Como custom

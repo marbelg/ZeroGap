@@ -7,6 +7,7 @@ import { Input, Label } from "@/components/ui/input";
 import { UserStatusBadge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useDict } from "@/i18n/locale-provider";
 import {
   createEmployee,
   createEmployeesBulk,
@@ -240,6 +241,7 @@ function EmployeeRow({
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const dict = useDict();
 
   return (
     <div className="px-5 py-4">
@@ -257,7 +259,7 @@ function EmployeeRow({
             Admin
           </span>
         )}
-        <UserStatusBadge status={employee.status} />
+        <UserStatusBadge status={employee.status} dict={dict} />
       </div>
       <p className="mt-0.5 truncate text-xs text-foreground-muted">
         {employee.email}

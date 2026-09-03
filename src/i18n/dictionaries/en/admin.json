@@ -1,0 +1,21 @@
+{
+  "brand": "ZeroGap Admin",
+  "headerLabel": "Administration",
+  "nav": {
+    "dashboard": "Dashboard",
+    "gastos": "Expenses",
+    "usuarios": "Users",
+    "reportes": "Reports",
+    "configuracion": "Settings"
+  },
+  "pages": {
+    "dashboard": { "title": "Dashboard", "subtitlePrefix": "Summary for " },
+    "gastos": { "title": "Expenses", "subtitle": "Choose an employee to view and manage their expenses." },
+    "usuarios": {
+      "title": "Users",
+      "subtitle": "Create, edit, and manage access for employees, petty cash, hotels, and admins."
+    },
+    "reportes": { "title": "Reports", "subtitle": "Filter by month, employee, category, or status and export to CSV." },
+    "configuracion": { "title": "Settings", "subtitle": "Budgets, mileage rate, and payment day." }
+  }
+}

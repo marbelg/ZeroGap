@@ -9,7 +9,7 @@ import { PhotoCapture } from "@/components/expense/photo-capture";
 import type { ExpenseType } from "@/types/database";
 import { minReportableDate, todayISODate } from "@/lib/week";
 import { SUPPORTED_CURRENCIES } from "@/lib/currency";
-import { dict } from "@/i18n/dictionary";
+import { useDict } from "@/i18n/locale-provider";
 
 const initialState: ExpenseFormState = {};
 
@@ -30,6 +30,7 @@ export function MealExpenseForm({
   const action = createMealExpense.bind(null, type);
   const [state, formAction, isPending] = useActionState(action, initialState);
   const router = useRouter();
+  const dict = useDict();
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

@@ -3,30 +3,31 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { dict } from "@/i18n/dictionary";
-
-const items = [
-  {
-    href: "/empleado",
-    label: dict.employee.nav.home,
-    icon: (
-      <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
-    ),
-  },
-  {
-    href: "/empleado/mis-gastos",
-    label: dict.employee.nav.myExpenses,
-    icon: (
-      <>
-        <rect x="4" y="4" width="16" height="16" rx="2" />
-        <path d="M8 9h8M8 13h8M8 17h5" />
-      </>
-    ),
-  },
-];
+import { useDict } from "@/i18n/locale-provider";
 
 export function EmployeeBottomNav() {
   const pathname = usePathname();
+  const dict = useDict();
+
+  const items = [
+    {
+      href: "/empleado",
+      label: dict.employee.nav.home,
+      icon: (
+        <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
+      ),
+    },
+    {
+      href: "/empleado/mis-gastos",
+      label: dict.employee.nav.myExpenses,
+      icon: (
+        <>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <path d="M8 9h8M8 13h8M8 17h5" />
+        </>
+      ),
+    },
+  ];
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)]">

@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { dict } from "@/i18n/dictionary";
-
-const items = [
-  { href: "/admin", label: dict.admin.nav.dashboard },
-  { href: "/admin/gastos", label: dict.admin.nav.gastos },
-  { href: "/admin/empleados", label: dict.admin.nav.usuarios },
-  { href: "/admin/reportes", label: dict.admin.nav.reportes },
-  { href: "/admin/configuracion", label: dict.admin.nav.configuracion },
-];
+import { useDict } from "@/i18n/locale-provider";
 
 export function AdminNav() {
   const pathname = usePathname();
+  const dict = useDict();
+
+  const items = [
+    { href: "/admin", label: dict.admin.nav.dashboard },
+    { href: "/admin/gastos", label: dict.admin.nav.gastos },
+    { href: "/admin/empleados", label: dict.admin.nav.usuarios },
+    { href: "/admin/reportes", label: dict.admin.nav.reportes },
+    { href: "/admin/configuracion", label: dict.admin.nav.configuracion },
+  ];
 
   return (
     <nav className="flex gap-1 overflow-x-auto md:flex-col md:gap-1">

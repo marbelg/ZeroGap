@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Expense, ExpensePhoto, Profile, UserRole } from "@/types/database";
 import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
+import { ES_DICTIONARY } from "@/i18n/get-dictionary";
 
 // Un cuadro independiente por tipo de usuario, en este orden, todos en la
 // misma página (no en hojas/carpetas separadas).
@@ -38,10 +39,10 @@ export async function requireAdminUser(supabase: SupabaseClient<Database>) {
 // Siempre la semana anterior (lunes a domingo) — es un control fijo de pago
 // semanal, no depende de los filtros de la pantalla de Reportes.
 export async function getLastWeekApprovedExpenses(supabase: SupabaseClient<Database>) {
-  const lastWeekDays = weekDaysForOffset(-1);
+  const lastWeekDays = weekDaysForOffset(ES_DICTIONARY, -1);
   const from = lastWeekDays[0].date;
   const to = lastWeekDays[6].date;
-  const periodLabel = weekRangeLabel(lastWeekDays);
+  const periodLabel = weekRangeLabel(ES_DICTIONARY, lastWeekDays);
 
   const { data: expensesData } = await supabase
     .from("expenses")

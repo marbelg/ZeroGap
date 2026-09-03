@@ -1,0 +1,99 @@
+{
+  "greeting": "Bonjour,",
+  "defaultName": "Employé",
+  "nav": {
+    "home": "Accueil",
+    "myExpenses": "Mes dépenses"
+  },
+  "pageTitles": {
+    "breakfast": "Déclarer le déjeuner",
+    "lunch": "Déclarer le dîner",
+    "dinner": "Déclarer le souper",
+    "mileage": "Enregistrer le kilométrage"
+  },
+  "weekTracker": {
+    "title": "Ma semaine",
+    "prevWeekAria": "Semaine précédente",
+    "nextWeekAria": "Semaine suivante",
+    "backToThisWeek": "Revenir à cette semaine"
+  },
+  "statusKpi": {
+    "empty": "Rien ici.",
+    "approved": "Approuvés",
+    "reported": "Déclarés",
+    "pending": "En attente",
+    "rejected": "Refusés",
+    "approvedSublabelPrefix": "Semaine dernière · Paiement : ",
+    "thisWeek": "Cette semaine",
+    "lastWeek": "Semaine dernière",
+    "rejectionReasonPrefix": "Motif : "
+  },
+  "paymentKpi": {
+    "title": "Prêt à être payé · semaine dernière",
+    "showBreakdown": "Voir le détail ▼",
+    "hideBreakdown": "Masquer ▲"
+  },
+  "dayDetail": {
+    "back": "← Retour",
+    "subtitle": "Vos déclarations pour cette journée.",
+    "expenseSubmitted": "Dépense envoyée.",
+    "totalOfDay": "Total de la journée",
+    "nightsWord": "nuit",
+    "nightsTotalSuffix": "au total",
+    "report": "Déclarer",
+    "reportAnotherStay": "+ Déclarer un autre séjour",
+    "tripReported": "Trajet déclaré",
+    "rejectionReasonPrefix": "Motif : "
+  },
+  "myExpenses": {
+    "title": "Mes dépenses",
+    "subtitle": "Votre historique de déclarations.",
+    "prev": "← Précédent",
+    "next": "Suivant →",
+    "backToThisWeek": "Revenir à cette semaine",
+    "submittedNotice": "Dépense envoyée — elle reste au statut Déclarée jusqu'à ce que l'administration la révise.",
+    "empty": "Aucune dépense déclarée cette semaine.",
+    "viewReceipt": "Voir le reçu",
+    "mileageStart": "Départ",
+    "mileageEnd": "Arrivée",
+    "rejectionReasonPrefix": "Motif : "
+  },
+  "forms": {
+    "mealDescriptionPlaceholder": "Ex. Articles de nettoyage pour le bureau",
+    "cajaChicaDescriptionLabel": "Pour quoi a été utilisé ce montant?",
+    "startTripPhoto": "Photo de départ du trajet",
+    "endTripPhoto": "Photo de fin du trajet",
+    "reportedRateLabel": "Tarif par nuit appliqué (CRC)",
+    "lodgingDescriptionLabel": "Description (facultatif)",
+    "lodgingDescriptionPlaceholder": "Ex. 2 chauffeurs, chambre double",
+    "nightsPlaceholder": "1",
+    "invoicePhoto": "Photo de la facture",
+    "receiptPhoto": "Photo du reçu"
+  },
+  "actionsErrors": {
+    "reportTooOld": "Vous ne pouvez déclarer que des dépenses des 5 dernières semaines.",
+    "futureDate": "Vous ne pouvez pas déclarer une dépense avec une date future.",
+    "dateTimeRequired": "La date et l'heure sont obligatoires.",
+    "amountMustBePositive": "Le montant doit être supérieur à zéro.",
+    "descriptionRequired": "Ajoutez une description de la dépense.",
+    "photoRequired": "Vous devez joindre la photo du reçu.",
+    "genericExpenseError": "La dépense n'a pas pu être enregistrée.",
+    "photoUploadError": "La photo n'a pas pu être téléversée.",
+    "dateRequired": "La date est obligatoire.",
+    "tripPhotosRequired": "Vous devez joindre les photos de départ et d'arrivée du trajet.",
+    "genericMileageError": "Le trajet n'a pas pu être enregistré.",
+    "mileageSaveError": "Le trajet n'a pas pu être enregistré.",
+    "nightsInvalid": "Entrez un nombre de nuits valide.",
+    "reportedRateInvalid": "Entrez le tarif par nuit appliqué.",
+    "invoicePhotoRequired": "Vous devez joindre la photo de la facture.",
+    "hotelRateMissing": "Cet hôtel n'a pas de tarif par nuit configuré. Demandez à l'administrateur de l'ajouter dans Employés.",
+    "genericLodgingError": "Le séjour n'a pas pu être enregistré.",
+    "notAuthenticated": "Non authentifié."
+  },
+  "installPrompt": {
+    "title": "Installer ZeroGap",
+    "subtitle": "Déclarez depuis votre cellulaire comme une application, sans ouvrir le navigateur.",
+    "install": "Installer",
+    "notNow": "Pas maintenant"
+  }
+}

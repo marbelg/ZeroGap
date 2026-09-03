@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { EmployeeManager } from "@/components/admin/employee-manager";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function EmpleadosPage() {
+  const dict = await getDictionary();
   const supabase = await createClient();
   const { data: employees } = await supabase
     .from("profiles")

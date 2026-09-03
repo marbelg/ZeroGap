@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { enrichExpenses } from "@/lib/expenses";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { expenseTypeLabel } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { PaymentKpi } from "@/components/employee/payment-kpi";
-import { dict } from "@/i18n/dictionary";
-
-const T = dict.employee.myExpenses;
+import { getDictionary } from "@/i18n/get-dictionary";
 
 // Rango de navegación acotado a 5 semanas hacia atrás y 5 hacia adelante —
 // suficiente para revisar historial reciente sin dejar al empleado
@@ -27,13 +25,16 @@ export default async function MisGastosPage({
     MAX_OFFSET,
     Math.max(MIN_OFFSET, Math.trunc(Number(offsetParam ?? 0)) || 0),
   );
+  const dict = await getDictionary();
+  const T = dict.employee.myExpenses;
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const weekDays = weekDaysForOffset(offset);
+  const weekDays = weekDaysForOffset(dict, offset);
   const { data: expenses } = await supabase
     .from("expenses")
     .select("*")
@@ -45,7 +46,7 @@ export default async function MisGastosPage({
 
   const enriched = await enrichExpenses(supabase, expenses ?? []);
 
-  const lastWeekDays = weekDaysForOffset(-1);
+  const lastWeekDays = weekDaysForOffset(dict, -1);
   const { data: lastWeekApproved } = await supabase
     .from("expenses")
     .select("*")
@@ -78,7 +79,7 @@ export default async function MisGastosPage({
           </span>
         )}
         <div className="text-center">
-          <p className="text-sm font-semibold text-foreground">{weekRangeLabel(weekDays)}</p>
+          <p className="text-sm font-semibold text-foreground">{weekRangeLabel(dict, weekDays)}</p>
           {offset !== 0 && (
             <Link href="?offset=0" className="text-xs font-medium text-brand">
               {T.backToThisWeek}
@@ -118,7 +119,7 @@ export default async function MisGastosPage({
                   </p>
                   <p className="text-xs text-foreground-muted">{formatDate(expense.date)}</p>
                 </div>
-                <ExpenseStatusBadge status={expense.status} />
+                <ExpenseStatusBadge status={expense.status} dict={dict} />
               </div>
 
               <div className="mt-2 flex items-center justify-between gap-2">

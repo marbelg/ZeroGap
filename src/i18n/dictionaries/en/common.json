@@ -1,0 +1,20 @@
+{
+  "actions": {
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "submitting": "Submitting…",
+    "remove": "Remove",
+    "back": "← Back",
+    "signOut": "Sign out",
+    "takePhoto": "Take photo",
+    "chooseFromGallery": "Choose from gallery",
+    "optimizingPhoto": "Optimizing photo…"
+  },
+  "fields": {
+    "date": "Date",
+    "time": "Time",
+    "amount": "Amount",
+    "currency": "Currency",
+    "nights": "Nights"
+  }
+}

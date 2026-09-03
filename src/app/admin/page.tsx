@@ -6,11 +6,11 @@ import { RankingBarChart } from "@/components/dashboard/ranking-bar-chart";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { BudgetLine } from "@/components/admin/budget-summary";
 import { Card } from "@/components/ui/card";
-import { EXPENSE_TYPE_COLOR, EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { EXPENSE_TYPE_COLOR, expenseTypeLabel } from "@/lib/expense-meta";
 import { getAppSettings } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import type { Expense, Mileage, Profile } from "@/types/database";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
@@ -30,6 +30,8 @@ export default async function AdminDashboardPage({
 }) {
   const { offset: offsetParam } = await searchParams;
   const offset = Math.min(MAX_OFFSET, Math.trunc(Number(offsetParam ?? 0)) || 0);
+  const dict = await getDictionary();
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
 
   const supabase = await createClient();
   const now = new Date();

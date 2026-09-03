@@ -3,9 +3,10 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import type { ExpenseType, Profile } from "@/types/database";
 import type { EnrichedExpense } from "@/lib/expenses";
-import { EXPENSE_TYPE_LABEL, EXPENSE_TYPE_COLOR } from "@/lib/expense-meta";
+import { expenseTypeLabel, EXPENSE_TYPE_COLOR } from "@/lib/expense-meta";
 import { optionsForRole } from "@/lib/employee-categories";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
+import { useDict } from "@/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
@@ -153,6 +154,8 @@ function ExpenseRow({
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const dict = useDict();
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
   const photo = expense.photos[0];
   const startPhoto = expense.photos.find((p) => p.photo_type === "ODOMETRO_INICIAL");
   const endPhoto = expense.photos.find((p) => p.photo_type === "ODOMETRO_FINAL");
@@ -193,7 +196,7 @@ function ExpenseRow({
             formatCurrency(expense.amount, expense.currency)
           )}
         </span>
-        <ExpenseStatusBadge status={expense.status} />
+        <ExpenseStatusBadge status={expense.status} dict={dict} />
       </div>
 
       {expense.type === "HOSPEDAJE" &&
@@ -410,6 +413,8 @@ function ManualExpenseDialog({
   onClose: () => void;
 }) {
   const [state, formAction, isPending] = useActionState(createExpenseManual, manualEmptyState);
+  const dict = useDict();
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
   // Si solo hay un empleado en contexto (el caso normal: se abre desde la
   // página de un usuario específico), la categoría se limita a lo que ese
   // rol puede reportar — así no se puede crear "Desayuno" para un hotel.
@@ -426,7 +431,7 @@ function ManualExpenseDialog({
     "OTROS",
   ];
   const allowedTypes = singleEmployee
-    ? optionsForRole(singleEmployee.role).map((o) => o.type)
+    ? optionsForRole(singleEmployee.role, dict).map((o) => o.type)
     : ALL_TYPES;
   const [type, setType] = useState<ExpenseType>(allowedTypes[0]);
 

@@ -1,0 +1,38 @@
+{
+  "typeLabel": {
+    "DESAYUNO": "Breakfast",
+    "ALMUERZO": "Lunch",
+    "CENA": "Dinner",
+    "KILOMETRAJE": "Mileage",
+    "REPARACION_LLANTAS": "Tire repair",
+    "CAJA_CHICA": "Petty cash",
+    "HOSPEDAJE": "Lodging",
+    "PEAJE": "Toll",
+    "OTROS": "Other"
+  },
+  "categoryLabel": {
+    "DESAYUNO": "Breakfast",
+    "ALMUERZO": "Lunch",
+    "CENA": "Dinner",
+    "KILOMETRAJE": "Mileage",
+    "REPARACION_LLANTAS": "Tires",
+    "CAJA_CHICA": "Petty cash",
+    "HOSPEDAJE": "Lodging",
+    "PEAJE": "Toll",
+    "OTROS": "Other"
+  },
+  "statusLabel": {
+    "REPORTADO": "Reported",
+    "APROBADO": "Approved",
+    "RECHAZADO": "Rejected"
+  },
+  "userStatusLabel": {
+    "ACTIVE": "Active",
+    "INACTIVE": "Inactive"
+  },
+  "calendar": {
+    "dayNamesShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "dayNamesFull": ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+    "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  }
+}

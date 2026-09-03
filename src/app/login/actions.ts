@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 export interface LoginState {
   error?: string;
@@ -13,6 +13,7 @@ export async function signIn(
   _prevState: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
+  const dict = await getDictionary();
   const identifier = String(formData.get("identifier") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
@@ -48,7 +49,7 @@ export async function signIn(
   });
 
   if (error || !data.user) {
-    return { error: "Usuario o contraseña incorrectos." };
+    return { error: dict.auth.errors.invalidCredentials };
   }
 
   const { data: profile } = await supabase

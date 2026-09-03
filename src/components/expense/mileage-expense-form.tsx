@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import { minReportableDate, todayISODate } from "@/lib/week";
-import { dict } from "@/i18n/dictionary";
+import { useDict } from "@/i18n/locale-provider";
 
 const initialState: ExpenseFormState = {};
 
@@ -19,6 +19,7 @@ const initialState: ExpenseFormState = {};
 export function MileageExpenseForm({ initialDate }: { initialDate?: string }) {
   const [state, formAction, isPending] = useActionState(createMileageExpense, initialState);
   const router = useRouter();
+  const dict = useDict();
 
   return (
     <form action={formAction} className="flex flex-col gap-5">

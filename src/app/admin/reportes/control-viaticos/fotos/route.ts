@@ -2,7 +2,8 @@ import JSZip from "jszip";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { downloadReceiptPhoto, getReceiptSignedUrl } from "@/lib/supabase/storage";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { expenseTypeLabel } from "@/lib/expense-meta";
+import { ES_DICTIONARY } from "@/i18n/get-dictionary";
 import {
   CONTROL_VIATICOS_ROLE_BLOCKS,
   CONTROL_VIATICOS_ROLE_LABEL,
@@ -67,7 +68,7 @@ export async function GET() {
         if (expensePhotos.length === 0) continue;
 
         const folder = `${safeSegment(CONTROL_VIATICOS_ROLE_LABEL[role])}/${safeSegment(name)}/${expense.date}`;
-        const baseLabel = safeSegment(EXPENSE_TYPE_LABEL[expense.type]);
+        const baseLabel = safeSegment(expenseTypeLabel(ES_DICTIONARY)[expense.type]);
 
         for (const photo of expensePhotos) {
           const photoLabel =

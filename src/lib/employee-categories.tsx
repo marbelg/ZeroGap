@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import type { ExpenseType, UserRole } from "@/types/database";
-import { dict } from "@/i18n/dictionary";
-
-const LABEL = dict.expenses.categoryLabel;
+import type { Dictionary } from "@/i18n/get-dictionary";
 
 export interface ExpenseCategoryOption {
   href: string;
@@ -88,83 +86,90 @@ const HOSPEDAJE_ICON = (
   </>
 );
 
-const EMPLOYEE_OPTIONS: ExpenseCategoryOption[] = [
-  {
-    href: "/empleado/desayuno",
-    type: "DESAYUNO",
-    label: LABEL.DESAYUNO,
-    color: "from-[#ffb74d] to-[#f57c1f]",
-    icon: DESAYUNO_ICON,
-  },
-  {
-    href: "/empleado/almuerzo",
-    type: "ALMUERZO",
-    label: LABEL.ALMUERZO,
-    color: "from-[#5ad48b] to-[#1f9e5c]",
-    icon: ALMUERZO_ICON,
-  },
-  {
-    href: "/empleado/cena",
-    type: "CENA",
-    label: LABEL.CENA,
-    color: "from-[#7c8cf8] to-[#4a3cd6]",
-    icon: CENA_ICON,
-  },
-  {
-    href: "/empleado/kilometraje",
-    type: "KILOMETRAJE",
-    label: LABEL.KILOMETRAJE,
-    color: "from-[#4dd0e1] to-[#0097a7]",
-    icon: KILOMETRAJE_ICON,
-  },
-  {
-    href: "/empleado/reparacion-llantas",
-    type: "REPARACION_LLANTAS",
-    label: LABEL.REPARACION_LLANTAS,
-    color: "from-[#f2a1c2] to-[#d5528a]",
-    icon: LLANTAS_ICON,
-  },
-  {
-    href: "/empleado/peaje",
-    type: "PEAJE",
-    label: LABEL.PEAJE,
-    color: "from-[#f28b82] to-[#c62828]",
-    icon: PEAJE_ICON,
-  },
-  {
-    href: "/empleado/otros",
-    type: "OTROS",
-    label: LABEL.OTROS,
-    color: "from-[#9ca3af] to-[#4b5563]",
-    icon: OTROS_ICON,
-  },
-];
+function employeeOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): ExpenseCategoryOption[] {
+  return [
+    {
+      href: "/empleado/desayuno",
+      type: "DESAYUNO",
+      label: LABEL.DESAYUNO,
+      color: "from-[#ffb74d] to-[#f57c1f]",
+      icon: DESAYUNO_ICON,
+    },
+    {
+      href: "/empleado/almuerzo",
+      type: "ALMUERZO",
+      label: LABEL.ALMUERZO,
+      color: "from-[#5ad48b] to-[#1f9e5c]",
+      icon: ALMUERZO_ICON,
+    },
+    {
+      href: "/empleado/cena",
+      type: "CENA",
+      label: LABEL.CENA,
+      color: "from-[#7c8cf8] to-[#4a3cd6]",
+      icon: CENA_ICON,
+    },
+    {
+      href: "/empleado/kilometraje",
+      type: "KILOMETRAJE",
+      label: LABEL.KILOMETRAJE,
+      color: "from-[#4dd0e1] to-[#0097a7]",
+      icon: KILOMETRAJE_ICON,
+    },
+    {
+      href: "/empleado/reparacion-llantas",
+      type: "REPARACION_LLANTAS",
+      label: LABEL.REPARACION_LLANTAS,
+      color: "from-[#f2a1c2] to-[#d5528a]",
+      icon: LLANTAS_ICON,
+    },
+    {
+      href: "/empleado/peaje",
+      type: "PEAJE",
+      label: LABEL.PEAJE,
+      color: "from-[#f28b82] to-[#c62828]",
+      icon: PEAJE_ICON,
+    },
+    {
+      href: "/empleado/otros",
+      type: "OTROS",
+      label: LABEL.OTROS,
+      color: "from-[#9ca3af] to-[#4b5563]",
+      icon: OTROS_ICON,
+    },
+  ];
+}
 
-const CAJA_CHICA_OPTIONS: ExpenseCategoryOption[] = [
-  {
-    href: "/empleado/caja-chica",
-    type: "CAJA_CHICA",
-    label: LABEL.CAJA_CHICA,
-    color: "from-[#4ade80] to-[#16a34a]",
-    icon: CAJA_CHICA_ICON,
-  },
-];
+function cajaChicaOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): ExpenseCategoryOption[] {
+  return [
+    {
+      href: "/empleado/caja-chica",
+      type: "CAJA_CHICA",
+      label: LABEL.CAJA_CHICA,
+      color: "from-[#4ade80] to-[#16a34a]",
+      icon: CAJA_CHICA_ICON,
+    },
+  ];
+}
 
-const HOTEL_OPTIONS: ExpenseCategoryOption[] = [
-  {
-    href: "/empleado/hospedaje",
-    type: "HOSPEDAJE",
-    label: LABEL.HOSPEDAJE,
-    color: "from-[#a78bfa] to-[#6d28d9]",
-    icon: HOSPEDAJE_ICON,
-    allowMultiple: true,
-  },
-];
+function hotelOptions(LABEL: Dictionary["expenses"]["categoryLabel"]): ExpenseCategoryOption[] {
+  return [
+    {
+      href: "/empleado/hospedaje",
+      type: "HOSPEDAJE",
+      label: LABEL.HOSPEDAJE,
+      color: "from-[#a78bfa] to-[#6d28d9]",
+      icon: HOSPEDAJE_ICON,
+      allowMultiple: true,
+    },
+  ];
+}
 
-export function optionsForRole(role: UserRole): ExpenseCategoryOption[] {
-  if (role === "CAJA_CHICA") return CAJA_CHICA_OPTIONS;
-  if (role === "HOTEL") return HOTEL_OPTIONS;
-  return EMPLOYEE_OPTIONS;
+export function optionsForRole(role: UserRole, dict: Dictionary): ExpenseCategoryOption[] {
+  const LABEL = dict.expenses.categoryLabel;
+  if (role === "CAJA_CHICA") return cajaChicaOptions(LABEL);
+  if (role === "HOTEL") return hotelOptions(LABEL);
+  return employeeOptions(LABEL);
 }
 
 // Los tipos que cuentan como "reporte del día" en el tracker semanal y en

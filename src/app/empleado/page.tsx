@@ -6,9 +6,7 @@ import { StatusKpiRow, type KpiDef } from "@/components/employee/status-kpi-row"
 import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import { optionsForRole, dailyTypesForRole } from "@/lib/employee-categories";
-import { dict } from "@/i18n/dictionary";
-
-const K = dict.employee.statusKpi;
+import { getDictionary } from "@/i18n/get-dictionary";
 
 // Igual que en Mis Gastos: 5 semanas hacia atrás y hacia adelante.
 const MIN_OFFSET = -5;
@@ -53,6 +51,9 @@ export default async function EmployeeHomePage({
     Math.max(MIN_OFFSET, Math.trunc(Number(offsetParam ?? 0)) || 0),
   );
 
+  const dict = await getDictionary();
+  const K = dict.employee.statusKpi;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -64,10 +65,10 @@ export default async function EmployeeHomePage({
     .eq("id", user!.id)
     .single();
   const role = profile?.role ?? "EMPLOYEE";
-  const options = optionsForRole(role);
+  const options = optionsForRole(role, dict);
   const dailyTypes = dailyTypesForRole(role);
 
-  const weekDays = weekDaysForOffset(offset);
+  const weekDays = weekDaysForOffset(dict, offset);
   const { data: weekExpenses } = await supabase
     .from("expenses")
     .select("date, type")
@@ -104,7 +105,7 @@ export default async function EmployeeHomePage({
   const settings = await getAppSettings(supabase);
   const lastWeekReference = new Date();
   lastWeekReference.setDate(lastWeekReference.getDate() - 7);
-  const lastWeekDays = currentWeekDays(lastWeekReference);
+  const lastWeekDays = currentWeekDays(dict, lastWeekReference);
   const { data: lastWeekExpenses } = await supabase
     .from("expenses")
     .select("id, type, date, amount, currency, status, rejection_reason")
@@ -121,9 +122,9 @@ export default async function EmployeeHomePage({
     0,
   );
   const paymentDate = nextOccurrenceOf(settings.payment_day_of_week);
-  const paymentDateLabel = `${dayOfWeekLabel(settings.payment_day_of_week)} ${paymentDate.getDate()}`;
+  const paymentDateLabel = `${dayOfWeekLabel(dict, settings.payment_day_of_week)} ${paymentDate.getDate()}`;
 
-  const thisWeekDays = currentWeekDays(new Date());
+  const thisWeekDays = currentWeekDays(dict, new Date());
   const { data: thisWeekReportedExpenses } = await supabase
     .from("expenses")
     .select("id, type, date, amount, currency, status, rejection_reason")
@@ -180,6 +181,7 @@ export default async function EmployeeHomePage({
         offset={offset}
         minOffset={MIN_OFFSET}
         maxOffset={MAX_OFFSET}
+        dict={dict}
       />
 
       <StatusKpiRow kpis={kpis} />

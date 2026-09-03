@@ -6,15 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { uploadReceiptPhoto, validatePhotoFile } from "@/lib/supabase/storage";
 import { minReportableDate, todayISODate } from "@/lib/week";
 import type { Currency, ExpenseType } from "@/types/database";
-import { dict } from "@/i18n/dictionary";
-
-const ERR = dict.employee.actionsErrors;
+import { getDictionary, type Dictionary } from "@/i18n/get-dictionary";
 
 export interface ExpenseFormState {
   error?: string;
 }
 
-function validateReportDate(date: string): string | null {
+function validateReportDate(date: string, ERR: Dictionary["employee"]["actionsErrors"]): string | null {
   if (date < minReportableDate()) {
     return ERR.reportTooOld;
   }
@@ -24,7 +22,7 @@ function validateReportDate(date: string): string | null {
   return null;
 }
 
-async function requireUser() {
+async function requireUser(ERR: Dictionary["employee"]["actionsErrors"]) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -38,7 +36,9 @@ export async function createMealExpense(
   _prevState: ExpenseFormState,
   formData: FormData,
 ): Promise<ExpenseFormState> {
-  const { supabase, user } = await requireUser();
+  const dict = await getDictionary();
+  const ERR = dict.employee.actionsErrors;
+  const { supabase, user } = await requireUser(ERR);
 
   const date = String(formData.get("date") ?? "");
   const time = String(formData.get("time") ?? "");
@@ -48,7 +48,7 @@ export async function createMealExpense(
   const description = String(formData.get("description") ?? "").trim() || null;
 
   if (!date || !time) return { error: ERR.dateTimeRequired };
-  const dateError = validateReportDate(date);
+  const dateError = validateReportDate(date, ERR);
   if (dateError) return { error: dateError };
   if (!Number.isFinite(amount) || amount <= 0) {
     return { error: ERR.amountMustBePositive };
@@ -105,14 +105,16 @@ export async function createMileageExpense(
   _prevState: ExpenseFormState,
   formData: FormData,
 ): Promise<ExpenseFormState> {
-  const { supabase, user } = await requireUser();
+  const dict = await getDictionary();
+  const ERR = dict.employee.actionsErrors;
+  const { supabase, user } = await requireUser(ERR);
 
   const date = String(formData.get("date") ?? "");
   const startPhoto = formData.get("start_photo") as File | null;
   const endPhoto = formData.get("end_photo") as File | null;
 
   if (!date) return { error: ERR.dateRequired };
-  const dateError = validateReportDate(date);
+  const dateError = validateReportDate(date, ERR);
   if (dateError) return { error: dateError };
   if (!startPhoto || startPhoto.size === 0 || !endPhoto || endPhoto.size === 0) {
     return { error: ERR.tripPhotosRequired };
@@ -182,7 +184,9 @@ export async function createLodgingExpense(
   _prevState: ExpenseFormState,
   formData: FormData,
 ): Promise<ExpenseFormState> {
-  const { supabase, user } = await requireUser();
+  const dict = await getDictionary();
+  const ERR = dict.employee.actionsErrors;
+  const { supabase, user } = await requireUser(ERR);
 
   const date = String(formData.get("date") ?? "");
   const nights = Number(formData.get("nights"));
@@ -191,7 +195,7 @@ export async function createLodgingExpense(
   const description = String(formData.get("description") ?? "").trim() || null;
 
   if (!date) return { error: ERR.dateRequired };
-  const dateError = validateReportDate(date);
+  const dateError = validateReportDate(date, ERR);
   if (dateError) return { error: dateError };
   if (!Number.isInteger(nights) || nights <= 0) {
     return { error: ERR.nightsInvalid };

@@ -1,0 +1,99 @@
+{
+  "greeting": "Hi,",
+  "defaultName": "Employee",
+  "nav": {
+    "home": "Home",
+    "myExpenses": "My Expenses"
+  },
+  "pageTitles": {
+    "breakfast": "Report breakfast",
+    "lunch": "Report lunch",
+    "dinner": "Report dinner",
+    "mileage": "Log mileage"
+  },
+  "weekTracker": {
+    "title": "My week",
+    "prevWeekAria": "Previous week",
+    "nextWeekAria": "Next week",
+    "backToThisWeek": "Back to this week"
+  },
+  "statusKpi": {
+    "empty": "Nothing here.",
+    "approved": "Approved",
+    "reported": "Reported",
+    "pending": "Pending",
+    "rejected": "Rejected",
+    "approvedSublabelPrefix": "Last week · Payment: ",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "rejectionReasonPrefix": "Reason: "
+  },
+  "paymentKpi": {
+    "title": "Ready to be paid · last week",
+    "showBreakdown": "See breakdown ▼",
+    "hideBreakdown": "Hide ▲"
+  },
+  "dayDetail": {
+    "back": "← Back",
+    "subtitle": "Your reports for this day.",
+    "expenseSubmitted": "Expense submitted.",
+    "totalOfDay": "Total for the day",
+    "nightsWord": "night",
+    "nightsTotalSuffix": "total",
+    "report": "Report",
+    "reportAnotherStay": "+ Report another stay",
+    "tripReported": "Trip reported",
+    "rejectionReasonPrefix": "Reason: "
+  },
+  "myExpenses": {
+    "title": "My Expenses",
+    "subtitle": "Your report history.",
+    "prev": "← Previous",
+    "next": "Next →",
+    "backToThisWeek": "Back to this week",
+    "submittedNotice": "Expense submitted — it stays Reported until Administration reviews it.",
+    "empty": "No expenses reported this week.",
+    "viewReceipt": "View receipt",
+    "mileageStart": "Start",
+    "mileageEnd": "End",
+    "rejectionReasonPrefix": "Reason: "
+  },
+  "forms": {
+    "mealDescriptionPlaceholder": "E.g. Cleaning supplies for the office",
+    "cajaChicaDescriptionLabel": "What was it spent on?",
+    "startTripPhoto": "Trip start photo",
+    "endTripPhoto": "Trip end photo",
+    "reportedRateLabel": "Nightly rate you applied (CRC)",
+    "lodgingDescriptionLabel": "Description (optional)",
+    "lodgingDescriptionPlaceholder": "E.g. 2 drivers, double room",
+    "nightsPlaceholder": "1",
+    "invoicePhoto": "Invoice photo",
+    "receiptPhoto": "Receipt photo"
+  },
+  "actionsErrors": {
+    "reportTooOld": "You can only report expenses up to 5 weeks back.",
+    "futureDate": "You can't report expenses with a future date.",
+    "dateTimeRequired": "Date and time are required.",
+    "amountMustBePositive": "The amount must be greater than zero.",
+    "descriptionRequired": "Add a description of the expense.",
+    "photoRequired": "You must attach the receipt photo.",
+    "genericExpenseError": "The expense could not be saved.",
+    "photoUploadError": "The photo could not be uploaded.",
+    "dateRequired": "Date is required.",
+    "tripPhotosRequired": "You must attach the start and end trip photos.",
+    "genericMileageError": "The trip could not be saved.",
+    "mileageSaveError": "The trip could not be saved.",
+    "nightsInvalid": "Enter a valid number of nights.",
+    "reportedRateInvalid": "Enter the nightly rate you applied.",
+    "invoicePhotoRequired": "You must attach the invoice photo.",
+    "hotelRateMissing": "This hotel doesn't have a nightly rate configured. Ask the administrator to add it in Employees.",
+    "genericLodgingError": "The stay could not be saved.",
+    "notAuthenticated": "Not authenticated."
+  },
+  "installPrompt": {
+    "title": "Install ZeroGap",
+    "subtitle": "Report from your phone like an app, without opening the browser.",
+    "install": "Install",
+    "notNow": "Not now"
+  }
+}

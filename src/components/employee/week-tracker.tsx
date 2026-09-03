@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { weekRangeLabel, type WeekDay } from "@/lib/week";
-import { dict } from "@/i18n/dictionary";
+import type { Dictionary } from "@/i18n/get-dictionary";
 
 export function WeekTracker({
   weekDays,
@@ -10,6 +10,7 @@ export function WeekTracker({
   offset = 0,
   minOffset = 0,
   maxOffset = 0,
+  dict,
 }: {
   weekDays: WeekDay[];
   countsByDate: Record<string, number>;
@@ -19,6 +20,7 @@ export function WeekTracker({
   offset?: number;
   minOffset?: number;
   maxOffset?: number;
+  dict: Dictionary;
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-3">
@@ -38,7 +40,7 @@ export function WeekTracker({
           </span>
         )}
         <div className="text-center">
-          <p className="text-xs font-medium text-foreground-muted">{weekRangeLabel(weekDays)}</p>
+          <p className="text-xs font-medium text-foreground-muted">{weekRangeLabel(dict, weekDays)}</p>
           {offset !== 0 && (
             <Link href="/empleado" className="text-[10px] font-medium text-brand">
               {dict.employee.weekTracker.backToThisWeek}

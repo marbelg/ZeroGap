@@ -1,0 +1,20 @@
+{
+  "actions": {
+    "cancel": "Annuler",
+    "submit": "Envoyer",
+    "submitting": "Envoi en cours…",
+    "remove": "Retirer",
+    "back": "← Retour",
+    "signOut": "Se déconnecter",
+    "takePhoto": "Prendre une photo",
+    "chooseFromGallery": "Choisir dans la galerie",
+    "optimizingPhoto": "Optimisation de la photo…"
+  },
+  "fields": {
+    "date": "Date",
+    "time": "Heure",
+    "amount": "Montant",
+    "currency": "Devise",
+    "nights": "Nuits"
+  }
+}

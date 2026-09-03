@@ -6,6 +6,7 @@ import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { getAppSettings } from "@/lib/settings";
 import { ExpenseManager } from "@/components/admin/expense-manager";
 import { BudgetSummary } from "@/components/admin/budget-summary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function AdminUserGastosPage({
   params,
@@ -17,6 +18,7 @@ export default async function AdminUserGastosPage({
   const { userId } = await params;
   const { offset: offsetParam } = await searchParams;
   const offset = Math.trunc(Number(offsetParam ?? 0)) || 0;
+  const dict = await getDictionary();
 
   const supabase = await createClient();
   const { data: employee } = await supabase
@@ -27,7 +29,7 @@ export default async function AdminUserGastosPage({
 
   if (!employee) notFound();
 
-  const weekDays = weekDaysForOffset(offset);
+  const weekDays = weekDaysForOffset(dict, offset);
   const { data: expenses } = await supabase
     .from("expenses")
     .select("*")
@@ -71,7 +73,7 @@ export default async function AdminUserGastosPage({
           ← Anterior
         </Link>
         <div className="text-center">
-          <p className="text-sm font-semibold text-foreground">{weekRangeLabel(weekDays)}</p>
+          <p className="text-sm font-semibold text-foreground">{weekRangeLabel(dict, weekDays)}</p>
           {offset !== 0 && (
             <Link href="?offset=0" className="text-xs font-medium text-brand">
               Volver a esta semana

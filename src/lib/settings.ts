@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppSettings, Database } from "@/types/database";
-import { dict } from "@/i18n/dictionary";
+import type { Dictionary } from "@/i18n/get-dictionary";
 
 const FALLBACK_SETTINGS: AppSettings = {
   id: true,
@@ -22,10 +22,9 @@ export async function getAppSettings(
   return data ?? FALLBACK_SETTINGS;
 }
 
-const DAY_NAMES = dict.expenses.calendar.dayNamesFull;
-
-export function dayOfWeekLabel(day: number) {
-  return DAY_NAMES[day] ?? DAY_NAMES[5];
+export function dayOfWeekLabel(dict: Dictionary, day: number) {
+  const dayNames = dict.expenses.calendar.dayNamesFull;
+  return dayNames[day] ?? dayNames[5];
 }
 
 /** Próxima fecha (hoy o futura) que cae en `dayOfWeek` (0=domingo..6=sábado). */

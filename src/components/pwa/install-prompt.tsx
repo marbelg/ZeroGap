@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dict } from "@/i18n/dictionary";
+import { useDict } from "@/i18n/locale-provider";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -21,6 +21,7 @@ export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const dict = useDict();
 
   useEffect(() => {
     const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) ?? 0);

@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
-import { dict } from "@/i18n/dictionary";
+import { expenseTypeLabel } from "@/lib/expense-meta";
+import { useDict } from "@/i18n/locale-provider";
 import type { Expense } from "@/types/database";
 
 export function PaymentKpi({ expenses }: { expenses: Expense[] }) {
   const [open, setOpen] = useState(false);
+  const dict = useDict();
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
 
   if (expenses.length === 0) return null;
 

@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { expenseTypeLabel } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { dailyTypesForRole, optionsForRole } from "@/lib/employee-categories";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary, type Dictionary } from "@/i18n/get-dictionary";
 import type { Expense, ExpenseType } from "@/types/database";
 
-const T = dict.employee.dayDetail;
-
-function ExpenseAmountLine({ expense }: { expense: Expense }) {
+function ExpenseAmountLine({
+  expense,
+  T,
+}: {
+  expense: Expense;
+  T: Dictionary["employee"]["dayDetail"];
+}) {
   if (expense.type === "KILOMETRAJE" && Number(expense.amount) === 0) {
     return <p className="mt-1 text-sm text-foreground-muted">{T.tripReported}</p>;
   }
@@ -38,6 +42,9 @@ export default async function DayDetailPage({
 }) {
   const { date } = await params;
   const { creado } = await searchParams;
+  const dict = await getDictionary();
+  const T = dict.employee.dayDetail;
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
 
   const supabase = await createClient();
   const {
@@ -51,7 +58,7 @@ export default async function DayDetailPage({
     .single();
   const role = profile?.role ?? "EMPLOYEE";
   const dailyTypes = dailyTypesForRole(role);
-  const options = optionsForRole(role);
+  const options = optionsForRole(role, dict);
   const optionByType = new Map(options.map((o) => [o.type, o]));
 
   const { data: expenses } = await supabase
@@ -121,8 +128,8 @@ export default async function DayDetailPage({
                 {typeExpenses.map((expense) => (
                   <Card key={expense.id} className="p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <ExpenseAmountLine expense={expense} />
-                      <ExpenseStatusBadge status={expense.status} />
+                      <ExpenseAmountLine expense={expense} T={T} />
+                      <ExpenseStatusBadge status={expense.status} dict={dict} />
                     </div>
                     {expense.description && (
                       <p className="mt-1 text-xs text-foreground-muted">{expense.description}</p>
@@ -151,7 +158,7 @@ export default async function DayDetailPage({
               <div className="flex items-center justify-between gap-3">
                 <span className="font-medium text-foreground">{EXPENSE_TYPE_LABEL[type]}</span>
                 {expense ? (
-                  <ExpenseStatusBadge status={expense.status} />
+                  <ExpenseStatusBadge status={expense.status} dict={dict} />
                 ) : (
                   <Link
                     href={href}
@@ -161,7 +168,7 @@ export default async function DayDetailPage({
                   </Link>
                 )}
               </div>
-              {expense && <ExpenseAmountLine expense={expense} />}
+              {expense && <ExpenseAmountLine expense={expense} T={T} />}
               {expense?.status === "RECHAZADO" && expense.rejection_reason && (
                 <p className="mt-2 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-xs text-danger">
                   {T.rejectionReasonPrefix}

@@ -1,29 +1,36 @@
-import { LOCALE_META } from "@/i18n/locales";
+import { LOCALE_META, type Locale } from "@/i18n/locales";
+import { setLocaleAction } from "@/i18n/actions";
+import { FlagIcon } from "@/components/icons/flags";
 import { cn } from "@/lib/utils";
 
-// Selector de idioma puramente visual por ahora: "es" es el único locale
-// real (ver src/i18n/locales.ts), así que "en"/"fr" se muestran pero
-// deshabilitados. El día que tengan contenido traducido de verdad, esto
-// pasa a ser clickeable (cookie + server action para persistir la
-// elección) — hoy sería un botón que no cambia nada, así que no se agrega.
-export function LanguageSwitcher() {
+// Cada bandera es su propio <form> con un Server Action — no hace falta
+// JavaScript de cliente para que funcione. Al enviarse, el Server Action
+// guarda la cookie de idioma y Next vuelve a renderizar la ruta actual con
+// el nuevo diccionario.
+export function LanguageSwitcher({ currentLocale }: { currentLocale: Locale }) {
   return (
     <div className="flex items-center gap-1">
-      {LOCALE_META.map((locale) => (
-        <span
-          key={locale.code}
-          title={locale.enabled ? undefined : "Próximamente"}
-          className={cn(
-            "flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold",
-            locale.enabled
-              ? "bg-brand-soft text-brand"
-              : "cursor-not-allowed text-foreground-muted/40",
-          )}
-        >
-          <span aria-hidden>{locale.flag}</span>
-          {locale.label}
-        </span>
-      ))}
+      {LOCALE_META.map((locale) => {
+        const isActive = locale.code === currentLocale;
+        return (
+          <form key={locale.code} action={setLocaleAction.bind(null, locale.code)}>
+            <button
+              type="submit"
+              disabled={isActive}
+              aria-current={isActive}
+              className={cn(
+                "flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold transition-colors",
+                isActive
+                  ? "cursor-default bg-brand-soft text-brand"
+                  : "text-foreground-muted hover:bg-surface-muted hover:text-foreground",
+              )}
+            >
+              <FlagIcon locale={locale.code} />
+              {locale.label}
+            </button>
+          </form>
+        );
+      })}
     </div>
   );
 }

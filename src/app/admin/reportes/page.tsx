@@ -2,11 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { enrichExpenses } from "@/lib/expenses";
 import { getFilteredExpenses, type ExpenseSearchParams } from "@/lib/expense-filters";
 import { ExpenseFilterBar } from "@/components/admin/expense-filter-bar";
-import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { expenseTypeLabel } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { dict } from "@/i18n/dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
 
 export default async function ReportesPage({
   searchParams,
@@ -14,6 +14,8 @@ export default async function ReportesPage({
   searchParams: Promise<ExpenseSearchParams>;
 }) {
   const sp = await searchParams;
+  const dict = await getDictionary();
+  const EXPENSE_TYPE_LABEL = expenseTypeLabel(dict);
   const supabase = await createClient();
 
   const expenses = await getFilteredExpenses(supabase, sp);
@@ -115,7 +117,7 @@ export default async function ReportesPage({
                       {e.mileage ? Number(e.mileage.kilometers).toFixed(1) : "—"}
                     </td>
                     <td className="px-4 py-2.5">
-                      <ExpenseStatusBadge status={e.status} />
+                      <ExpenseStatusBadge status={e.status} dict={dict} />
                     </td>
                   </tr>
                 );

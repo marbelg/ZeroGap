@@ -7,6 +7,9 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { PaymentKpi } from "@/components/employee/payment-kpi";
+import { dict } from "@/i18n/dictionary";
+
+const T = dict.employee.myExpenses;
 
 // Rango de navegación acotado a 5 semanas hacia atrás y 5 hacia adelante —
 // suficiente para revisar historial reciente sin dejar al empleado
@@ -55,8 +58,8 @@ export default async function MisGastosPage({
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
       <div>
-        <h1 className="text-lg font-semibold text-foreground">Mis Gastos</h1>
-        <p className="text-sm text-foreground-muted">Tu historial de reportes.</p>
+        <h1 className="text-lg font-semibold text-foreground">{T.title}</h1>
+        <p className="text-sm text-foreground-muted">{T.subtitle}</p>
       </div>
 
       <PaymentKpi expenses={lastWeekApproved ?? []} />
@@ -67,18 +70,18 @@ export default async function MisGastosPage({
             href={`?offset=${offset - 1}`}
             className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
           >
-            ← Anterior
+            {T.prev}
           </Link>
         ) : (
           <span className="px-3 py-1.5 text-xs font-medium text-foreground-muted/40">
-            ← Anterior
+            {T.prev}
           </span>
         )}
         <div className="text-center">
           <p className="text-sm font-semibold text-foreground">{weekRangeLabel(weekDays)}</p>
           {offset !== 0 && (
             <Link href="?offset=0" className="text-xs font-medium text-brand">
-              Volver a esta semana
+              {T.backToThisWeek}
             </Link>
           )}
         </div>
@@ -87,25 +90,23 @@ export default async function MisGastosPage({
             href={`?offset=${offset + 1}`}
             className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
           >
-            Siguiente →
+            {T.next}
           </Link>
         ) : (
           <span className="px-3 py-1.5 text-xs font-medium text-foreground-muted/40">
-            Siguiente →
+            {T.next}
           </span>
         )}
       </div>
 
       {creado === "1" && (
         <p className="rounded-[var(--radius-md)] bg-success-soft px-4 py-3 text-sm text-success">
-          Gasto enviado — queda en estado Reportado hasta que Administración lo revise.
+          {T.submittedNotice}
         </p>
       )}
 
       {enriched.length === 0 ? (
-        <Card className="px-6 py-14 text-center text-sm text-foreground-muted">
-          No hay gastos reportados esta semana.
-        </Card>
+        <Card className="px-6 py-14 text-center text-sm text-foreground-muted">{T.empty}</Card>
       ) : (
         <div className="flex flex-col gap-3">
           {enriched.map((expense) => (
@@ -125,7 +126,7 @@ export default async function MisGastosPage({
                   {expense.type === "KILOMETRAJE"
                     ? expense.mileage
                       ? `${Number(expense.mileage.kilometers).toFixed(1)} km`
-                      : "Viaje reportado"
+                      : dict.employee.dayDetail.tripReported
                     : formatCurrency(expense.amount, expense.currency)}
                 </p>
                 {expense.type === "KILOMETRAJE" ? (
@@ -142,7 +143,7 @@ export default async function MisGastosPage({
                               rel="noopener noreferrer"
                               className="text-xs font-semibold text-brand"
                             >
-                              Inicio
+                              {T.mileageStart}
                             </a>
                           ),
                       )}
@@ -158,7 +159,7 @@ export default async function MisGastosPage({
                               rel="noopener noreferrer"
                               className="text-xs font-semibold text-brand"
                             >
-                              Fin
+                              {T.mileageEnd}
                             </a>
                           ),
                       )}
@@ -171,7 +172,7 @@ export default async function MisGastosPage({
                       rel="noopener noreferrer"
                       className="shrink-0 text-xs font-semibold text-brand"
                     >
-                      Ver comprobante
+                      {T.viewReceipt}
                       {expense.photos.length > 1 ? ` (${expense.photos.length})` : ""}
                     </a>
                   )
@@ -180,7 +181,8 @@ export default async function MisGastosPage({
 
               {expense.type === "HOSPEDAJE" && expense.nights && (
                 <p className="mt-1 text-xs text-foreground-muted">
-                  {expense.nights} noche{expense.nights === 1 ? "" : "s"}
+                  {expense.nights} {dict.employee.dayDetail.nightsWord}
+                  {expense.nights === 1 ? "" : "s"}
                 </p>
               )}
 
@@ -190,7 +192,8 @@ export default async function MisGastosPage({
 
               {expense.status === "RECHAZADO" && expense.rejection_reason && (
                 <p className="mt-2 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-xs text-danger">
-                  Motivo: {expense.rejection_reason}
+                  {T.rejectionReasonPrefix}
+                  {expense.rejection_reason}
                 </p>
               )}
             </Card>

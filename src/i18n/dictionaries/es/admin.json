@@ -1,0 +1,21 @@
+{
+  "brand": "ZeroGap Admin",
+  "headerLabel": "Administración",
+  "nav": {
+    "dashboard": "Dashboard",
+    "gastos": "Gastos",
+    "usuarios": "Usuarios",
+    "reportes": "Reportes",
+    "configuracion": "Configuración"
+  },
+  "pages": {
+    "dashboard": { "title": "Dashboard", "subtitlePrefix": "Resumen de " },
+    "gastos": { "title": "Gastos", "subtitle": "Elige un empleado para ver y administrar sus gastos." },
+    "usuarios": {
+      "title": "Usuarios",
+      "subtitle": "Crea, edita y administra el acceso de empleados, caja chica, hoteles y admins."
+    },
+    "reportes": { "title": "Reportes", "subtitle": "Filtra por mes, empleado, categoría o estado y exporta a CSV." },
+    "configuracion": { "title": "Configuración", "subtitle": "Presupuestos, tarifa de kilometraje y día de pago." }
+  }
+}

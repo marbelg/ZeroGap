@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { dict } from "@/i18n/dictionary";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -72,10 +73,10 @@ export function InstallPrompt() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">
-            Instalar ZeroGap
+            {dict.employee.installPrompt.title}
           </p>
           <p className="text-xs text-foreground-muted">
-            Repórtalo desde tu celular como una app, sin abrir el navegador.
+            {dict.employee.installPrompt.subtitle}
           </p>
         </div>
         <div className="flex shrink-0 flex-col gap-1.5">
@@ -83,13 +84,13 @@ export function InstallPrompt() {
             onClick={handleInstall}
             className="rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
           >
-            Instalar
+            {dict.employee.installPrompt.install}
           </button>
           <button
             onClick={handleDismiss}
             className="rounded-full px-3.5 py-1 text-xs font-medium text-foreground-muted transition-colors hover:text-foreground"
           >
-            Ahora no
+            {dict.employee.installPrompt.notNow}
           </button>
         </div>
       </div>

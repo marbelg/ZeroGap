@@ -8,6 +8,8 @@ import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import type { ExpenseType } from "@/types/database";
 import { minReportableDate, todayISODate } from "@/lib/week";
+import { SUPPORTED_CURRENCIES } from "@/lib/currency";
+import { dict } from "@/i18n/dictionary";
 
 const initialState: ExpenseFormState = {};
 
@@ -33,7 +35,7 @@ export function MealExpenseForm({
     <form action={formAction} className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="date">Fecha</Label>
+          <Label htmlFor="date">{dict.common.fields.date}</Label>
           <Input
             id="date"
             name="date"
@@ -45,14 +47,14 @@ export function MealExpenseForm({
           />
         </div>
         <div>
-          <Label htmlFor="time">Hora</Label>
+          <Label htmlFor="time">{dict.common.fields.time}</Label>
           <Input id="time" name="time" type="time" defaultValue={nowTimeValue()} required />
         </div>
       </div>
 
       <div className="grid grid-cols-[1fr_auto] gap-3">
         <div>
-          <Label htmlFor="amount">Monto</Label>
+          <Label htmlFor="amount">{dict.common.fields.amount}</Label>
           <Input
             id="amount"
             name="amount"
@@ -65,28 +67,31 @@ export function MealExpenseForm({
           />
         </div>
         <div>
-          <Label htmlFor="currency">Moneda</Label>
+          <Label htmlFor="currency">{dict.common.fields.currency}</Label>
           <Select id="currency" name="currency" defaultValue="CRC" className="w-24">
-            <option value="CRC">CRC</option>
-            <option value="USD">USD</option>
+            {SUPPORTED_CURRENCIES.filter((c) => c.enabled).map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
           </Select>
         </div>
       </div>
 
       {requireDescription && (
         <div>
-          <Label htmlFor="description">¿En qué se gastó?</Label>
+          <Label htmlFor="description">{dict.employee.forms.cajaChicaDescriptionLabel}</Label>
           <Textarea
             id="description"
             name="description"
             rows={3}
-            placeholder="Ej. Compra de artículos de limpieza para la oficina"
+            placeholder={dict.employee.forms.mealDescriptionPlaceholder}
             required
           />
         </div>
       )}
 
-      <PhotoCapture name="photo" label="Foto del comprobante" required />
+      <PhotoCapture name="photo" label={dict.employee.forms.receiptPhoto} required />
 
       {state.error && (
         <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
@@ -102,10 +107,10 @@ export function MealExpenseForm({
           className="flex-1"
           onClick={() => router.back()}
         >
-          Cancelar
+          {dict.common.actions.cancel}
         </Button>
         <Button type="submit" size="lg" disabled={isPending} className="flex-1">
-          {isPending ? "Enviando…" : "Enviar"}
+          {isPending ? dict.common.actions.submitting : dict.common.actions.submit}
         </Button>
       </div>
     </form>

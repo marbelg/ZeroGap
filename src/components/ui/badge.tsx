@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { dict } from "@/i18n/dictionary";
 import type { ExpenseStatus, UserStatus } from "@/types/database";
 
 const expenseStatusClasses: Record<ExpenseStatus, string> = {
@@ -7,11 +8,7 @@ const expenseStatusClasses: Record<ExpenseStatus, string> = {
   RECHAZADO: "bg-danger-soft text-danger",
 };
 
-const expenseStatusLabel: Record<ExpenseStatus, string> = {
-  REPORTADO: "Reportado",
-  APROBADO: "Aprobado",
-  RECHAZADO: "Rechazado",
-};
+const expenseStatusLabel: Record<ExpenseStatus, string> = dict.expenses.statusLabel;
 
 export function ExpenseStatusBadge({ status }: { status: ExpenseStatus }) {
   return (
@@ -31,10 +28,7 @@ const userStatusClasses: Record<UserStatus, string> = {
   INACTIVE: "bg-surface-muted text-foreground-muted",
 };
 
-const userStatusLabel: Record<UserStatus, string> = {
-  ACTIVE: "Activo",
-  INACTIVE: "Inactivo",
-};
+const userStatusLabel: Record<UserStatus, string> = dict.expenses.userStatusLabel;
 
 export function UserStatusBadge({ status }: { status: UserStatus }) {
   return (

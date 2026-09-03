@@ -1,4 +1,5 @@
 import { MealExpenseForm } from "@/components/expense/meal-expense-form";
+import { dict } from "@/i18n/dictionary";
 
 export default async function AlmuerzoPage({
   searchParams,
@@ -8,7 +9,9 @@ export default async function AlmuerzoPage({
   const { date } = await searchParams;
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-4 text-lg font-semibold text-foreground">Reportar almuerzo</h1>
+      <h1 className="mb-4 text-lg font-semibold text-foreground">
+        {dict.employee.pageTitles.lunch}
+      </h1>
       <MealExpenseForm type="ALMUERZO" initialDate={date} />
     </div>
   );

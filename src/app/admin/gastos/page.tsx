@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { weekDaysForOffset, weekRangeLabel } from "@/lib/week";
 import { GastosEmployeeList, type EmployeeGastoStats } from "@/components/admin/gastos-employee-list";
+import { dict } from "@/i18n/dictionary";
 
 export default async function AdminGastosPage({
   searchParams,
@@ -44,10 +45,8 @@ export default async function AdminGastosPage({
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-5">
-        <h1 className="text-lg font-semibold text-foreground">Gastos</h1>
-        <p className="text-sm text-foreground-muted">
-          Elige un empleado para ver y administrar sus gastos.
-        </p>
+        <h1 className="text-lg font-semibold text-foreground">{dict.admin.pages.gastos.title}</h1>
+        <p className="text-sm text-foreground-muted">{dict.admin.pages.gastos.subtitle}</p>
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-2 rounded-[var(--radius-lg)] border border-border bg-surface p-3">

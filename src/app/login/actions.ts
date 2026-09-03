@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { dict } from "@/i18n/dictionary";
 
 export interface LoginState {
   error?: string;
@@ -16,7 +17,7 @@ export async function signIn(
   const password = String(formData.get("password") ?? "");
 
   if (!identifier || !password) {
-    return { error: "Ingresa tu usuario y contraseña." };
+    return { error: dict.auth.errors.missingCredentials };
   }
 
   let email = identifier;
@@ -35,7 +36,7 @@ export async function signIn(
       .maybeSingle();
 
     if (!profile) {
-      return { error: "Usuario o contraseña incorrectos." };
+      return { error: dict.auth.errors.invalidCredentials };
     }
     email = profile.email;
   }
@@ -58,7 +59,7 @@ export async function signIn(
 
   if (profile?.status === "INACTIVE") {
     await supabase.auth.signOut();
-    return { error: "Tu usuario está inactivo. Contacta a Administración." };
+    return { error: dict.auth.errors.inactiveUser };
   }
 
   redirect(profile?.role === "ADMIN" ? "/admin" : "/empleado");

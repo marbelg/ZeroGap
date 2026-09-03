@@ -6,6 +6,9 @@ import { StatusKpiRow, type KpiDef } from "@/components/employee/status-kpi-row"
 import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import { optionsForRole, dailyTypesForRole } from "@/lib/employee-categories";
+import { dict } from "@/i18n/dictionary";
+
+const K = dict.employee.statusKpi;
 
 // Igual que en Mis Gastos: 5 semanas hacia atrás y hacia adelante.
 const MIN_OFFSET = -5;
@@ -132,8 +135,8 @@ export default async function EmployeeHomePage({
   const kpis: KpiDef[] = [
     {
       key: "aprobados",
-      label: "Aprobados",
-      sublabel: `Semana pasada · Pago: ${paymentDateLabel}`,
+      label: K.approved,
+      sublabel: `${K.approvedSublabelPrefix}${paymentDateLabel}`,
       icon: CHECK_ICON,
       color: "success",
       value: formatCurrency(lastWeekApprovedTotal, "CRC"),
@@ -141,8 +144,8 @@ export default async function EmployeeHomePage({
     },
     {
       key: "reportados",
-      label: "Reportados",
-      sublabel: "Esta semana",
+      label: K.reported,
+      sublabel: K.thisWeek,
       icon: REPORTED_ICON,
       color: "brand",
       value: String((thisWeekReportedExpenses ?? []).length),
@@ -150,8 +153,8 @@ export default async function EmployeeHomePage({
     },
     {
       key: "pendientes",
-      label: "Pendientes",
-      sublabel: "Semana pasada",
+      label: K.pending,
+      sublabel: K.lastWeek,
       icon: CLOCK_ICON,
       color: "warning",
       value: String(lastWeekPendingList.length),
@@ -159,8 +162,8 @@ export default async function EmployeeHomePage({
     },
     {
       key: "rechazados",
-      label: "Rechazados",
-      sublabel: "Semana pasada",
+      label: K.rejected,
+      sublabel: K.lastWeek,
       icon: REJECTED_ICON,
       color: "danger",
       value: String(lastWeekRejectedList.length),

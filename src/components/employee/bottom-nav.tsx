@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { dict } from "@/i18n/dictionary";
 
 const items = [
   {
     href: "/empleado",
-    label: "Inicio",
+    label: dict.employee.nav.home,
     icon: (
       <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
     ),
   },
   {
     href: "/empleado/mis-gastos",
-    label: "Mis Gastos",
+    label: dict.employee.nav.myExpenses,
     icon: (
       <>
         <rect x="4" y="4" width="16" height="16" rx="2" />

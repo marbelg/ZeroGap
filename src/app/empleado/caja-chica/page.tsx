@@ -1,4 +1,5 @@
 import { MealExpenseForm } from "@/components/expense/meal-expense-form";
+import { dict } from "@/i18n/dictionary";
 
 export default async function CajaChicaPage({
   searchParams,
@@ -8,7 +9,9 @@ export default async function CajaChicaPage({
   const { date } = await searchParams;
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-4 text-lg font-semibold text-foreground">Caja chica</h1>
+      <h1 className="mb-4 text-lg font-semibold text-foreground">
+        {dict.expenses.typeLabel.CAJA_CHICA}
+      </h1>
       <MealExpenseForm type="CAJA_CHICA" initialDate={date} requireDescription />
     </div>
   );

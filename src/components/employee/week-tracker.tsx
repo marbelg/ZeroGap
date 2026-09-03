@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { weekRangeLabel, type WeekDay } from "@/lib/week";
+import { dict } from "@/i18n/dictionary";
 
 export function WeekTracker({
   weekDays,
@@ -21,12 +22,12 @@ export function WeekTracker({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-3">
-      <p className="mb-2 text-sm font-semibold text-foreground">Mi semana</p>
+      <p className="mb-2 text-sm font-semibold text-foreground">{dict.employee.weekTracker.title}</p>
       <div className="mb-2 flex items-center justify-between gap-2">
         {offset > minOffset ? (
           <Link
             href={`/empleado?offset=${offset - 1}`}
-            aria-label="Semana anterior"
+            aria-label={dict.employee.weekTracker.prevWeekAria}
             className="flex size-6 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
           >
             ←
@@ -40,14 +41,14 @@ export function WeekTracker({
           <p className="text-xs font-medium text-foreground-muted">{weekRangeLabel(weekDays)}</p>
           {offset !== 0 && (
             <Link href="/empleado" className="text-[10px] font-medium text-brand">
-              Volver a esta semana
+              {dict.employee.weekTracker.backToThisWeek}
             </Link>
           )}
         </div>
         {offset < maxOffset ? (
           <Link
             href={`/empleado?offset=${offset + 1}`}
-            aria-label="Semana siguiente"
+            aria-label={dict.employee.weekTracker.nextWeekAria}
             className="flex size-6 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
           >
             →

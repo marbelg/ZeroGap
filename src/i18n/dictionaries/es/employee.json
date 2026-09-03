@@ -1,0 +1,99 @@
+{
+  "greeting": "Hola,",
+  "defaultName": "Empleado",
+  "nav": {
+    "home": "Inicio",
+    "myExpenses": "Mis Gastos"
+  },
+  "pageTitles": {
+    "breakfast": "Reportar desayuno",
+    "lunch": "Reportar almuerzo",
+    "dinner": "Reportar cena",
+    "mileage": "Registrar kilometraje"
+  },
+  "weekTracker": {
+    "title": "Mi semana",
+    "prevWeekAria": "Semana anterior",
+    "nextWeekAria": "Semana siguiente",
+    "backToThisWeek": "Volver a esta semana"
+  },
+  "statusKpi": {
+    "empty": "Nada por aquí.",
+    "approved": "Aprobados",
+    "reported": "Reportados",
+    "pending": "Pendientes",
+    "rejected": "Rechazados",
+    "approvedSublabelPrefix": "Semana pasada · Pago: ",
+    "thisWeek": "Esta semana",
+    "lastWeek": "Semana pasada",
+    "rejectionReasonPrefix": "Motivo: "
+  },
+  "paymentKpi": {
+    "title": "Listo para pagar · semana pasada",
+    "showBreakdown": "Ver desglose ▼",
+    "hideBreakdown": "Ocultar ▲"
+  },
+  "dayDetail": {
+    "back": "← Volver",
+    "subtitle": "Tus reportes de este día.",
+    "expenseSubmitted": "Gasto enviado.",
+    "totalOfDay": "Total del día",
+    "nightsWord": "noche",
+    "nightsTotalSuffix": "en total",
+    "report": "Reportar",
+    "reportAnotherStay": "+ Reportar otra estadía",
+    "tripReported": "Viaje reportado",
+    "rejectionReasonPrefix": "Motivo: "
+  },
+  "myExpenses": {
+    "title": "Mis Gastos",
+    "subtitle": "Tu historial de reportes.",
+    "prev": "← Anterior",
+    "next": "Siguiente →",
+    "backToThisWeek": "Volver a esta semana",
+    "submittedNotice": "Gasto enviado — queda en estado Reportado hasta que Administración lo revise.",
+    "empty": "No hay gastos reportados esta semana.",
+    "viewReceipt": "Ver comprobante",
+    "mileageStart": "Inicio",
+    "mileageEnd": "Fin",
+    "rejectionReasonPrefix": "Motivo: "
+  },
+  "forms": {
+    "mealDescriptionPlaceholder": "Ej. Compra de artículos de limpieza para la oficina",
+    "cajaChicaDescriptionLabel": "¿En qué se gastó?",
+    "startTripPhoto": "Foto de inicio del viaje",
+    "endTripPhoto": "Foto de fin del viaje",
+    "reportedRateLabel": "Tarifa por noche que aplicaste (CRC)",
+    "lodgingDescriptionLabel": "Descripción (opcional)",
+    "lodgingDescriptionPlaceholder": "Ej. 2 choferes, cuarto doble",
+    "nightsPlaceholder": "1",
+    "invoicePhoto": "Foto de la factura",
+    "receiptPhoto": "Foto del comprobante"
+  },
+  "actionsErrors": {
+    "reportTooOld": "Solo puedes reportar gastos de hasta 5 semanas atrás.",
+    "futureDate": "No puedes reportar gastos con fecha futura.",
+    "dateTimeRequired": "Fecha y hora son obligatorias.",
+    "amountMustBePositive": "El monto debe ser mayor a cero.",
+    "descriptionRequired": "Agrega una descripción del gasto.",
+    "photoRequired": "Debes adjuntar la foto del comprobante.",
+    "genericExpenseError": "No se pudo registrar el gasto.",
+    "photoUploadError": "No se pudo subir la fotografía.",
+    "dateRequired": "La fecha es obligatoria.",
+    "tripPhotosRequired": "Debes adjuntar las fotos de inicio y fin del viaje.",
+    "genericMileageError": "No se pudo registrar el trayecto.",
+    "mileageSaveError": "No se pudo guardar el trayecto.",
+    "nightsInvalid": "Ingresa un número de noches válido.",
+    "reportedRateInvalid": "Ingresa la tarifa por noche que aplicaste.",
+    "invoicePhotoRequired": "Debes adjuntar la foto de la factura.",
+    "hotelRateMissing": "Este hotel no tiene una tarifa por noche configurada. Pídele al administrador que la agregue en Empleados.",
+    "genericLodgingError": "No se pudo registrar el hospedaje.",
+    "notAuthenticated": "No autenticado."
+  },
+  "installPrompt": {
+    "title": "Instalar ZeroGap",
+    "subtitle": "Repórtalo desde tu celular como una app, sin abrir el navegador.",
+    "install": "Instalar",
+    "notNow": "Ahora no"
+  }
+}

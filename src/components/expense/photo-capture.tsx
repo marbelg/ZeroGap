@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { compressImage } from "@/lib/compress-image";
+import { dict } from "@/i18n/dictionary";
 
 interface PhotoCaptureProps {
   name: string;
@@ -57,7 +58,7 @@ export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
 
       {compressing ? (
         <div className="flex h-48 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface-muted text-xs font-medium text-foreground-muted">
-          Optimizando foto…
+          {dict.common.actions.optimizingPhoto}
         </div>
       ) : preview ? (
         <div className="relative overflow-hidden rounded-[var(--radius-md)] border border-border">
@@ -68,7 +69,7 @@ export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
             onClick={clearPhoto}
             className="absolute right-2 top-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white"
           >
-            Quitar
+            {dict.common.actions.remove}
           </button>
         </div>
       ) : (
@@ -79,7 +80,7 @@ export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
             className="flex h-24 flex-col items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-border bg-surface-muted text-xs font-medium text-foreground-muted transition-colors hover:border-brand hover:text-brand"
           >
             <CameraIcon />
-            Tomar foto
+            {dict.common.actions.takePhoto}
           </button>
           <button
             type="button"
@@ -87,7 +88,7 @@ export function PhotoCapture({ name, label, required }: PhotoCaptureProps) {
             className="flex h-24 flex-col items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-border bg-surface-muted text-xs font-medium text-foreground-muted transition-colors hover:border-brand hover:text-brand"
           >
             <GalleryIcon />
-            Elegir de galería
+            {dict.common.actions.chooseFromGallery}
           </button>
         </div>
       )}

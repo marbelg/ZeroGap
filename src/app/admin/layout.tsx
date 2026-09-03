@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/admin/nav";
 import { signOut } from "@/lib/auth-actions";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { dict } from "@/i18n/dictionary";
 
 export default async function AdminLayout({
   children,
@@ -30,7 +32,7 @@ export default async function AdminLayout({
           <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#6d5cf6] to-[#4a3cd6] text-sm font-bold text-white">
             ZG
           </div>
-          <span className="text-sm font-semibold text-foreground">ZeroGap Admin</span>
+          <span className="text-sm font-semibold text-foreground">{dict.admin.brand}</span>
         </div>
         <AdminNav />
       </aside>
@@ -38,7 +40,7 @@ export default async function AdminLayout({
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 sm:px-6 sm:py-4">
           <div>
-            <p className="text-xs text-foreground-muted">Administración</p>
+            <p className="text-xs text-foreground-muted">{dict.admin.headerLabel}</p>
             <p className="text-sm font-semibold text-foreground">
               {profile?.first_name} {profile?.last_name}
               {profile?.employee_code && (
@@ -48,14 +50,17 @@ export default async function AdminLayout({
               )}
             </p>
           </div>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="text-xs font-medium text-foreground-muted transition-colors hover:text-danger"
-            >
-              Cerrar sesión
-            </button>
-          </form>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="text-xs font-medium text-foreground-muted transition-colors hover:text-danger"
+              >
+                {dict.common.actions.signOut}
+              </button>
+            </form>
+          </div>
         </header>
 
         <main className="flex-1 p-3 sm:p-6">{children}</main>

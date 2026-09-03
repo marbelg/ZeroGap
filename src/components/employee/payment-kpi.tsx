@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { dict } from "@/i18n/dictionary";
 import type { Expense } from "@/types/database";
 
 export function PaymentKpi({ expenses }: { expenses: Expense[] }) {
@@ -20,11 +21,11 @@ export function PaymentKpi({ expenses }: { expenses: Expense[] }) {
         className="flex w-full items-center justify-between gap-2 px-4 py-3.5 text-left"
       >
         <div>
-          <p className="text-xs font-medium text-brand">Listo para pagar · semana pasada</p>
+          <p className="text-xs font-medium text-brand">{dict.employee.paymentKpi.title}</p>
           <p className="text-2xl font-semibold text-brand">{formatCurrency(total, "CRC")}</p>
         </div>
         <span className="shrink-0 text-xs font-semibold text-brand">
-          {open ? "Ocultar ▲" : "Ver desglose ▼"}
+          {open ? dict.employee.paymentKpi.hideBreakdown : dict.employee.paymentKpi.showBreakdown}
         </span>
       </button>
 

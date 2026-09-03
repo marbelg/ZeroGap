@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { uploadReceiptPhoto, validatePhotoFile } from "@/lib/supabase/storage";
 import { minReportableDate, todayISODate } from "@/lib/week";
 import type { Currency, ExpenseType } from "@/types/database";
+import { dict } from "@/i18n/dictionary";
+
+const ERR = dict.employee.actionsErrors;
 
 export interface ExpenseFormState {
   error?: string;
@@ -13,10 +16,10 @@ export interface ExpenseFormState {
 
 function validateReportDate(date: string): string | null {
   if (date < minReportableDate()) {
-    return "Solo puedes reportar gastos de hasta 5 semanas atrás.";
+    return ERR.reportTooOld;
   }
   if (date > todayISODate()) {
-    return "No puedes reportar gastos con fecha futura.";
+    return ERR.futureDate;
   }
   return null;
 }
@@ -26,7 +29,7 @@ async function requireUser() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado.");
+  if (!user) throw new Error(ERR.notAuthenticated);
   return { supabase, user };
 }
 
@@ -44,17 +47,17 @@ export async function createMealExpense(
   const photo = formData.get("photo") as File | null;
   const description = String(formData.get("description") ?? "").trim() || null;
 
-  if (!date || !time) return { error: "Fecha y hora son obligatorias." };
+  if (!date || !time) return { error: ERR.dateTimeRequired };
   const dateError = validateReportDate(date);
   if (dateError) return { error: dateError };
   if (!Number.isFinite(amount) || amount <= 0) {
-    return { error: "El monto debe ser mayor a cero." };
+    return { error: ERR.amountMustBePositive };
   }
   if ((type === "CAJA_CHICA" || type === "OTROS") && !description) {
-    return { error: "Agrega una descripción del gasto." };
+    return { error: ERR.descriptionRequired };
   }
   if (!photo || photo.size === 0) {
-    return { error: "Debes adjuntar la foto del comprobante." };
+    return { error: ERR.photoRequired };
   }
   const photoValidationError = validatePhotoFile(photo);
   if (photoValidationError) return { error: photoValidationError };
@@ -75,7 +78,7 @@ export async function createMealExpense(
     .single();
 
   if (expenseError || !expense) {
-    return { error: expenseError?.message ?? "No se pudo registrar el gasto." };
+    return { error: expenseError?.message ?? ERR.genericExpenseError };
   }
 
   try {
@@ -89,7 +92,7 @@ export async function createMealExpense(
   } catch (err) {
     await supabase.from("expenses").delete().eq("id", expense.id);
     return {
-      error: err instanceof Error ? err.message : "No se pudo subir la fotografía.",
+      error: err instanceof Error ? err.message : ERR.photoUploadError,
     };
   }
 
@@ -108,11 +111,11 @@ export async function createMileageExpense(
   const startPhoto = formData.get("start_photo") as File | null;
   const endPhoto = formData.get("end_photo") as File | null;
 
-  if (!date) return { error: "La fecha es obligatoria." };
+  if (!date) return { error: ERR.dateRequired };
   const dateError = validateReportDate(date);
   if (dateError) return { error: dateError };
   if (!startPhoto || startPhoto.size === 0 || !endPhoto || endPhoto.size === 0) {
-    return { error: "Debes adjuntar las fotos de inicio y fin del viaje." };
+    return { error: ERR.tripPhotosRequired };
   }
   const startPhotoError = validatePhotoFile(startPhoto);
   if (startPhotoError) return { error: startPhotoError };
@@ -140,7 +143,7 @@ export async function createMileageExpense(
     .single();
 
   if (expenseError || !expense) {
-    return { error: expenseError?.message ?? "No se pudo registrar el trayecto." };
+    return { error: expenseError?.message ?? ERR.genericMileageError };
   }
 
   try {
@@ -167,7 +170,7 @@ export async function createMileageExpense(
   } catch (err) {
     await supabase.from("expenses").delete().eq("id", expense.id);
     return {
-      error: err instanceof Error ? err.message : "No se pudo guardar el trayecto.",
+      error: err instanceof Error ? err.message : ERR.mileageSaveError,
     };
   }
 
@@ -187,17 +190,17 @@ export async function createLodgingExpense(
   const photo = formData.get("photo") as File | null;
   const description = String(formData.get("description") ?? "").trim() || null;
 
-  if (!date) return { error: "La fecha es obligatoria." };
+  if (!date) return { error: ERR.dateRequired };
   const dateError = validateReportDate(date);
   if (dateError) return { error: dateError };
   if (!Number.isInteger(nights) || nights <= 0) {
-    return { error: "Ingresa un número de noches válido." };
+    return { error: ERR.nightsInvalid };
   }
   if (!Number.isFinite(reportedRate) || reportedRate <= 0) {
-    return { error: "Ingresa la tarifa por noche que aplicaste." };
+    return { error: ERR.reportedRateInvalid };
   }
   if (!photo || photo.size === 0) {
-    return { error: "Debes adjuntar la foto de la factura." };
+    return { error: ERR.invoicePhotoRequired };
   }
   const photoValidationError = validatePhotoFile(photo);
   if (photoValidationError) return { error: photoValidationError };
@@ -213,10 +216,7 @@ export async function createLodgingExpense(
     .single();
 
   if (!profile?.nightly_rate || profile.nightly_rate <= 0) {
-    return {
-      error:
-        "Este hotel no tiene una tarifa por noche configurada. Pídele al administrador que la agregue en Empleados.",
-    };
+    return { error: ERR.hotelRateMissing };
   }
 
   const amount = Number((nights * profile.nightly_rate).toFixed(2));
@@ -241,7 +241,7 @@ export async function createLodgingExpense(
     .single();
 
   if (expenseError || !expense) {
-    return { error: expenseError?.message ?? "No se pudo registrar el hospedaje." };
+    return { error: expenseError?.message ?? ERR.genericLodgingError };
   }
 
   try {
@@ -255,7 +255,7 @@ export async function createLodgingExpense(
   } catch (err) {
     await supabase.from("expenses").delete().eq("id", expense.id);
     return {
-      error: err instanceof Error ? err.message : "No se pudo subir la fotografía.",
+      error: err instanceof Error ? err.message : ERR.photoUploadError,
     };
   }
 

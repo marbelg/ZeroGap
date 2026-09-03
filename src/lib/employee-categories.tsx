@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 import type { ExpenseType, UserRole } from "@/types/database";
+import { dict } from "@/i18n/dictionary";
+
+const LABEL = dict.expenses.categoryLabel;
 
 export interface ExpenseCategoryOption {
   href: string;
@@ -89,49 +92,49 @@ const EMPLOYEE_OPTIONS: ExpenseCategoryOption[] = [
   {
     href: "/empleado/desayuno",
     type: "DESAYUNO",
-    label: "Desayuno",
+    label: LABEL.DESAYUNO,
     color: "from-[#ffb74d] to-[#f57c1f]",
     icon: DESAYUNO_ICON,
   },
   {
     href: "/empleado/almuerzo",
     type: "ALMUERZO",
-    label: "Almuerzo",
+    label: LABEL.ALMUERZO,
     color: "from-[#5ad48b] to-[#1f9e5c]",
     icon: ALMUERZO_ICON,
   },
   {
     href: "/empleado/cena",
     type: "CENA",
-    label: "Cena",
+    label: LABEL.CENA,
     color: "from-[#7c8cf8] to-[#4a3cd6]",
     icon: CENA_ICON,
   },
   {
     href: "/empleado/kilometraje",
     type: "KILOMETRAJE",
-    label: "Kilometraje",
+    label: LABEL.KILOMETRAJE,
     color: "from-[#4dd0e1] to-[#0097a7]",
     icon: KILOMETRAJE_ICON,
   },
   {
     href: "/empleado/reparacion-llantas",
     type: "REPARACION_LLANTAS",
-    label: "Llantas",
+    label: LABEL.REPARACION_LLANTAS,
     color: "from-[#f2a1c2] to-[#d5528a]",
     icon: LLANTAS_ICON,
   },
   {
     href: "/empleado/peaje",
     type: "PEAJE",
-    label: "Peaje",
+    label: LABEL.PEAJE,
     color: "from-[#f28b82] to-[#c62828]",
     icon: PEAJE_ICON,
   },
   {
     href: "/empleado/otros",
     type: "OTROS",
-    label: "Otros",
+    label: LABEL.OTROS,
     color: "from-[#9ca3af] to-[#4b5563]",
     icon: OTROS_ICON,
   },
@@ -141,7 +144,7 @@ const CAJA_CHICA_OPTIONS: ExpenseCategoryOption[] = [
   {
     href: "/empleado/caja-chica",
     type: "CAJA_CHICA",
-    label: "Caja chica",
+    label: LABEL.CAJA_CHICA,
     color: "from-[#4ade80] to-[#16a34a]",
     icon: CAJA_CHICA_ICON,
   },
@@ -151,7 +154,7 @@ const HOTEL_OPTIONS: ExpenseCategoryOption[] = [
   {
     href: "/empleado/hospedaje",
     type: "HOSPEDAJE",
-    label: "Hospedaje",
+    label: LABEL.HOSPEDAJE,
     color: "from-[#a78bfa] to-[#6d28d9]",
     icon: HOSPEDAJE_ICON,
     allowMultiple: true,

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import { minReportableDate, todayISODate } from "@/lib/week";
+import { dict } from "@/i18n/dictionary";
 
 const initialState: ExpenseFormState = {};
 
@@ -22,7 +23,7 @@ export function MileageExpenseForm({ initialDate }: { initialDate?: string }) {
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <div>
-        <Label htmlFor="date">Fecha</Label>
+        <Label htmlFor="date">{dict.common.fields.date}</Label>
         <Input
           id="date"
           name="date"
@@ -34,8 +35,8 @@ export function MileageExpenseForm({ initialDate }: { initialDate?: string }) {
         />
       </div>
 
-      <PhotoCapture name="start_photo" label="Foto de inicio del viaje" required />
-      <PhotoCapture name="end_photo" label="Foto de fin del viaje" required />
+      <PhotoCapture name="start_photo" label={dict.employee.forms.startTripPhoto} required />
+      <PhotoCapture name="end_photo" label={dict.employee.forms.endTripPhoto} required />
 
       {state.error && (
         <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
@@ -51,10 +52,10 @@ export function MileageExpenseForm({ initialDate }: { initialDate?: string }) {
           className="flex-1"
           onClick={() => router.back()}
         >
-          Cancelar
+          {dict.common.actions.cancel}
         </Button>
         <Button type="submit" size="lg" disabled={isPending} className="flex-1">
-          {isPending ? "Enviando…" : "Enviar"}
+          {isPending ? dict.common.actions.submitting : dict.common.actions.submit}
         </Button>
       </div>
     </form>

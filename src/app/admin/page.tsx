@@ -10,6 +10,7 @@ import { EXPENSE_TYPE_COLOR, EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
 import { getAppSettings } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import type { Expense, Mileage, Profile } from "@/types/database";
+import { dict } from "@/i18n/dictionary";
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
@@ -146,9 +147,12 @@ export default async function AdminDashboardPage({
     <div className="mx-auto flex max-w-6xl flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+          <h1 className="text-lg font-semibold text-foreground">
+            {dict.admin.pages.dashboard.title}
+          </h1>
           <p className="text-sm text-foreground-muted">
-            Resumen de {monthStart.toLocaleDateString("es-CR", { month: "long", year: "numeric" })}.
+            {dict.admin.pages.dashboard.subtitlePrefix}
+            {monthStart.toLocaleDateString("es-CR", { month: "long", year: "numeric" })}.
           </p>
         </div>
         <div className="flex items-center gap-1">

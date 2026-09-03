@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { PhotoCapture } from "@/components/expense/photo-capture";
 import { minReportableDate, todayISODate } from "@/lib/week";
+import { dict } from "@/i18n/dictionary";
 
 const initialState: ExpenseFormState = {};
 
@@ -24,7 +25,7 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
     <form action={formAction} className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="date">Fecha</Label>
+          <Label htmlFor="date">{dict.common.fields.date}</Label>
           <Input
             id="date"
             name="date"
@@ -36,7 +37,7 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
           />
         </div>
         <div>
-          <Label htmlFor="nights">Noches</Label>
+          <Label htmlFor="nights">{dict.common.fields.nights}</Label>
           <Input
             id="nights"
             name="nights"
@@ -44,14 +45,14 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
             inputMode="numeric"
             step="1"
             min="1"
-            placeholder="1"
+            placeholder={dict.employee.forms.nightsPlaceholder}
             required
           />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="reported_rate">Tarifa por noche que aplicaste (CRC)</Label>
+        <Label htmlFor="reported_rate">{dict.employee.forms.reportedRateLabel}</Label>
         <Input
           id="reported_rate"
           name="reported_rate"
@@ -65,16 +66,16 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
       </div>
 
       <div>
-        <Label htmlFor="description">Descripción (opcional)</Label>
+        <Label htmlFor="description">{dict.employee.forms.lodgingDescriptionLabel}</Label>
         <Textarea
           id="description"
           name="description"
           rows={2}
-          placeholder="Ej. 2 choferes, cuarto doble"
+          placeholder={dict.employee.forms.lodgingDescriptionPlaceholder}
         />
       </div>
 
-      <PhotoCapture name="photo" label="Foto de la factura" required />
+      <PhotoCapture name="photo" label={dict.employee.forms.invoicePhoto} required />
 
       {state.error && (
         <p className="rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
@@ -90,10 +91,10 @@ export function LodgingExpenseForm({ initialDate }: { initialDate?: string }) {
           className="flex-1"
           onClick={() => router.back()}
         >
-          Cancelar
+          {dict.common.actions.cancel}
         </Button>
         <Button type="submit" size="lg" disabled={isPending} className="flex-1">
-          {isPending ? "Enviando…" : "Enviar"}
+          {isPending ? dict.common.actions.submitting : dict.common.actions.submit}
         </Button>
       </div>
     </form>

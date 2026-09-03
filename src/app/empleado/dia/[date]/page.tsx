@@ -5,17 +5,20 @@ import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { dailyTypesForRole, optionsForRole } from "@/lib/employee-categories";
+import { dict } from "@/i18n/dictionary";
 import type { Expense, ExpenseType } from "@/types/database";
+
+const T = dict.employee.dayDetail;
 
 function ExpenseAmountLine({ expense }: { expense: Expense }) {
   if (expense.type === "KILOMETRAJE" && Number(expense.amount) === 0) {
-    return <p className="mt-1 text-sm text-foreground-muted">Viaje reportado</p>;
+    return <p className="mt-1 text-sm text-foreground-muted">{T.tripReported}</p>;
   }
   if (expense.type === "HOSPEDAJE" && expense.nights) {
     return (
       <p className="mt-1 text-sm text-foreground-muted">
-        {expense.nights} noche{expense.nights === 1 ? "" : "s"} ·{" "}
-        {formatCurrency(expense.amount, expense.currency)}
+        {expense.nights} {T.nightsWord}
+        {expense.nights === 1 ? "" : "s"} · {formatCurrency(expense.amount, expense.currency)}
       </p>
     );
   }
@@ -75,27 +78,28 @@ export default async function DayDetailPage({
     <div className="mx-auto flex max-w-md flex-col gap-4">
       <div>
         <Link href="/empleado" className="text-xs font-medium text-foreground-muted">
-          ← Volver
+          {T.back}
         </Link>
         <h1 className="mt-1 text-lg font-semibold capitalize text-foreground">
           {formatDate(date)}
         </h1>
-        <p className="text-sm text-foreground-muted">Tus reportes de este día.</p>
+        <p className="text-sm text-foreground-muted">{T.subtitle}</p>
       </div>
 
       {creado === "1" && (
         <p className="rounded-[var(--radius-md)] bg-success-soft px-4 py-3 text-sm text-success">
-          Gasto enviado.
+          {T.expenseSubmitted}
         </p>
       )}
 
       {dayExpenses.length > 0 && (
         <div className="rounded-[var(--radius-lg)] bg-brand-soft px-4 py-3 text-brand">
-          <p className="text-xs font-medium">Total del día</p>
+          <p className="text-xs font-medium">{T.totalOfDay}</p>
           <p className="text-2xl font-semibold">{formatCurrency(totalAmount, "CRC")}</p>
           {totalNights > 0 && (
             <p className="mt-0.5 text-xs">
-              {totalNights} noche{totalNights === 1 ? "" : "s"} en total
+              {totalNights} {T.nightsWord}
+              {totalNights === 1 ? "" : "s"} {T.nightsTotalSuffix}
             </p>
           )}
         </div>
@@ -125,7 +129,8 @@ export default async function DayDetailPage({
                     )}
                     {expense.status === "RECHAZADO" && expense.rejection_reason && (
                       <p className="mt-2 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-xs text-danger">
-                        Motivo: {expense.rejection_reason}
+                        {T.rejectionReasonPrefix}
+                        {expense.rejection_reason}
                       </p>
                     )}
                   </Card>
@@ -134,7 +139,7 @@ export default async function DayDetailPage({
                   href={href}
                   className="rounded-full border border-dashed border-border px-4 py-2.5 text-center text-xs font-semibold text-foreground-muted transition-colors hover:border-brand hover:text-brand"
                 >
-                  {typeExpenses.length > 0 ? "+ Reportar otra estadía" : "Reportar"}
+                  {typeExpenses.length > 0 ? T.reportAnotherStay : T.report}
                 </Link>
               </div>
             );
@@ -152,14 +157,15 @@ export default async function DayDetailPage({
                     href={href}
                     className="rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
                   >
-                    Reportar
+                    {T.report}
                   </Link>
                 )}
               </div>
               {expense && <ExpenseAmountLine expense={expense} />}
               {expense?.status === "RECHAZADO" && expense.rejection_reason && (
                 <p className="mt-2 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-xs text-danger">
-                  Motivo: {expense.rejection_reason}
+                  {T.rejectionReasonPrefix}
+                  {expense.rejection_reason}
                 </p>
               )}
             </Card>

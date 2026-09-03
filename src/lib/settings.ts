@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppSettings, Database } from "@/types/database";
+import { dict } from "@/i18n/dictionary";
 
 const FALLBACK_SETTINGS: AppSettings = {
   id: true,
@@ -21,7 +22,7 @@ export async function getAppSettings(
   return data ?? FALLBACK_SETTINGS;
 }
 
-const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+const DAY_NAMES = dict.expenses.calendar.dayNamesFull;
 
 export function dayOfWeekLabel(day: number) {
   return DAY_NAMES[day] ?? DAY_NAMES[5];

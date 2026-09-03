@@ -1,0 +1,38 @@
+{
+  "typeLabel": {
+    "DESAYUNO": "Desayuno",
+    "ALMUERZO": "Almuerzo",
+    "CENA": "Cena",
+    "KILOMETRAJE": "Kilometraje",
+    "REPARACION_LLANTAS": "Reparación de llantas",
+    "CAJA_CHICA": "Caja chica",
+    "HOSPEDAJE": "Hospedaje",
+    "PEAJE": "Peaje",
+    "OTROS": "Otros"
+  },
+  "categoryLabel": {
+    "DESAYUNO": "Desayuno",
+    "ALMUERZO": "Almuerzo",
+    "CENA": "Cena",
+    "KILOMETRAJE": "Kilometraje",
+    "REPARACION_LLANTAS": "Llantas",
+    "CAJA_CHICA": "Caja chica",
+    "HOSPEDAJE": "Hospedaje",
+    "PEAJE": "Peaje",
+    "OTROS": "Otros"
+  },
+  "statusLabel": {
+    "REPORTADO": "Reportado",
+    "APROBADO": "Aprobado",
+    "RECHAZADO": "Rechazado"
+  },
+  "userStatusLabel": {
+    "ACTIVE": "Activo",
+    "INACTIVE": "Inactivo"
+  },
+  "calendar": {
+    "dayNamesShort": ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+    "dayNamesFull": ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+    "monthNamesShort": ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+  }
+}

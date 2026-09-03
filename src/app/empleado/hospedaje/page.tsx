@@ -1,4 +1,5 @@
 import { LodgingExpenseForm } from "@/components/expense/lodging-expense-form";
+import { dict } from "@/i18n/dictionary";
 
 export default async function HospedajePage({
   searchParams,
@@ -8,7 +9,9 @@ export default async function HospedajePage({
   const { date } = await searchParams;
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-4 text-lg font-semibold text-foreground">Hospedaje</h1>
+      <h1 className="mb-4 text-lg font-semibold text-foreground">
+        {dict.expenses.typeLabel.HOSPEDAJE}
+      </h1>
       <LodgingExpenseForm initialDate={date} />
     </div>
   );

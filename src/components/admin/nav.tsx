@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { dict } from "@/i18n/dictionary";
 
 const items = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/gastos", label: "Gastos" },
-  { href: "/admin/empleados", label: "Usuarios" },
-  { href: "/admin/reportes", label: "Reportes" },
-  { href: "/admin/configuracion", label: "Configuración" },
+  { href: "/admin", label: dict.admin.nav.dashboard },
+  { href: "/admin/gastos", label: dict.admin.nav.gastos },
+  { href: "/admin/empleados", label: dict.admin.nav.usuarios },
+  { href: "/admin/reportes", label: dict.admin.nav.reportes },
+  { href: "/admin/configuracion", label: dict.admin.nav.configuracion },
 ];
 
 export function AdminNav() {

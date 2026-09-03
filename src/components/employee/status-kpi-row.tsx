@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
+import { dict } from "@/i18n/dictionary";
 import type { Currency, ExpenseType } from "@/types/database";
 
 export interface KpiExpenseItem {
@@ -83,7 +84,7 @@ export function StatusKpiRow({ kpis }: { kpis: KpiDef[] }) {
             {active.sublabel ? ` · ${active.sublabel}` : ""}
           </p>
           {active.items.length === 0 ? (
-            <p className="text-sm text-foreground-muted">Nada por aquí.</p>
+            <p className="text-sm text-foreground-muted">{dict.employee.statusKpi.empty}</p>
           ) : (
             <div className="flex flex-col gap-2">
               {active.items.map((item) => (
@@ -94,7 +95,10 @@ export function StatusKpiRow({ kpis }: { kpis: KpiDef[] }) {
                     </p>
                     <p className="text-xs text-foreground-muted">{formatDate(item.date)}</p>
                     {item.rejection_reason && (
-                      <p className="text-xs text-danger">Motivo: {item.rejection_reason}</p>
+                      <p className="text-xs text-danger">
+                        {dict.employee.statusKpi.rejectionReasonPrefix}
+                        {item.rejection_reason}
+                      </p>
                     )}
                   </div>
                   <p className="shrink-0 font-semibold text-foreground">

@@ -6,6 +6,7 @@ import { EXPENSE_TYPE_LABEL } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { dict } from "@/i18n/dictionary";
 
 export default async function ReportesPage({
   searchParams,
@@ -35,10 +36,10 @@ export default async function ReportesPage({
     <div className="mx-auto max-w-6xl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-lg font-semibold text-foreground">Reportes</h1>
-          <p className="text-sm text-foreground-muted">
-            Filtra por mes, empleado, categoría o estado y exporta a CSV.
-          </p>
+          <h1 className="text-lg font-semibold text-foreground">
+            {dict.admin.pages.reportes.title}
+          </h1>
+          <p className="text-sm text-foreground-muted">{dict.admin.pages.reportes.subtitle}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <a

@@ -1,3 +1,5 @@
+import { dict } from "@/i18n/dictionary";
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
@@ -32,7 +34,7 @@ export function currentWeekDays(reference: Date = new Date()): WeekDay[] {
   monday.setDate(reference.getDate() - diffToMonday);
 
   const todayIso = toISODate(reference);
-  const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  const dayNames = dict.expenses.calendar.dayNamesShort;
 
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(monday);
@@ -58,20 +60,7 @@ export function weekDaysForOffset(offsetWeeks: number): WeekDay[] {
   return currentWeekDays(reference);
 }
 
-const MONTH_NAMES = [
-  "ene",
-  "feb",
-  "mar",
-  "abr",
-  "may",
-  "jun",
-  "jul",
-  "ago",
-  "sep",
-  "oct",
-  "nov",
-  "dic",
-];
+const MONTH_NAMES = dict.expenses.calendar.monthNamesShort;
 
 /** Ej. "18 - 24 ago 2026" para el encabezado de un rango semanal. */
 export function weekRangeLabel(weekDays: WeekDay[]): string {

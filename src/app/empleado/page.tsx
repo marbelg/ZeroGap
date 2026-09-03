@@ -5,7 +5,7 @@ import { WeekTracker } from "@/components/employee/week-tracker";
 import { StatusKpiRow, type KpiDef } from "@/components/employee/status-kpi-row";
 import { getAppSettings, dayOfWeekLabel, nextOccurrenceOf } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
-import { optionsForRole, dailyTypesForRole } from "@/lib/employee-categories";
+import { optionsForRole } from "@/lib/employee-categories";
 import { getDictionary } from "@/i18n/get-dictionary";
 
 // Igual que en Mis Gastos: 5 semanas hacia atrás y hacia adelante.
@@ -66,20 +66,21 @@ export default async function EmployeeHomePage({
     .single();
   const role = profile?.role ?? "EMPLOYEE";
   const options = optionsForRole(role, dict);
-  const dailyTypes = dailyTypesForRole(role);
 
+  const allTypes = options.map((o) => o.type);
   const weekDays = weekDaysForOffset(dict, offset);
   const { data: weekExpenses } = await supabase
     .from("expenses")
     .select("date, type")
     .eq("user_id", user!.id)
-    .in("type", dailyTypes)
+    .in("type", allTypes)
     .gte("date", weekDays[0].date)
     .lte("date", weekDays[6].date);
 
-  // Cuenta 1 por categoría reportada ese día (checklist), salvo las
-  // categorías que permiten varias veces al día (ej. Hospedaje, un hotel
-  // puede alojar a varios colaboradores) — ahí cuenta cada reporte.
+  // Cuenta cada línea reportada ese día, sin importar la categoría (incluye
+  // Llantas/Peaje/Otros, no solo las 4 rutinarias) — salvo las categorías
+  // que permiten varias veces al día (ej. Hospedaje, un hotel puede alojar
+  // a varios colaboradores), ahí cuenta cada reporte por separado igual.
   const optionByType = new Map(options.map((o) => [o.type, o]));
   const countsByDate: Record<string, number> = {};
   for (const day of weekDays) {
@@ -177,7 +178,7 @@ export default async function EmployeeHomePage({
       <WeekTracker
         weekDays={weekDays}
         countsByDate={countsByDate}
-        maxDaily={dailyTypes.length}
+        maxDaily={options.length}
         offset={offset}
         minOffset={MIN_OFFSET}
         maxOffset={MAX_OFFSET}

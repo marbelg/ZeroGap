@@ -171,14 +171,3 @@ export function optionsForRole(role: UserRole, dict: Dictionary): ExpenseCategor
   if (role === "HOTEL") return hotelOptions(LABEL);
   return employeeOptions(LABEL);
 }
-
-// Los tipos que cuentan como "reporte del día" en el tracker semanal y en
-// la vista de un día. Para empleados, reparación de llantas queda afuera a
-// propósito (no es una rutina diaria como comida/kilometraje). Caja chica y
-// Hotel solo tienen una categoría cada uno — su meta diaria es 1, no 4 — así
-// el aro nunca queda en amarillo sin poder llegar a verde.
-export function dailyTypesForRole(role: UserRole): ExpenseType[] {
-  if (role === "CAJA_CHICA") return ["CAJA_CHICA"];
-  if (role === "HOTEL") return ["HOSPEDAJE"];
-  return ["DESAYUNO", "ALMUERZO", "CENA", "KILOMETRAJE"];
-}

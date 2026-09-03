@@ -4,7 +4,7 @@ import { expenseTypeLabel } from "@/lib/expense-meta";
 import { ExpenseStatusBadge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { dailyTypesForRole, optionsForRole } from "@/lib/employee-categories";
+import { optionsForRole } from "@/lib/employee-categories";
 import { getDictionary, type Dictionary } from "@/i18n/get-dictionary";
 import type { Expense, ExpenseType } from "@/types/database";
 
@@ -57,8 +57,8 @@ export default async function DayDetailPage({
     .eq("id", user!.id)
     .single();
   const role = profile?.role ?? "EMPLOYEE";
-  const dailyTypes = dailyTypesForRole(role);
   const options = optionsForRole(role, dict);
+  const allTypes = options.map((o) => o.type);
   const optionByType = new Map(options.map((o) => [o.type, o]));
 
   const { data: expenses } = await supabase
@@ -66,7 +66,7 @@ export default async function DayDetailPage({
     .select("*")
     .eq("user_id", user!.id)
     .eq("date", date)
-    .in("type", dailyTypes);
+    .in("type", allTypes);
 
   const expensesByType = new Map<ExpenseType, Expense[]>();
   for (const e of expenses ?? []) {
@@ -113,7 +113,7 @@ export default async function DayDetailPage({
       )}
 
       <div className="flex flex-col gap-3">
-        {dailyTypes.map((type) => {
+        {allTypes.map((type) => {
           const option = optionByType.get(type);
           const typeExpenses = expensesByType.get(type) ?? [];
           const href = `${option?.href}?date=${date}`;

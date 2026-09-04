@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/admin/nav";
+import { AdminBottomNav } from "@/components/admin/bottom-nav";
 import { signOut } from "@/lib/auth-actions";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -34,8 +35,8 @@ export default async function AdminLayout({
   return (
     <LocaleProvider dict={dict}>
       <div className="flex min-h-dvh flex-col bg-background md:flex-row">
-        <aside className="border-b border-border bg-surface px-3 py-2.5 md:w-56 md:shrink-0 md:border-b-0 md:border-r md:px-3 md:py-6">
-          <div className="mb-6 hidden items-center gap-2.5 px-2 md:flex">
+        <aside className="hidden border-r border-border bg-surface px-3 py-6 md:block md:w-56 md:shrink-0">
+          <div className="mb-6 flex items-center gap-2.5 px-2">
             {settings.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -79,8 +80,10 @@ export default async function AdminLayout({
             </div>
           </header>
 
-          <main className="flex-1 p-3 sm:p-6">{children}</main>
+          <main className="flex-1 p-3 pb-24 sm:p-6 md:pb-6">{children}</main>
         </div>
+
+        <AdminBottomNav />
       </div>
     </LocaleProvider>
   );

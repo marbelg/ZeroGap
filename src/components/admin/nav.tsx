@@ -18,7 +18,7 @@ export function AdminNav() {
   ];
 
   return (
-    <nav className="flex gap-1 overflow-x-auto md:flex-col md:gap-1">
+    <nav className="flex flex-col gap-1">
       {items.map((item) => {
         const active =
           item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
@@ -27,7 +27,7 @@ export function AdminNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "shrink-0 rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-medium transition-colors md:w-full",
+              "w-full rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-medium transition-colors",
               active
                 ? "bg-brand-soft text-brand"
                 : "text-foreground-muted hover:bg-surface-muted hover:text-foreground",

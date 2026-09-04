@@ -337,7 +337,7 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
         </Card>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
         <div className="mx-auto flex max-w-4xl items-center gap-3">
           {state.error && (
             <p className="flex-1 rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2 text-sm text-danger">
